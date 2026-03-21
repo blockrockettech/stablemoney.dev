@@ -50,7 +50,7 @@ V1 does not require API keys.
 
 ## Deploy
 
-Configured for [Vercel](https://vercel.com/) (`vercel.json` present). Connect the repo and deploy; set `NEXT_PUBLIC_SITE_URL` to your production URL.
+Build with `npm run build` and run with `npm run start` on any Node host, or use your platform’s Next.js integration. Set `NEXT_PUBLIC_SITE_URL` to your public origin so Open Graph, `sitemap.xml`, and `robots.txt` use the right URLs.
 
 ## License
 

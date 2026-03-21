@@ -1,0 +1,7 @@
+## Integration notes
+
+When routing USDT on EVM, assume **pause and blacklist** are live: design flows that fail gracefully if `transfer` reverts. For L2 **USDT0**, prefer the documented LayerZero OFT interfaces over legacy bridge wrappers.
+
+## Liquidity
+
+USDT is the default quote asset on most CEXes and the deepest stable on blue-chip DEX pools—treat it as the baseline for slippage and oracle assumptions.

@@ -1,0 +1,7 @@
+## Integration notes
+
+Always distinguish **native USDC** from legacy **USDC.e** bridged variants per chain—addresses differ and integrations break silently. Prefer **CCTP** for cross-chain movement when you need native mint semantics.
+
+## Developer UX
+
+`permit` and `transferWithAuthorization` unlock gasless and one-shot payment flows; ensure your relayer or wallet stack supports the same EIP stack you deploy on.
