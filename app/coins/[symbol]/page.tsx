@@ -4,9 +4,10 @@ import type { Metadata } from "next"
 import { coinBySymbol, coins } from "@/data/coins"
 import type { StablecoinType } from "@/types"
 import { loadCoinMdx } from "@/lib/mdx"
+import { mergeCoinFeatures } from "@/lib/merge-features"
 import { CoinMdx } from "@/components/CoinMdx"
 import { ContractTable } from "@/components/ContractTable"
-import { FeatureGrid } from "@/components/FeatureGrid"
+import { FeatureTable } from "@/components/FeatureTable"
 import { RiskBadge } from "@/components/RiskBadge"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -53,6 +54,7 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
   if (!coin) notFound()
 
   const mdx = await loadCoinMdx(coin.symbol)
+  const featureRows = mergeCoinFeatures(coin)
 
   return (
     <article className="space-y-10">
@@ -82,13 +84,8 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
       </section>
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold">Networks</h2>
-        <ContractTable networks={coin.networks} />
-      </section>
-
-      <section>
         <h2 className="mb-4 text-lg font-semibold">Features</h2>
-        <FeatureGrid features={coin.features} />
+        <FeatureTable coin={coin} features={featureRows} />
       </section>
 
       <section>
@@ -155,7 +152,7 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
               rel="noopener noreferrer"
               className="text-primary inline-flex items-center gap-2 text-sm font-medium hover:underline"
             >
-              Documentation
+              Official documentation
               <ExternalLink className="size-4" />
             </Link>
           ) : null}
@@ -166,12 +163,21 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
               rel="noopener noreferrer"
               className="text-primary inline-flex items-center gap-2 text-sm font-medium hover:underline"
             >
-              GitHub
+              Official GitHub
               <ExternalLink className="size-4" />
             </Link>
           ) : null}
         </section>
       )}
+
+      <section>
+        <h2 className="mb-4 text-lg font-semibold">Networks &amp; contracts</h2>
+        <p className="text-muted-foreground mb-4 max-w-3xl text-sm">
+          Deployments by chain — primary rows are highlighted. Always verify addresses against issuer
+          docs before mainnet integrations.
+        </p>
+        <ContractTable networks={coin.networks} />
+      </section>
 
       {mdx ? (
         <>

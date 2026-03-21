@@ -10,10 +10,21 @@ export interface NetworkDeployment {
   notes?: string
 }
 
+/** Who this capability primarily serves in product terms */
+export type FeatureAudience = "user" | "corporate" | "both"
+
+export interface FeatureLink {
+  label: string
+  url: string
+}
+
 export interface Feature {
   name: string
   description: string
+  /** Legacy single label; prefer `standards` when present */
   eip?: string
+  /** ERC / EIP / other specs (e.g. ERC-20, EIP-2612, Token-2022) */
+  standards?: string[]
   category:
     | "authorization"
     | "cross-chain"
@@ -21,6 +32,16 @@ export interface Feature {
     | "yield"
     | "governance"
     | "stability"
+  /** If omitted, inferred from category in the UI */
+  audience?: FeatureAudience
+  /** Why engineers care — integration or product rationale */
+  rationale?: string
+  /** Operational or integration risk specific to this capability */
+  riskNotes?: string
+  /** Primary external doc for this topic */
+  docsUrl?: string
+  /** Docs, specs, verified source on explorer, GitHub paths, etc. */
+  links?: FeatureLink[]
 }
 
 export interface RiskFactor {
