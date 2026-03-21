@@ -1,14 +1,23 @@
 import type { Coin, Feature } from "@/types"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { primaryEthereumContract } from "@/lib/merge-features"
 
-function standardHref(label: string): string | null {
+function standardSpecHref(label: string): string | null {
   const eip = /^EIP-(\d+)$/i.exec(label.trim())
   if (eip) return `https://eips.ethereum.org/EIPS/eip-${eip[1]}`
   const erc = /^ERC-(\d+)$/i.exec(label.trim())
   if (erc) return `https://eips.ethereum.org/EIPS/eip-${erc[1]}`
+  return null
+}
+
+function standardSiteHref(label: string): string | null {
+  const eip = /^EIP-(\d+)$/i.exec(label.trim())
+  if (eip) return `/standards#eip-${eip[1]}`
+  const erc = /^ERC-(\d+)$/i.exec(label.trim())
+  if (erc) return `/standards#eip-${erc[1]}`
   return null
 }
 
@@ -36,18 +45,29 @@ function StandardsCell({ standards }: { standards?: string[] }) {
   return (
     <ul className="flex flex-wrap gap-1">
       {standards.map((s) => {
-        const href = standardHref(s)
-        if (href) {
+        const spec = standardSpecHref(s)
+        const onSite = standardSiteHref(s)
+        if (onSite) {
           return (
-            <li key={s}>
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
+            <li key={s} className="inline-flex items-center gap-1">
+              <Link
+                href={onSite}
                 className="text-primary font-mono text-[0.7rem] hover:underline"
               >
                 {s}
-              </a>
+              </Link>
+              {spec ? (
+                <a
+                  href={spec}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground inline-flex hover:text-foreground"
+                  title="Official EIP text"
+                  aria-label={`${s} on eips.ethereum.org`}
+                >
+                  <ExternalLink className="size-3" />
+                </a>
+              ) : null}
             </li>
           )
         }

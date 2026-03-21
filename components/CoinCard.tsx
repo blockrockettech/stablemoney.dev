@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { NetworkChip } from "@/components/NetworkChip"
 import { cn } from "@/lib/utils"
+import { countImplementedEips } from "@/lib/eip-helpers"
 
 const typeLabel: Record<StablecoinType, string> = {
   fiat: "Fiat-backed",
@@ -25,6 +26,8 @@ export function CoinCard({
   const topNetworks = [...coin.networks]
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary))
     .slice(0, 3)
+
+  const eipImplemented = countImplementedEips(coin.symbol)
 
   const card = (
     <Card
@@ -54,7 +57,7 @@ export function CoinCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-3 pt-3">
-        <div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
           <span>
             <span className="text-foreground font-medium">MCap</span> {coin.marketCap}
           </span>
@@ -62,6 +65,15 @@ export function CoinCard({
             <span className="text-foreground font-medium">Networks</span>{" "}
             {coin.networks.length}
           </span>
+          {eipImplemented != null ? (
+            <Badge
+              variant="secondary"
+              className="font-mono text-[0.65rem]"
+              title="EIP/ERC standards marked implemented in StableMoney.Dev profile"
+            >
+              {eipImplemented} EIPs
+            </Badge>
+          ) : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
           {topNetworks.map((n) => (

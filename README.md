@@ -1,6 +1,6 @@
-# StablecoinRef
+# StableMoney.Dev
 
-Technical reference site for engineers and DeFi developers: the top stablecoins by market cap, with networks, contracts, features, and risk notes. Data is **static** (no live prices or oracles in v1).
+Technical reference site for engineers and DeFi developers: the top stablecoins by market cap, with networks, contracts, features, and risk notes. Data is **static** (no live prices or oracles in v1). Live at [stablemoney.dev](https://stablemoney.dev).
 
 ## Stack
 
@@ -40,17 +40,17 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment
 
-Copy `.env.example` to `.env.local`. For correct canonical URLs in `metadataBase`, sitemap, and robots, set:
+Copy `.env.example` to `.env.local`. Defaults use `https://stablemoney.dev` when unset. For local Open Graph / sitemap URLs, set:
 
 ```bash
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 V1 does not require API keys.
 
 ## Deploy
 
-Build with `npm run build` and run with `npm run start` on any Node host, or use your platform’s Next.js integration. Set `NEXT_PUBLIC_SITE_URL` to your public origin so Open Graph, `sitemap.xml`, and `robots.txt` use the right URLs.
+Build with `npm run build` and run with `npm run start` on any Node host, or use your platform’s Next.js integration. `NEXT_PUBLIC_SITE_URL` defaults to `https://stablemoney.dev`; override for staging or local builds if needed.
 
 ## License
 

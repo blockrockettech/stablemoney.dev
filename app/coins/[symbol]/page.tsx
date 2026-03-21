@@ -74,6 +74,14 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
           Market cap (static):{" "}
           <span className="text-foreground font-medium">{coin.marketCap}</span>
         </p>
+        <p className="pt-1">
+          <Link
+            href={`/coins/${coin.symbol.toLowerCase()}/eips`}
+            className="text-primary text-sm font-medium hover:underline"
+          >
+            EIP standards (ERC-20, permit, proxies…)
+          </Link>
+        </p>
       </header>
 
       <section>
