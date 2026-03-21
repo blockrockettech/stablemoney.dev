@@ -42,16 +42,17 @@ export default function StandardsPage() {
         </p>
       </header>
 
-      <section className="space-y-4">
+      <section id="comparison-matrix" className="scroll-mt-24 space-y-4">
         <h2 className="text-lg font-semibold">Comparison matrix</h2>
         <p className="text-muted-foreground max-w-3xl text-sm leading-relaxed">
-          Rows are standards from the master registry; columns follow static rank order. Hover a
-          cell for a one-line developer impact note.
+          Rows are standards from the master registry; columns follow static rank order.{" "}
+          <span className="text-foreground font-medium">Click any row</span> to scroll to that
+          standard in the deep dive below. Hover a cell for a one-line developer impact note.
         </p>
         <EipMatrix />
       </section>
 
-      <section className="space-y-16">
+      <section id="standards-deep-dive" className="scroll-mt-24 space-y-16">
         <h2 className="text-2xl font-semibold tracking-tight">Standards deep dive</h2>
         {CATEGORY_ORDER.map((category) => (
           <EipCategorySection

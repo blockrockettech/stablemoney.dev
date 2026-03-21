@@ -5,6 +5,7 @@ import { EIPS } from "@/data/eips"
 import type { Eip, EipCategory, EipStatus } from "@/types/eip"
 import {
   COIN_EIP_SYMBOLS,
+  eipAnchorId,
   getCellStatus,
   getEipImplementation,
 } from "@/lib/eip-helpers"
@@ -24,6 +25,16 @@ function eipSortNumber(eip: Eip): number {
 }
 
 type SortMode = "eip" | "category" | "usdc"
+
+function scrollToEipDeepDive(eipId: string) {
+  const el = document.getElementById(eipAnchorId(eipId))
+  el?.scrollIntoView({ behavior: "smooth", block: "start" })
+  try {
+    history.replaceState(null, "", `#${eipAnchorId(eipId)}`)
+  } catch {
+    /* ignore */
+  }
+}
 
 export function EipMatrix() {
   const [category, setCategory] = useState<EipCategory | "all">("all")
@@ -114,12 +125,25 @@ export function EipMatrix() {
           </thead>
           <tbody>
             {rows.map((eip) => (
-              <tr key={eip.id} className="border-b border-border/70 last:border-0">
+              <tr
+                key={eip.id}
+                className="group border-b border-border/70 transition-colors last:border-0 hover:bg-muted/40"
+                tabIndex={0}
+                role="button"
+                aria-label={`${eip.id} ${eip.name}: open deep dive`}
+                onClick={() => scrollToEipDeepDive(eip.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    scrollToEipDeepDive(eip.id)
+                  }
+                }}
+              >
                 <td className="bg-background sticky left-0 z-10 border-r border-border px-3 py-2 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)]">
-                  <div className="font-mono text-xs font-semibold">{eip.id}</div>
-                  <div className="text-muted-foreground text-[0.7rem] leading-snug">
-                    {eip.name}
+                  <div className="font-mono text-xs font-semibold text-primary underline-offset-2 group-hover:underline">
+                    {eip.id}
                   </div>
+                  <div className="text-muted-foreground text-[0.7rem] leading-snug">{eip.name}</div>
                 </td>
                 {COIN_EIP_SYMBOLS.map((sym) => {
                   const status = getCellStatus(sym, eip.id)
@@ -129,14 +153,14 @@ export function EipMatrix() {
                     <td key={sym} className="px-2 py-2 text-center align-middle">
                       <span
                         className="inline-flex justify-center"
-                        title={title}
+                        title={`${title} — click row for ${eip.id} deep dive`}
                       >
                         <span
                           className={cn(
                             "inline-block size-3 rounded-full ring-2 ring-background",
                             statusDot[status],
                           )}
-                          aria-label={`${sym} ${eip.id}: ${status}`}
+                          aria-hidden
                         />
                       </span>
                     </td>
