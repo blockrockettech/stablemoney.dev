@@ -620,7 +620,7 @@ export const coins: Coin[] = [
       {
         name: "ERC1967Proxy upgradeable",
         category: "compliance",
-        eip: "ERC1967",
+        eip: "EIP-1967",
         description:
           "Sky governance can upgrade the USDS implementation via governance spell — enables future features including freeze.",
       },

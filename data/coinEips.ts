@@ -92,6 +92,36 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         footguns:
           "Always interact with the PROXY address, not the implementation address. The implementation has no balances and calls to it will not behave as expected. Check that your integration uses the proxy address in your constants.",
       },
+      {
+        eipId: "EIP-1822",
+        status: "not-implemented",
+        contractPattern: "TransparentUpgradeableProxy — upgrade logic in ProxyAdmin, not implementation",
+        keyFunctions: [],
+        implementationNotes:
+          "USDC uses TransparentUpgradeableProxy (EIP-1967), not UUPS. The upgrade authorization and admin role live in a separate ProxyAdmin contract, not the FiatToken implementation. This is distinct from EIP-1822.",
+        devImpact:
+          "No behavioral impact for token users. Relevant for forks: if you deploy a USDC-compatible token using UUPS, the upgrade mechanism differs from Circle's production deployment.",
+      },
+      {
+        eipId: "ERC-4626",
+        status: "not-implemented",
+        contractPattern: "Not a vault token",
+        keyFunctions: [],
+        implementationNotes:
+          "USDC is a payment stablecoin — no ERC-4626 interface on the canonical FiatToken. Yield on USDC is provided by external protocols (Aave aUSDC, Compound cUSDC, Morpho, etc.) that wrap USDC in their own ERC-4626 vaults.",
+        devImpact:
+          "To build yield-bearing USDC products, integrate with Aave, Compound, or other ERC-4626 yield wrappers — do not expect deposit/withdraw/convertToAssets on the canonical USDC address.",
+      },
+      {
+        eipId: "EIP-1271",
+        status: "not-implemented",
+        contractPattern: "No isValidSignature on FiatToken v2.2",
+        keyFunctions: [],
+        implementationNotes:
+          "FiatToken v2.2 does not implement isValidSignature(bytes32,bytes). Smart contract wallets (Safe multisig, ERC-4337 accounts) cannot use EIP-1271 to sign USDC permits. This is a notable gap vs USDS, which does implement EIP-1271 via OpenZeppelin v5.",
+        devImpact:
+          "Institutional flows where the USDC holder is a Safe or AA wallet cannot use signature-based permit flows. Use Permit2 as a workaround, or require an EOA co-signer for permit-based integrations.",
+      },
     ],
   },
 
@@ -169,6 +199,36 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "Block explorers do not auto-detect USDT as a proxy. Etherscan shows the original 2017 ABI unless you manually find the current contract. Monitoring tools that watch standard EIP-1967 slots will miss USDT upgrades entirely.",
         footguns:
           "Always check the deprecated() flag and deprecatedAndUpgradeTo() address when integrating — you may be calling the old contract if you cached the original address years ago.",
+      },
+      {
+        eipId: "EIP-1822",
+        status: "not-implemented",
+        contractPattern: "Not applicable — custom deprecate() delegation pattern",
+        keyFunctions: [],
+        implementationNotes:
+          "USDT uses a bespoke owner-controlled deprecation mechanism, entirely separate from UUPS or any proxy standard.",
+        devImpact:
+          "No UUPS considerations apply to USDT. The upgrade path is the custom deprecate() function documented in the EIP-1967 entry above.",
+      },
+      {
+        eipId: "ERC-4626",
+        status: "not-implemented",
+        contractPattern: "Not a vault token",
+        keyFunctions: [],
+        implementationNotes:
+          "USDT is a payment token; no ERC-4626 vault interface exists on the canonical TetherToken contract.",
+        devImpact:
+          "Use external protocols (Aave aUSDT, Compound cUSDT) for yield-bearing USDT positions.",
+      },
+      {
+        eipId: "EIP-1271",
+        status: "not-implemented",
+        contractPattern: "Not present",
+        keyFunctions: [],
+        implementationNotes:
+          "No isValidSignature on TetherToken. This is largely moot given USDT also lacks EIP-712, EIP-2612, and EIP-3009 — smart-wallet signature flows are blocked at those earlier layers.",
+        devImpact:
+          "Smart-wallet permit flows are blocked upstream by USDT's lack of signature standards, not EIP-1271 specifically.",
       },
     ],
   },
@@ -255,6 +315,36 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         devImpact:
           "Immutability is a trust property: no entity (including Sky Protocol governance) can change the DAI contract logic. For protocols that require maximum stability of their token dependency, this is valuable. Trade-off: bugs cannot be patched, features cannot be added.",
       },
+      {
+        eipId: "EIP-1822",
+        status: "not-implemented",
+        contractPattern: "Not applicable — immutable contract, no proxy of any kind",
+        keyFunctions: [],
+        implementationNotes:
+          "DAI is an immutable contract with no proxy. Neither UUPS nor TransparentProxy patterns apply. Upgrade path does not exist by design.",
+        devImpact:
+          "Immutability eliminates upgrade risk entirely. No UUPS considerations apply.",
+      },
+      {
+        eipId: "ERC-4626",
+        status: "not-implemented",
+        contractPattern: "Not on base DAI — DSR Pot.sol predates ERC-4626",
+        keyFunctions: [],
+        implementationNotes:
+          "The DAI ERC-20 is not a vault. The DAI Savings Rate uses Pot.sol with a non-standard interface that predates ERC-4626. sDAI — the ERC-4626 wrapper over DSR — is a separate contract deployed by Spark Protocol and is not part of the canonical DAI token.",
+        devImpact:
+          "For ERC-4626 yield on DAI, integrate with sDAI (Spark Protocol) or migrate to USDS/sUSDS. Do not expect deposit/withdraw/convertToAssets on the canonical DAI address.",
+      },
+      {
+        eipId: "EIP-1271",
+        status: "not-implemented",
+        contractPattern: "Not present on immutable dai.sol",
+        keyFunctions: [],
+        implementationNotes:
+          "No isValidSignature on DAI. Immutability means this cannot be added. Smart contract wallets can still use DAI's custom permit() via EOA co-signers but require DAI-specific ABI handling due to non-standard bool signature.",
+        devImpact:
+          "Contract wallets must use EOA co-signers or off-chain message flows for DAI permit. Migrate to USDS if EIP-1271 smart-wallet support is a requirement.",
+      },
     ],
   },
 
@@ -308,6 +398,16 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "Standard EIP-2612 ABI — unlike DAI, uses uint256 value (not bool) and deadline (not expiry). Fully compatible with OpenZeppelin, ethers.js, and viem EIP-2612 helpers without modification. Sequential per-owner nonces.",
         devImpact:
           "Drop-in replacement for USDC permit() flows — same ABI, same function signatures. Any integration that supports USDC EIP-2612 works with USDS without code changes.",
+      },
+      {
+        eipId: "EIP-3009",
+        status: "not-implemented",
+        contractPattern: "Not present on USDS",
+        keyFunctions: [],
+        implementationNotes:
+          "USDS is built on OpenZeppelin ERC20Permit v5, which implements EIP-2612 but not EIP-3009. No transferWithAuthorization or receiveWithAuthorization exists on the USDS token. A Sky governance upgrade could add this in future.",
+        devImpact:
+          "Payment relayers that require atomic signed transfers must compose permit() + transferFrom() for USDS. If EIP-3009 is a hard requirement, USDC or PYUSD are the appropriate alternatives.",
       },
       {
         eipId: "EIP-1967",
