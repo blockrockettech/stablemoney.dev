@@ -553,33 +553,29 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
     },
   },
 
-  FRAX: {
-    "Fractional reserve model": {
+  frxUSD: {
+    "BlackRock BUIDL backing": {
       audience: "both",
       rationale:
-        "FRAX supply splits between collateral and FXS — integrations must read live CR and redemption mechanics.",
+        "frxUSD is 100% backed by BlackRock's BUIDL fund (tokenized by Securitize) — no algorithmic or fractional-reserve mechanics. Reserve quality is determined by BUIDL's US Treasury portfolio.",
       riskNotes:
-        "CR changes with market conditions; redemption mix shifts between USDC and FXS.",
-      links: [{ label: "Frax docs", url: "https://docs.frax.finance/" }],
-    },
-    "Algorithmic Market Operations — AMO": {
-      audience: "both",
-      rationale:
-        "Protocol deploys idle collateral to strategies — affects balance sheet and tail risk beyond vanilla ERC-20 transfer.",
-      riskNotes:
-        "Strategy failure or exploit in AMO modules can impact backing perception.",
+        "Reserve quality tied to BUIDL fund and Securitize tokenization infrastructure; no traditional bank-style fiat backing.",
       links: [
         { label: "Frax docs", url: "https://docs.frax.finance/" },
         { label: "Frax GitHub", url: "https://github.com/FraxFinance" },
       ],
     },
-    "Fraxswap TWAMM": {
+    "sfrxUSD ERC-4626 vault": {
       audience: "user",
+      standards: ["ERC-4626"],
       rationale:
-        "Native AMM with TWAMM order type — relevant for routing and MEV-aware trading integrations.",
+        "Yield-bearing frxUSD position earning BUIDL fund T-bill income — integrate as standard ERC-4626 vault.",
       riskNotes:
-        "AMM smart contract risk separate from FRAX token contract.",
-      links: [{ label: "Frax docs", url: "https://docs.frax.finance/" }],
+        "Verify new sfrxUSD vault address from official Frax docs — old sFRAX contracts are not the same. Yield rate reflects T-bill income, not AMO revenues.",
+      links: [
+        { label: "EIP-4626", url: EIP(4626) },
+        { label: "Frax GitHub", url: "https://github.com/FraxFinance" },
+      ],
     },
     "Fraxlend isolated pairs": {
       audience: "user",
@@ -589,24 +585,12 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         "Liquidation and interest rate spikes per pair; not a single global lending risk model.",
       links: [{ label: "Frax docs", url: "https://docs.frax.finance/" }],
     },
-    "sFRAX ERC-4626 vault": {
+    "Fraxswap TWAMM": {
       audience: "user",
-      standards: ["ERC-4626"],
       rationale:
-        "Yield-bearing FRAX position — integrate as standard vault with Frax-specific withdrawal rules.",
+        "Native AMM with TWAMM order type — relevant for routing and MEV-aware trading integrations.",
       riskNotes:
-        "Vault parameters and underlying AMO yield can change; smart contract risk.",
-      links: [
-        { label: "EIP-4626", url: EIP(4626) },
-        { label: "Frax GitHub", url: "https://github.com/FraxFinance" },
-      ],
-    },
-    "FXS governance token": {
-      audience: "both",
-      rationale:
-        "FXS votes control parameters — integrations may need to monitor governance for economic changes affecting FRAX.",
-      riskNotes:
-        "Token price and governance attacks are systemic to hybrid model.",
+        "AMM smart contract risk separate from frxUSD token contract.",
       links: [{ label: "Frax docs", url: "https://docs.frax.finance/" }],
     },
   },

@@ -124,7 +124,7 @@ export const coins: Coin[] = [
           "Tether mints and burns centrally; on-chain supply reflects reserve backing decisions.",
       },
     ],
-    reserves: "Cash, US Treasuries ($97B+), gold (~$8B), other assets",
+    reserves: "US Treasury bills (~$135B+), money market funds, repo agreements, gold (~$13B), Bitcoin (~$5B+), other assets",
     collateralType: "Fiat and equivalents (off-chain)",
     pegMechanism: "Hard 1:1 via centralized issuer redemption",
     auditor: "BDO Italia (quarterly attestation)",
@@ -144,10 +144,10 @@ export const coins: Coin[] = [
     name: "USD Coin",
     issuer: "Circle",
     rank: 2,
-    marketCap: "~$75B",
+    marketCap: "~$77B",
     type: "fiat",
     description:
-      "Most developer-friendly and compliance-forward stablecoin. Native on 28+ blockchains as of late 2025 with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints. Circle IPO'd June 2025.",
+      "Most developer-friendly and compliance-forward stablecoin. Native on 32 blockchains as of early 2026 with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across 21 chains. Circle completed its IPO on NYSE (ticker: CRCL) in January 2026.",
     networks: [
       {
         name: "Ethereum",
@@ -331,8 +331,8 @@ export const coins: Coin[] = [
     symbol: "USDe",
     name: "Ethena USDe",
     issuer: "Ethena Labs",
-    rank: 3,
-    marketCap: "~$6B",
+    rank: 4,
+    marketCap: "~$5.9B",
     type: "synthetic",
     description:
       "Third-largest stablecoin and most technically novel. Achieves dollar peg via delta-neutral hedge — users deposit ETH/BTC collateral while the protocol opens an equal short perpetual futures position. Yield flows from funding rates and ETH staking to sUSDe holders.",
@@ -359,6 +359,38 @@ export const coins: Coin[] = [
         contract: "See Ethena docs for OFT address",
         isPrimary: false,
         notes: "Via LayerZero OFT, Binance Earn integration",
+      },
+      {
+        name: "Solana",
+        chain: "solana",
+        standard: "LayerZero OFT",
+        contract: "See Ethena docs for OFT address",
+        isPrimary: false,
+        notes: "Via LayerZero OFT",
+      },
+      {
+        name: "ZKsync Era",
+        chain: "zksync",
+        standard: "LayerZero OFT",
+        contract: "See Ethena docs for OFT address",
+        isPrimary: false,
+        notes: "Via LayerZero OFT",
+      },
+      {
+        name: "TON",
+        chain: "ton",
+        standard: "Jetton/OFT",
+        contract: "See Ethena docs for OFT address",
+        isPrimary: false,
+        notes: "Via LayerZero OFT",
+      },
+      {
+        name: "Aptos",
+        chain: "aptos",
+        standard: "LayerZero OFT",
+        contract: "See Ethena docs for OFT address",
+        isPrimary: false,
+        notes: "Via LayerZero OFT",
       },
     ],
     features: [
@@ -432,7 +464,7 @@ export const coins: Coin[] = [
       },
     ],
     technicalNotes:
-      "Core contracts — EthenaMinting.sol (mint/redeem with EIP-712 signed orders), StakedUSDe.sol (ERC-4626 vault with 7-day unstaking cooldown), USDe.sol (ERC-20 plus EIP-2612 permit). Mint flow: user signs EIP-712 order → relayer submits → atomic collateral swap → USDe minted in same block. Off-exchange settlement custodians: Copper ClearLoop, Ceffu (Binance institutional), Fireblocks. October 2025 flash crash caused brief $0.65 price on thin Binance order book — on-chain Curve pool maintained peg throughout.",
+      "Core contracts — EthenaMinting.sol (mint/redeem with EIP-712 signed orders), StakedUSDe.sol (ERC-4626 vault with 7-day unstaking cooldown), USDe.sol (ERC-20 plus EIP-2612 permit). Mint flow: user signs EIP-712 order → relayer submits → atomic collateral swap → USDe minted in same block. Off-exchange settlement custodians: Copper ClearLoop, Ceffu (Binance institutional), Fireblocks, Anchorage Digital Bank, Kraken Custody (added January 2026). October 2025 flash crash caused brief $0.65 price on thin Binance order book — on-chain Curve pool maintained peg throughout.",
     docsUrl: "https://www.ethena.fi",
     githubUrl: "https://github.com/ethena-labs",
   },
@@ -440,8 +472,8 @@ export const coins: Coin[] = [
     symbol: "DAI",
     name: "Multi-Collateral Dai",
     issuer: "Sky Protocol (formerly MakerDAO)",
-    rank: 4,
-    marketCap: "~$5.4B",
+    rank: 6,
+    marketCap: "~$4.3B",
     type: "crypto",
     description:
       "Original decentralized stablecoin, live since December 2017. Users open Vaults and over-collateralize crypto to mint DAI. MakerDAO rebranded to Sky Protocol in 2024 and launched USDS as a successor — DAI and USDS are freely interchangeable 1:1. Fully on-chain governance by SKY token holders.",
@@ -549,8 +581,8 @@ export const coins: Coin[] = [
     symbol: "USDS",
     name: "Sky USDS",
     issuer: "Sky Protocol",
-    rank: 5,
-    marketCap: "~$4.8B",
+    rank: 3,
+    marketCap: "~$7.5B",
     type: "crypto",
     description:
       "Upgraded successor to DAI, launched with the MakerDAO→Sky Protocol rebrand in 2024. Interchangeable with DAI at 1:1 via DaiUsds.sol migration contract. Key additions: upgradeable proxy, planned freeze function for regulatory compliance, Sky Savings Rate, and Solana deployment.",
@@ -630,12 +662,12 @@ export const coins: Coin[] = [
   {
     symbol: "FDUSD",
     name: "First Digital USD",
-    issuer: "FD121 Ltd (First Digital)",
-    rank: 6,
-    marketCap: "~$1.5B",
+    issuer: "First Digital Trust Limited",
+    rank: 9,
+    marketCap: "~$450M",
     type: "fiat",
     description:
-      "Launched June 2023 to replace Binance's BUSD after wind-down. Primarily used for high-frequency trading pairs on Binance and MEXC. Issued by BVI-registered entity (transitioned from Hong Kong in August 2025), reserves held in trust by First Digital Trust.",
+      "Launched June 2023 to replace Binance's BUSD after wind-down. Primarily used for trading pairs on Binance, though usage has declined sharply. In April 2025, Justin Sun publicly accused First Digital Trust of insolvency, causing a brief depeg to $0.87 before recovering. Binance subsequently delisted multiple FDUSD trading pairs in early 2026, accelerating market cap decline from a ~$2B+ peak.",
     networks: [
       {
         name: "Ethereum",
@@ -705,14 +737,14 @@ export const coins: Coin[] = [
     reserves: "Cash and cash equivalents held in trust by First Digital Trust Ltd",
     collateralType: "Fiat (off-chain)",
     pegMechanism: "Hard 1:1 via trust company redemption",
-    auditor: "Independent attestor (monthly)",
+    auditor: "Prescient Assurance (monthly attestation)",
     defiIntegration:
       "Primarily CEX trading pairs on Binance — limited on-chain DeFi integration",
     yield: "None",
     risks: [
-      { label: "Regulatory transition HK to BVI", level: "medium" },
+      { label: "April 2025 Justin Sun insolvency accusation and depeg", level: "high" },
+      { label: "Binance pair delistings — declining usage and market cap", level: "high" },
       { label: "Binance concentration", level: "medium" },
-      { label: "Third-party controversy", level: "high" },
     ],
     technicalNotes:
       "Standard ERC-20/BEP-20 with issuer admin — mint, burn, blacklist. EIP-3009 BSC upgrade (Dec 2025) adds transferWithAuthorization function for gasless BNB Chain transfers. Chainlink oracle: FDUSD/USD price feed on BNB Chain mainnet. Always verify contract address on official docs before integration.",
@@ -722,10 +754,10 @@ export const coins: Coin[] = [
     name: "PayPal USD",
     issuer: "Paxos Trust Company (for PayPal)",
     rank: 7,
-    marketCap: "~$0.9B",
+    marketCap: "~$4.1B",
     type: "fiat",
     description:
-      "Most UX-focused stablecoin with deep fintech integration across PayPal and Venmo (400M+ users). Issued by Paxos (NYDFS-regulated). The Solana deployment uses Token Extensions (Token-2022) enabling confidential transfers, transfer hooks, and memo fields natively in the token program.",
+      "Most UX-focused stablecoin with deep fintech integration across PayPal and Venmo (400M+ users). Issued by Paxos (NYDFS-regulated). The Solana deployment uses Token Extensions (Token-2022) enabling confidential transfers, transfer hooks, and memo fields. In March 2026, PayPal expanded PYUSD to 70 international markets across Asia-Pacific, Europe, Latin America, and North America.",
     networks: [
       {
         name: "Ethereum",
@@ -742,6 +774,21 @@ export const coins: Coin[] = [
         contract: "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
         isPrimary: true,
         notes: "SPL Token Extensions program",
+      },
+      {
+        name: "Arbitrum",
+        chain: "arbitrum",
+        standard: "ERC-20",
+        contract: "See Paxos docs for Arbitrum address",
+        isPrimary: false,
+        notes: "Via LayerZero OFT burn-and-mint",
+      },
+      {
+        name: "Stellar",
+        chain: "stellar",
+        standard: "Stellar asset",
+        contract: "See Paxos docs for Stellar issuer",
+        isPrimary: false,
       },
     ],
     features: [
@@ -797,7 +844,7 @@ export const coins: Coin[] = [
     reserves: "USD deposits, US Treasuries, cash equivalents",
     collateralType: "Fiat (off-chain)",
     pegMechanism: "Hard 1:1 via Paxos redemption",
-    auditor: "Withum (monthly attestation)",
+    auditor: "KPMG LLP (monthly attestation, effective Feb 2025)",
     defiIntegration: "Kamino, Marginfi (Solana); Aave (Ethereum); emerging",
     yield: "3.7% APY via PayPal (custodial)",
     risks: [
@@ -810,76 +857,44 @@ export const coins: Coin[] = [
     docsUrl: "https://www.paypal.com/us/digital-wallet/pyusd",
   },
   {
-    symbol: "FRAX",
-    name: "Frax",
+    symbol: "frxUSD",
+    name: "Frax USD",
     issuer: "Frax Finance",
-    rank: 8,
-    marketCap: "~$670M",
-    type: "hybrid",
+    rank: 10,
+    marketCap: "~$120M",
+    type: "fiat",
     description:
-      "Pioneer hybrid stablecoin combining fractional fiat collateral with algorithmic mechanisms. The protocol evolved through v1 (algorithmic), v2 (AMO-based), into a full DeFi suite including Fraxswap (TWAMM) and Fraxlend. FXS token governs the system.",
+      "Fully collateralized stablecoin launched December 2025 as the successor to the original FRAX stablecoin. Backed 1:1 by BlackRock's BUIDL fund (USD Institutional Digital Liquidity Fund, tokenized by Securitize) — investing in US Treasury bills, cash, and repo agreements. The original FRAX fractional-algorithmic model was retired. Note: the FRAX ticker now refers to the Frax Finance governance and gas token for the Fraxtal L2 network (formerly FXS).",
     networks: [
       {
         name: "Ethereum",
         chain: "ethereum",
         standard: "ERC-20",
-        contract: "0x853d955aCEf822Db058eb8505911ED77F175b99e",
+        contract: "Verify on official Frax docs — new contract post-December 2025 migration",
         isPrimary: true,
       },
       {
-        name: "Arbitrum",
-        chain: "arbitrum",
+        name: "Fraxtal",
+        chain: "fraxtal",
         standard: "ERC-20",
-        contract: "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F",
+        contract: "Native on Fraxtal L2 — see Frax docs",
         isPrimary: false,
-      },
-      {
-        name: "Optimism",
-        chain: "optimism",
-        standard: "ERC-20",
-        contract: "0x2E3D870790dC77A83DD1d18184Acc7439A53f475",
-        isPrimary: false,
-      },
-      {
-        name: "Polygon",
-        chain: "polygon",
-        standard: "ERC-20",
-        contract: "0x45c32fA6DF82ead1e2EF74d17b76547EDdFaFF89",
-        isPrimary: false,
-      },
-      {
-        name: "Avalanche",
-        chain: "avalanche",
-        standard: "ERC-20",
-        contract: "0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64",
-        isPrimary: false,
-      },
-      {
-        name: "BNB Chain",
-        chain: "bnb",
-        standard: "BEP-20",
-        contract: "0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40",
-        isPrimary: false,
+        notes: "Native on Frax-native L2",
       },
     ],
     features: [
       {
-        name: "Fractional reserve model",
-        category: "stability",
+        name: "BlackRock BUIDL backing",
+        category: "compliance",
         description:
-          "Partially backed by USDC collateral and partially by FXS governance token. Collateral Ratio (CR) adjusts dynamically based on market conditions.",
+          "100% backed by BlackRock USD Institutional Digital Liquidity Fund (BUIDL), tokenized by Securitize — invests in US Treasury bills, cash, and repo agreements.",
       },
       {
-        name: "Algorithmic Market Operations — AMO",
-        category: "stability",
+        name: "sfrxUSD ERC-4626 vault",
+        category: "yield",
+        eip: "ERC-4626",
         description:
-          "Smart contracts autonomously deploy idle FRAX collateral into Aave, Curve, and other protocols to earn yield — protocol-owned liquidity with no peg risk.",
-      },
-      {
-        name: "Fraxswap TWAMM",
-        category: "stability",
-        description:
-          "Built-in AMM with Time-Weighted Average Market Maker — executes large orders gradually over time to minimise price impact.",
+          "Staked frxUSD earns yield from BUIDL's underlying US Treasury income, distributed via ERC-4626 standard vault.",
       },
       {
         name: "Fraxlend isolated pairs",
@@ -888,44 +903,37 @@ export const coins: Coin[] = [
           "Isolated lending pairs with dynamic interest rates — each pair has independent liquidation risk.",
       },
       {
-        name: "sFRAX ERC-4626 vault",
-        category: "yield",
-        eip: "ERC-4626",
+        name: "Fraxswap TWAMM",
+        category: "stability",
         description:
-          "Staked FRAX earns yield from AMO revenues and real-world asset income via ERC-4626 standard.",
-      },
-      {
-        name: "FXS governance token",
-        category: "governance",
-        description:
-          "FXS holders vote on collateral ratios, AMO strategy deployments, and protocol parameters.",
+          "Built-in AMM with Time-Weighted Average Market Maker — executes large orders gradually over time to minimise price impact.",
       },
     ],
-    reserves: "USDC (collateral portion) plus protocol-owned FXS",
-    collateralType: "Hybrid — USDC + FXS",
-    pegMechanism: "Algorithmic via CR adjustment and redemption arbitrage",
-    auditor: "Trail of Bits, Certik",
-    defiIntegration: "Fraxswap, Fraxlend (native); Curve frax3crv gauge; Convex",
-    yield: "sFRAX variable via AMO revenues",
+    reserves: "BlackRock BUIDL fund (US Treasuries, cash, repo agreements) via Securitize tokenization",
+    collateralType: "RWA — tokenized US Treasuries",
+    pegMechanism: "Hard 1:1 via BUIDL fund redemption",
+    auditor: "BlackRock/Securitize transparency reporting on BUIDL fund",
+    defiIntegration: "Fraxswap, Fraxlend (native); early-stage external DeFi integrations",
+    yield: "sfrxUSD variable — BUIDL fund US Treasury yield",
     risks: [
-      { label: "FXS price dependency", level: "high" },
-      { label: "Algorithmic peg complexity", level: "medium" },
-      { label: "Lower liquidity than top 3", level: "medium" },
+      { label: "Very small market cap — low liquidity", level: "high" },
+      { label: "BUIDL fund custodial and redemption risk", level: "low" },
+      { label: "Migration still in progress — verify contract addresses", level: "medium" },
     ],
     technicalNotes:
-      "FRAX uses TransparentUpgradeableProxy. Core contracts — FraxPool.sol (mint/redeem with CR check), FXS ERC-20 (burned proportionally on FRAX redemption), UniswapPairOracle (TWAP price feeds), FraxAMOMinter.sol (coordinates AMO strategy deployments). Mint: deposit USDC (CR%) + burn FXS ((1-CR)%). Redeem: return FRAX, receive USDC + FXS at current CR. AMOs extend idle collateral into external yield strategies without increasing FRAX supply or breaking peg.",
+      "Launched December 2025 following Frax Finance restructuring. frxUSD is fully collateralized by BlackRock BUIDL, a tokenized money market fund managed by BlackRock and tokenized by Securitize on Ethereum. The original fractional-algorithmic FRAX model is retired. FRAX ticker (formerly FXS) is now the governance and gas token for Fraxtal L2. Always verify the canonical frxUSD contract address from official Frax Finance docs before integrating — new contracts were deployed post-migration.",
     docsUrl: "https://docs.frax.finance",
     githubUrl: "https://github.com/FraxFinance",
   },
   {
     symbol: "TUSD",
     name: "TrueUSD",
-    issuer: "TrueUSD / Archblock",
-    rank: 9,
-    marketCap: "~$490M",
+    issuer: "Techteryx Ltd.",
+    rank: 8,
+    marketCap: "~$494M",
     type: "fiat",
     description:
-      "One of the earliest regulated stablecoins (2018), known for real-time on-chain reserve attestation via The Network Firm and Chainlink Proof of Reserve. Available on Ethereum, BNB Chain, and TRON. Faced reserve management controversy in 2025 with reduced exchange support.",
+      "One of the earliest regulated stablecoins (2018). Acquired by Techteryx Ltd. (BVI) in 2020; Archblock (formerly TrueCoin), the original operator, filed for Chapter 11 bankruptcy in 2025. TUSD is under significant legal and financial stress: $456M in reserves were locked in an illiquid offshore fund (Cayman-based Aria Commodity Finance Fund) and a Dubai court issued a global freezing order on those assets in November 2025. TrueCoin and TrustToken settled with the SEC in September 2024 for fraud charges related to falsely marketing TUSD as fully dollar-backed. Real-time attestations have been suspended/unreliable. The peg has been maintained only due to a ~$500M bailout by Justin Sun.",
     networks: [
       {
         name: "Ethereum",
@@ -986,27 +994,30 @@ export const coins: Coin[] = [
     reserves: "USD held in trust across multiple banking partners",
     collateralType: "Fiat (off-chain)",
     pegMechanism: "Hard 1:1 via trust company redemption",
-    auditor: "The Network Firm (real-time on-chain)",
+    auditor: "The Network Firm (real-time attestations suspended — unreliable as of 2025)",
     defiIntegration: "Limited — PancakeSwap (BNB), select DEXes",
     yield: "None",
     risks: [
-      { label: "Reserve management controversy 2025", level: "high" },
-      { label: "Declining exchange support", level: "medium" },
-      { label: "Banking concentration", level: "medium" },
+      { label: "$456M reserves frozen by Dubai court — Nov 2025", level: "high" },
+      { label: "SEC fraud settlement — TrueCoin/TrustToken Sept 2024", level: "high" },
+      { label: "Archblock (operator) Chapter 11 bankruptcy 2025", level: "high" },
+      { label: "Attestations suspended — reserve transparency unreliable", level: "high" },
+      { label: "Peg depends on Justin Sun bailout, not reserve backing", level: "high" },
+      { label: "Declining exchange support and MiCA delisting", level: "medium" },
     ],
     technicalNotes:
-      "TUSD uses a Controller proxy pattern — indirection pointing to implementation. The TrueReward mechanism (legacy feature) allowed per-account interest toggling via a flag in the balance struct. Chainlink PoR: reserves published at regular intervals to an on-chain AggregatorV3Interface contract which any external contract can query.",
+      "TUSD uses a Controller proxy pattern — indirection pointing to implementation. The TrueReward mechanism (legacy feature) allowed per-account interest toggling via a flag in the balance struct. Chainlink PoR: reserves were published at regular intervals to an on-chain AggregatorV3Interface contract, but real-time attestations have been suspended amid the reserve controversy. Integrations should treat TUSD reserve transparency as unreliable until fully resolved.",
     docsUrl: "https://tusd.io",
   },
   {
     symbol: "USD1",
     name: "World Liberty Financial USD1",
     issuer: "World Liberty Financial (WLFI)",
-    rank: 10,
-    marketCap: "~$4.7B",
+    rank: 5,
+    marketCap: "~$4.6B",
     type: "fiat",
     description:
-      "Fastest-growing stablecoin of 2025 — launched by WLFI (Trump-family-linked project) in March 2025. Reached $2B+ market cap within months via Binance and Abu Dhabi MGX partnerships. Backed 1:1 by USD, US Treasuries, and cash equivalents, custodied by BitGo.",
+      "Fastest-growing stablecoin of 2025 — launched by WLFI (Trump-family-linked project) in March 2025. Reached $4.7B by February 2026 via Binance and Abu Dhabi MGX partnerships. Backed 1:1 by USD, US Treasuries, and cash equivalents, custodied by BitGo. In February 2026, USD1 briefly de-pegged to $0.98 in what WLFI described as a coordinated attack; it recovered within hours. WLFI launched World Liberty Markets (lending platform using USD1) in January 2026 and an AI payments SDK in March 2026.",
     networks: [
       {
         name: "Ethereum",
@@ -1026,25 +1037,51 @@ export const coins: Coin[] = [
         notes:
           "Placeholder — verify canonical address on BscScan from official WLFI sources before integration.",
       },
+      {
+        name: "Solana",
+        chain: "solana",
+        standard: "SPL",
+        contract: "See official WLFI docs for Solana mint address",
+        isPrimary: false,
+      },
+      {
+        name: "TRON",
+        chain: "tron",
+        standard: "TRC-20",
+        contract: "See official WLFI docs for TRON contract",
+        isPrimary: false,
+      },
     ],
     features: [
       {
         name: "BitGo qualified custody",
         category: "compliance",
         description:
-          "USD reserves and Treasuries held by BitGo — regulated qualified custodian for institutional assets.",
+          "USD reserves and Treasuries held by BitGo Trust Company (South Dakota chartered trust) — regulated qualified custodian for institutional assets.",
       },
       {
-        name: "Multi-chain from genesis",
+        name: "Chainlink real-time Proof of Reserves",
+        category: "compliance",
+        description:
+          "Chainlink PoR oracle pulls live BitGo custody data on-chain, updating reserve ratios in real time — any contract can verify backing without trusting WLFI.",
+      },
+      {
+        name: "BitGo monthly attestations",
+        category: "compliance",
+        description:
+          "BitGo publishes monthly reserve attestation reports examined by an independent accounting firm per AICPA criteria.",
+      },
+      {
+        name: "Multi-chain deployment",
         category: "cross-chain",
         description:
-          "Deployed on Ethereum and BNB Chain at launch — TRON integration planned.",
+          "Deployed on Ethereum, BNB Chain, Solana, and TRON — expanding cross-chain presence.",
       },
       {
         name: "Institutional partner focus",
         category: "compliance",
         description:
-          "Targets sovereign and institutional capital — initial traction via Binance Labs and Abu Dhabi's MGX ($2B settlement).",
+          "Targets sovereign and institutional capital — traction via Binance and Abu Dhabi's MGX.",
       },
       {
         name: "Standard ERC-20/BEP-20 admin",
@@ -1056,7 +1093,7 @@ export const coins: Coin[] = [
     reserves: "USD, US Treasuries, cash equivalents — BitGo custody",
     collateralType: "Fiat and Treasuries (off-chain)",
     pegMechanism: "Hard 1:1 via issuer redemption",
-    auditor: "TBC — early-stage",
+    auditor: "BitGo (monthly attestation) + Chainlink real-time Proof of Reserves",
     defiIntegration: "CEX only — Binance, select exchanges",
     yield: "None",
     risks: [

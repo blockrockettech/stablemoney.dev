@@ -5,14 +5,14 @@ import type { CoinEipImpl, CoinEipProfile, EipStatus } from "@/types/eip"
 export const COIN_EIP_SYMBOLS = [
   "USDT",
   "USDC",
-  "USDe",
-  "DAI",
   "USDS",
-  "FDUSD",
-  "PYUSD",
-  "FRAX",
-  "TUSD",
+  "USDe",
   "USD1",
+  "DAI",
+  "PYUSD",
+  "TUSD",
+  "FDUSD",
+  "frxUSD",
 ] as const
 
 export type CoinEipSymbol = (typeof COIN_EIP_SYMBOLS)[number]

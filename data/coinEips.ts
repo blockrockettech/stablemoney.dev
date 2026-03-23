@@ -717,100 +717,100 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   },
 
   {
-    symbol: "FRAX",
-    contractName: "FRAX (Frax Finance) + sFRAX vault",
+    symbol: "frxUSD",
+    contractName: "frxUSD (Frax Finance) + sfrxUSD vault",
     isUpgradeable: true,
-    upgradePattern: "TransparentUpgradeableProxy (canonical FRAX token)",
+    upgradePattern: "Upgradeable proxy — verify pattern on official Frax docs post-December 2025 migration",
     implementations: [
       {
         eipId: "ERC-20",
         status: "implemented",
-        contractPattern: "FRAX ERC-20 with pool-controlled mint/burn",
+        contractPattern: "Standard issuer-controlled ERC-20 with mint/burn admin",
         keyFunctions: [
           "transfer / transferFrom / approve → bool",
           "balanceOf / allowance / totalSupply",
-          "pool_mint(address pool, uint256 amount) — controller",
-          "pool_burn_from(address pool, address account, uint256 amount) — controller",
+          "mint(address to, uint256 amount) — minter role",
+          "burn(address from, uint256 amount) — minter role",
         ],
         implementationNotes:
-          "Algorithmic / fractional-reserve mechanics: supply changes through FraxPool and AMO minters, not public mint(). Standard transfer semantics for secondary markets.",
+          "frxUSD is fully collateralized by BlackRock BUIDL; supply is managed by Frax minters tied to BUIDL redemptions. Standard ERC-20 transfer semantics with no algorithmic supply mechanics.",
         devImpact:
-          "DEX and lending treat FRAX as ERC-20; supply shocks follow collateral ratio and AMO policy.",
+          "Treat as a standard fiat-backed ERC-20 — no fractional-reserve or AMO complexity. Verify new contract addresses post-December 2025 migration before integrating.",
         footguns:
-          "Integrations must use the proxy address on each chain — implementation upgrades have occurred historically.",
+          "Do not use old FRAX stablecoin contract addresses — frxUSD is a new contract. The FRAX ticker now refers to the governance token, not the stablecoin.",
       },
       {
         eipId: "EIP-712",
-        status: "not-implemented",
-        contractPattern: "Not on FRAX token",
+        status: "unknown",
+        contractPattern: "Verify on deployed frxUSD contract",
         keyFunctions: [],
         implementationNotes:
-          "FRAX itself does not expose a token-level EIP-712 domain for transfers; governance and peripheral contracts may use signatures separately.",
-        devImpact: "No native typed-data signing surface on the FRAX ERC-20.",
+          "EIP-712 support on the new frxUSD contract is not confirmed — check official Frax docs or on-chain ABI.",
+        devImpact: "Verify before building gasless or signature-based flows.",
       },
       {
         eipId: "EIP-2612",
-        status: "not-implemented",
-        contractPattern: "No permit() on canonical FRAX",
+        status: "unknown",
+        contractPattern: "Verify on deployed frxUSD contract",
         keyFunctions: [],
         implementationNotes:
-          "Unlike Circle/Paxos fiat tokens, FRAX omits permit — use approve + action or Permit2.",
+          "permit() support on frxUSD is not confirmed in public documentation as of launch.",
         devImpact:
-          "Gasless approval flows require Permit2 or bespoke meta-tx wrappers.",
+          "Gasless approval flows should be tested against the live contract — fall back to Permit2 if not supported.",
       },
       {
         eipId: "EIP-3009",
         status: "not-implemented",
-        contractPattern: "No transferWithAuthorization",
+        contractPattern: "No transferWithAuthorization confirmed",
         keyFunctions: [],
-        implementationNotes: "No EIP-3009 authorization map on FRAX.",
-        devImpact: "Payment relayers cannot use USDC-style authorizations on FRAX directly.",
+        implementationNotes: "No public indication of EIP-3009 on frxUSD at launch.",
+        devImpact: "Use standard approve/transferFrom or Permit2 for payment flows.",
       },
       {
         eipId: "EIP-1967",
         status: "implemented",
-        contractPattern: "TransparentUpgradeableProxy (per Frax technical notes)",
+        contractPattern: "Upgradeable proxy — pattern to be confirmed on deployed contract",
         keyFunctions: [
-          "upgradeTo / admin — role-gated on proxy admin contract",
+          "upgradeTo / admin — governance-gated",
         ],
         implementationNotes:
-          "FRAX uses upgradeable proxies so monetary policy logic can evolve. Track governance votes for implementation pointer changes.",
+          "Frax Finance uses upgradeable proxy patterns. Track governance votes for implementation changes.",
         devImpact:
-          "Correct ABI attachment depends on reading proxy → implementation relationship per chain.",
+          "Confirm proxy type and admin from on-chain storage before building long-lived integrations.",
         footguns:
-          "AMO and pool contracts also upgrade — integrators focused only on the token may miss downstream behavior changes.",
+          "New contracts were deployed for frxUSD migration — do not assume old FRAX proxy patterns apply.",
       },
       {
         eipId: "EIP-1822",
         status: "not-implemented",
-        contractPattern: "FRAX uses transparent proxy stack, not canonical UUPS for the token",
+        contractPattern: "Frax uses transparent proxy pattern, not canonical UUPS",
         keyFunctions: [],
-        implementationNotes: "sFRAX or other satellites may differ — verify individually.",
-        devImpact: "Low for typical FRAX holders.",
+        implementationNotes: "Verify on deployed contract — satellite contracts may differ.",
+        devImpact: "Low for typical frxUSD holders.",
       },
       {
         eipId: "ERC-4626",
         status: "implemented",
-        contractPattern: "sFRAX — ERC-4626 vault over FRAX yield strategy",
+        contractPattern: "sfrxUSD — ERC-4626 vault over frxUSD backed by BUIDL yield",
         keyFunctions: [
           "deposit(uint256 assets, address receiver) → uint256 shares",
           "mint / withdraw / redeem",
           "convertToShares / convertToAssets / preview*",
-          "asset() → address (FRAX)",
+          "asset() → address (frxUSD)",
         ],
         implementationNotes:
-          "Staked FRAX exposes ERC-4626 for protocol yield routing (AMO / RWA revenues). Use official Frax docs for current vault address per chain.",
+          "sfrxUSD distributes yield from the underlying BlackRock BUIDL fund (US Treasury income) via ERC-4626. Use official Frax docs for current vault address.",
         devImpact:
-          "Composable with ERC-4626 routers, aggregators, and money markets that auto-detect the interface.",
+          "Composable with ERC-4626 routers and aggregators. Yield rate reflects BUIDL fund's T-bill income rather than AMO revenues.",
         footguns:
-          "Yield and pause parameters are governance-controlled — read preview functions at transaction time.",
+          "Old sFRAX contracts are not the same as sfrxUSD — verify vault address from official Frax docs post-migration.",
       },
       {
         eipId: "EIP-1271",
         status: "not-implemented",
-        contractPattern: "Not on FRAX token",
+        contractPattern: "Not confirmed on frxUSD token",
         keyFunctions: [],
-        implementationNotes: "No token-level isValidSignature.",
+        implementationNotes: "No token-level isValidSignature confirmed.",
         devImpact: "Smart wallets follow standard ERC-20 approval paths.",
       },
     ],
@@ -820,7 +820,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
     symbol: "TUSD",
     contractName: "TrueUSD — TokenController proxy + delegate",
     isUpgradeable: true,
-    upgradePattern: "Controller → implementation delegate (legacy Archblock / TrustToken pattern)",
+    upgradePattern: "Controller → implementation delegate (legacy TrustToken/Techteryx pattern — Archblock filed Chapter 11 bankruptcy 2025)",
     implementations: [
       {
         eipId: "ERC-20",

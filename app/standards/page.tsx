@@ -32,7 +32,7 @@ export default function StandardsPage() {
           <span className="text-foreground font-medium">USDS</span>,{" "}
           <span className="text-foreground font-medium">FDUSD</span>,{" "}
           <span className="text-foreground font-medium">PYUSD</span>,{" "}
-          <span className="text-foreground font-medium">FRAX</span>,{" "}
+          <span className="text-foreground font-medium">frxUSD</span>,{" "}
           <span className="text-foreground font-medium">TUSD</span>, and{" "}
           <span className="text-foreground font-medium">USD1</span> — ERC-20 surface, typed data
           (EIP-712), permit (EIP-2612), authorizations (EIP-3009), proxies (EIP-1967 / EIP-1822),
