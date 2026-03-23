@@ -119,6 +119,15 @@ export default function RootLayout({
                   >
                     BlockRocket.tech 🚀
                   </a>
+                  {" "}— follow on{" "}
+                  <a
+                    href="https://x.com/blockrockettech"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary font-medium hover:underline"
+                  >
+                    X
+                  </a>
                   .
                 </p>
               </div>
