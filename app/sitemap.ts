@@ -9,7 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: new URL("/", root).href, changeFrequency: "weekly", priority: 1 },
-    { url: new URL("/compare", root).href, changeFrequency: "monthly", priority: 0.8 },
     { url: new URL("/standards", root).href, changeFrequency: "monthly", priority: 0.85 },
   ]
 

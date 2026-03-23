@@ -76,12 +76,6 @@ export default function RootLayout({
                       Home
                     </Link>
                     <Link
-                      href="/compare"
-                      className="hover:text-primary text-muted-foreground"
-                    >
-                      Compare
-                    </Link>
-                    <Link
                       href="/standards"
                       className="hover:text-primary text-muted-foreground"
                     >
