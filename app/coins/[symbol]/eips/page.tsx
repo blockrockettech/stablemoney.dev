@@ -10,8 +10,6 @@ import {
 } from "@/lib/eip-helpers"
 import { EipCard } from "@/components/EipCard"
 import { Badge } from "@/components/ui/badge"
-import { buttonVariants } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import { ArrowLeft } from "lucide-react"
 
 const CATEGORY_ORDER: EipCategory[] = [
@@ -52,7 +50,7 @@ export default function CoinEipsPage({ params }: { params: { symbol: string } })
       <div className="space-y-6">
         <Link
           href={`/coins/${symLower}`}
-          className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "inline-flex gap-2 px-0")}
+          className="text-muted-foreground inline-flex items-center gap-2 text-sm font-medium hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
           Back to {coin.symbol}
@@ -81,7 +79,7 @@ export default function CoinEipsPage({ params }: { params: { symbol: string } })
       <div className="flex flex-wrap items-center gap-3">
         <Link
           href={`/coins/${symLower}`}
-          className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "inline-flex gap-2 px-0")}
+          className="text-muted-foreground inline-flex items-center gap-2 text-sm font-medium hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
           Back to {coin.symbol}

@@ -52,6 +52,15 @@ V1 does not require API keys.
 
 Build with `npm run build` and run with `npm run start` on any Node host, or use your platform’s Next.js integration. `NEXT_PUBLIC_SITE_URL` defaults to `https://stablemoney.dev`; override for staging or local builds if needed.
 
+### Netlify
+
+- `netlify.toml` is included with:
+  - build command: `npm run build`
+  - default production URL: `NEXT_PUBLIC_SITE_URL=https://stablemoney.dev`
+- In Netlify site settings, set the same env var for Production:
+  - `NEXT_PUBLIC_SITE_URL=https://stablemoney.dev`
+- Connect your repository, deploy, then attach `stablemoney.dev` in Domain management.
+
 ## License
 
 Private / your terms — adjust as needed.
