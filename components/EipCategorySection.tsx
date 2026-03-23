@@ -10,6 +10,18 @@ const categoryTitles: Record<EipCategory, string> = {
   compliance: "Compliance",
 }
 
+function NotImplementedCell({ symbol, eipId }: { symbol: string; eipId: string }) {
+  return (
+    <div className="text-muted-foreground rounded-lg border border-dashed border-border bg-muted/20 p-4 text-sm">
+      <span className="font-mono font-semibold text-foreground">{symbol}</span>
+      <p className="mt-2 text-xs leading-relaxed">
+        <span className="text-foreground font-medium">Not implemented</span> for {eipId}. Same as
+        an empty profile row unless you verify this deployment on-chain.
+      </p>
+    </div>
+  )
+}
+
 export function EipCategorySection({
   category,
   eips,
@@ -28,42 +40,44 @@ export function EipCategorySection({
           id={eipAnchorId(eip.id)}
           className="scroll-mt-24 space-y-4 border-b border-border/60 pb-10 last:border-0 last:pb-0"
         >
-          <div>
-            <h3 className="font-mono text-lg font-semibold">{eip.id}</h3>
-            <p className="text-muted-foreground mt-1 max-w-3xl text-sm leading-relaxed">
-              {eip.summary}
-            </p>
-            {eip.eipsUrl ? (
-              <a
-                href={eip.eipsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary mt-2 inline-block text-xs font-medium hover:underline"
-              >
-                Official EIP text →
-              </a>
-            ) : null}
-          </div>
+          <header className="space-y-2">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 className="text-lg font-semibold tracking-tight">
+                <span className="font-mono">{eip.id}</span>
+                <span className="text-muted-foreground font-sans font-normal">
+                  {" "}
+                  — {eip.name}
+                </span>
+              </h3>
+              {eip.eipsUrl ? (
+                <a
+                  href={eip.eipsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary shrink-0 text-xs font-medium hover:underline"
+                >
+                  eips.ethereum.org →
+                </a>
+              ) : null}
+            </div>
+            <p className="text-muted-foreground max-w-3xl text-sm leading-relaxed">{eip.summary}</p>
+          </header>
 
           <div className="grid gap-4 lg:grid-cols-2">
             {COIN_EIP_SYMBOLS.map((sym) => {
               const impl = getEipImplementation(sym, eip.id)
-              if (!impl) {
-                return (
-                  <div
-                    key={sym}
-                    className="text-muted-foreground rounded-lg border border-dashed border-border bg-muted/20 p-4 text-sm"
-                  >
-                    <span className="font-mono font-semibold text-foreground">{sym}</span>
-                    <p className="mt-2 text-xs leading-relaxed">
-                      No entry in this profile for {eip.id}. For matrix purposes this is treated as{" "}
-                      <span className="text-foreground font-medium">not implemented</span> unless
-                      you verify on-chain.
-                    </p>
-                  </div>
-                )
+              if (!impl || impl.status === "not-implemented") {
+                return <NotImplementedCell key={sym} symbol={sym} eipId={eip.id} />
               }
-              return <EipCard key={sym} eip={eip} impl={impl} coinSymbol={sym} />
+              return (
+                <EipCard
+                  key={sym}
+                  eip={eip}
+                  impl={impl}
+                  coinSymbol={sym}
+                  suppressEipOverview
+                />
+              )
             })}
           </div>
         </div>

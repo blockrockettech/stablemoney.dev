@@ -24,8 +24,6 @@ function eipSortNumber(eip: Eip): number {
   return m ? Number(m[1]) : 9999
 }
 
-type SortMode = "eip" | "category" | "usdc"
-
 function scrollToEipDeepDive(eipId: string) {
   const el = document.getElementById(eipAnchorId(eipId))
   el?.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -38,36 +36,13 @@ function scrollToEipDeepDive(eipId: string) {
 
 export function EipMatrix() {
   const [category, setCategory] = useState<EipCategory | "all">("all")
-  const [sort, setSort] = useState<SortMode>("eip")
 
   const rows = useMemo(() => {
     let list = category === "all" ? [...EIPS] : EIPS.filter((e) => e.category === category)
-
-    if (sort === "eip") {
-      list.sort((a, b) => eipSortNumber(a) - eipSortNumber(b))
-    } else if (sort === "category") {
-      const order: EipCategory[] = [
-        "core",
-        "signature",
-        "upgradeability",
-        "vault",
-        "compliance",
-      ]
-      list.sort(
-        (a, b) =>
-          order.indexOf(a.category) - order.indexOf(b.category) ||
-          eipSortNumber(a) - eipSortNumber(b),
-      )
-    } else {
-      const score = (e: Eip) => {
-        const s = getCellStatus("USDC", e.id)
-        return s === "implemented" ? 0 : s === "partial" ? 1 : s === "unknown" ? 2 : 3
-      }
-      list.sort((a, b) => score(a) - score(b) || eipSortNumber(a) - eipSortNumber(b))
-    }
+    list.sort((a, b) => eipSortNumber(a) - eipSortNumber(b))
 
     return list
-  }, [category, sort])
+  }, [category])
 
   const categories: (EipCategory | "all")[] = [
     "all",
@@ -94,18 +69,6 @@ export function EipMatrix() {
               {c === "all" ? "All categories" : c}
             </Button>
           ))}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-muted-foreground text-xs font-medium">Sort</span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortMode)}
-            className="border-input bg-background rounded-md border px-2 py-1.5 text-xs"
-          >
-            <option value="eip">EIP number</option>
-            <option value="category">Category</option>
-            <option value="usdc">USDC-first (implemented first)</option>
-          </select>
         </div>
       </div>
 

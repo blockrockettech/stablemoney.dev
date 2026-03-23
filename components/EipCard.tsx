@@ -44,11 +44,14 @@ export function EipCard({
   impl,
   coinSymbol,
   defaultOpen = false,
+  suppressEipOverview = false,
 }: {
   eip: Eip
   impl: CoinEipImpl
   coinSymbol?: string
   defaultOpen?: boolean
+  /** For /standards: summary is shown once in the section header. */
+  suppressEipOverview?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const st = statusStyles[impl.status]
@@ -93,22 +96,24 @@ export function EipCard({
 
       {open ? (
         <div className="space-y-4 border-t border-border px-4 py-4 text-sm">
-          <div>
-            <div className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wide">
-              Spec
+          {!suppressEipOverview ? (
+            <div>
+              <div className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wide">
+                Spec
+              </div>
+              <p className="text-muted-foreground leading-relaxed">{eip.summary}</p>
+              {eip.eipsUrl ? (
+                <a
+                  href={eip.eipsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary mt-2 inline-block text-xs font-medium hover:underline"
+                >
+                  Read on eips.ethereum.org →
+                </a>
+              ) : null}
             </div>
-            <p className="text-muted-foreground leading-relaxed">{eip.summary}</p>
-            {eip.eipsUrl ? (
-              <a
-                href={eip.eipsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary mt-2 inline-block text-xs font-medium hover:underline"
-              >
-                Read on eips.ethereum.org →
-              </a>
-            ) : null}
-          </div>
+          ) : null}
 
           <div>
             <div className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wide">
@@ -141,7 +146,7 @@ export function EipCard({
             </div>
           ) : null}
 
-          {impl.status === "implemented" ? (
+          {impl.status === "implemented" && !suppressEipOverview ? (
             <div className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-emerald-950 dark:text-emerald-100">
               <div className="mb-1 text-xs font-semibold uppercase tracking-wide">
                 Why this matters

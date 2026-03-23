@@ -110,14 +110,14 @@ export default function RootLayout({
                   </span>
                 </div>
                 <p className="text-muted-foreground border-border/60 text-xs leading-relaxed sm:border-t sm:pt-4">
-                  Built with love from Manchester by{" "}
+                  Built with love ❤️ from Manchester by{" "}
                   <a
                     href="https://blockrocket.tech/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary font-medium hover:underline"
                   >
-                    BlockRocket.tech
+                    BlockRocket.tech 🚀
                   </a>
                   .
                 </p>
