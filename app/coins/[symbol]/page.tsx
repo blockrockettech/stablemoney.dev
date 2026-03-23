@@ -5,6 +5,9 @@ import { coinBySymbol, coins } from "@/data/coins"
 import type { StablecoinType } from "@/types"
 import { loadCoinMdx } from "@/lib/mdx"
 import { mergeCoinFeatures } from "@/lib/merge-features"
+import { EIPS } from "@/data/eips"
+import { eipAnchorId, getCellStatus, getEipImplementation } from "@/lib/eip-helpers"
+import type { EipStatus } from "@/types/eip"
 import { CoinMdx } from "@/components/CoinMdx"
 import { ContractTable } from "@/components/ContractTable"
 import { FeatureTable } from "@/components/FeatureTable"
@@ -18,6 +21,21 @@ const typeLabel: Record<StablecoinType, string> = {
   crypto: "Crypto-backed",
   synthetic: "Synthetic",
   hybrid: "Hybrid",
+}
+
+const statusBadgeClass: Record<EipStatus, string> = {
+  implemented:
+    "border-emerald-500/50 bg-emerald-500/15 text-emerald-900 dark:text-emerald-200",
+  partial: "border-amber-500/50 bg-amber-500/15 text-amber-900 dark:text-amber-200",
+  "not-implemented": "border-red-500/50 bg-red-500/15 text-red-900 dark:text-red-200",
+  unknown: "border-muted-foreground/40 bg-muted text-muted-foreground",
+}
+
+const statusLabel: Record<EipStatus, string> = {
+  implemented: "Implemented",
+  partial: "Partial",
+  "not-implemented": "Not implemented",
+  unknown: "Unknown",
 }
 
 export function generateStaticParams() {
@@ -94,6 +112,51 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
       <section>
         <h2 className="mb-4 text-lg font-semibold">Features</h2>
         <FeatureTable coin={coin} features={featureRows} />
+      </section>
+
+      <section>
+        <h2 className="mb-4 text-lg font-semibold">EIP / ERC support matrix</h2>
+        <p className="text-muted-foreground mb-4 max-w-3xl text-sm leading-relaxed">
+          Standards support for {coin.symbol}. Click an EIP to jump to the global deep-dive section.
+        </p>
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/40">
+                <th className="px-3 py-2 font-medium">Standard</th>
+                <th className="px-3 py-2 font-medium">Status</th>
+                <th className="min-w-[300px] px-3 py-2 font-medium">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {EIPS.map((eip) => {
+                const status = getCellStatus(coin.symbol, eip.id)
+                const impl = getEipImplementation(coin.symbol, eip.id)
+                return (
+                  <tr key={eip.id} className="border-b border-border/70 align-top last:border-0">
+                    <td className="px-3 py-3">
+                      <Link
+                        href={`/standards#${eipAnchorId(eip.id)}`}
+                        className="text-primary inline-flex items-center gap-2 font-mono text-xs font-semibold hover:underline"
+                      >
+                        {eip.id}
+                      </Link>
+                      <div className="text-muted-foreground mt-1 text-xs">{eip.name}</div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <Badge variant="outline" className={statusBadgeClass[status]}>
+                        {statusLabel[status]}
+                      </Badge>
+                    </td>
+                    <td className="text-muted-foreground px-3 py-3 text-xs leading-relaxed">
+                      {impl?.devImpact ?? "No profile row for this standard; treated as not implemented."}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section>

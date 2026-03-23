@@ -959,6 +959,50 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         devImpact:
           "Single-transaction payment flows not possible without this. Would need to be added as an upgrade.",
       },
+      {
+        eipId: "EIP-1967",
+        status: "unknown",
+        contractPattern: "Likely ERC1967 proxy slots — unverified",
+        keyFunctions: [
+          "implementation() / admin() via proxy tooling (if standard slots are used)",
+        ],
+        implementationNotes:
+          "Project messaging suggests an upgradeable proxy architecture. Until the live contract is verified on explorer, treat EIP-1967 support as unconfirmed.",
+        devImpact:
+          "If EIP-1967 is present, monitoring and ABI resolution tooling work automatically; if not, integrations need manual proxy tracking.",
+        footguns:
+          "Do not assume storage slot layout from marketing copy. Confirm on-chain before relying on automated proxy detection.",
+      },
+      {
+        eipId: "EIP-1822",
+        status: "not-implemented",
+        contractPattern: "No public UUPS evidence",
+        keyFunctions: [],
+        implementationNotes:
+          "No verified implementation indicates UUPS-specific interfaces or upgrade authorization hooks.",
+        devImpact:
+          "Treat USD1 as non-UUPS unless a verified implementation proves otherwise.",
+      },
+      {
+        eipId: "ERC-4626",
+        status: "not-implemented",
+        contractPattern: "Not a vault token",
+        keyFunctions: [],
+        implementationNotes:
+          "USD1 is currently presented as a fiat-backed payment stablecoin, not a yield vault share token.",
+        devImpact:
+          "Protocols need external wrappers or vault products for ERC-4626 compatibility.",
+      },
+      {
+        eipId: "EIP-1271",
+        status: "unknown",
+        contractPattern: "Unconfirmed smart-contract signature validation",
+        keyFunctions: [],
+        implementationNotes:
+          "No verified bytecode/docs clearly confirm an isValidSignature(bytes32,bytes) path on the token.",
+        devImpact:
+          "Institutional smart-wallet permit flows remain uncertain until this is verified.",
+      },
     ],
   },
 ]

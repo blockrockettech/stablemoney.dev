@@ -19,6 +19,13 @@ const statusDot: Record<EipStatus, string> = {
   unknown: "bg-muted-foreground/60",
 }
 
+const statusPill: Record<EipStatus, string> = {
+  implemented: "bg-emerald-500/20",
+  partial: "bg-amber-500/20",
+  "not-implemented": "bg-red-500/20",
+  unknown: "bg-muted",
+}
+
 function eipSortNumber(eip: Eip): number {
   const m = /^(?:EIP|ERC)-(\d+)$/i.exec(eip.id)
   return m ? Number(m[1]) : 9999
@@ -111,20 +118,27 @@ export function EipMatrix() {
                 {COIN_EIP_SYMBOLS.map((sym) => {
                   const status = getCellStatus(sym, eip.id)
                   const impl = getEipImplementation(sym, eip.id)
-                  const title = impl?.devImpact ?? "No profile row — treated as not implemented"
+                  const title =
+                    impl?.devImpact ??
+                    "No profile row; treated as not implemented until verified on-chain."
                   return (
                     <td key={sym} className="px-2 py-2 text-center align-middle">
-                      <span
-                        className="inline-flex justify-center"
-                        title={`${title} — click row for ${eip.id} deep dive`}
-                      >
+                      <span className="inline-flex justify-center" title={title}>
                         <span
                           className={cn(
-                            "inline-block size-3 rounded-full ring-2 ring-background",
-                            statusDot[status],
+                            "inline-flex rounded-md p-1.5",
+                            statusPill[status],
                           )}
-                          aria-hidden
-                        />
+                          aria-label={`${sym} ${eip.id}: ${status}`}
+                        >
+                          <span
+                            className={cn(
+                              "inline-block size-4 rounded-full ring-2 ring-background shadow-sm",
+                              statusDot[status],
+                            )}
+                            aria-hidden
+                          />
+                        </span>
                       </span>
                     </td>
                   )
