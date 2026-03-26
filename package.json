@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "tsx scripts/fetch-market-data.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -42,6 +43,7 @@
     "prettier": "^3.8.1",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

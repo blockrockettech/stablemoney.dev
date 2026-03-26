@@ -8,6 +8,3 @@ export const SITE_DESCRIPTION =
 
 /** Bump when static data meaningfully changes */
 export const LAST_UPDATED = "2026-03-26"
-
-/** Display-only aggregate for the stats bar (static, not live) */
-export const TOTAL_MARKET_CAP_DISPLAY = "~$314B"
