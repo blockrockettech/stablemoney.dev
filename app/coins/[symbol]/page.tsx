@@ -15,6 +15,7 @@ import { RiskBadge } from "@/components/RiskBadge"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ExternalLink } from "lucide-react"
+import { getMarketCap } from "@/lib/market-data"
 
 const typeLabel: Record<StablecoinType, string> = {
   fiat: "Fiat-backed",
@@ -89,8 +90,8 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
         <h1 className="text-2xl font-semibold">{coin.name}</h1>
         <p className="text-muted-foreground text-sm">{coin.issuer}</p>
         <p className="text-muted-foreground text-sm">
-          Market cap (static):{" "}
-          <span className="text-foreground font-medium">{coin.marketCap}</span>
+          Market cap:{" "}
+          <span className="text-foreground font-medium">{getMarketCap(coin.symbol)}</span>
         </p>
         <p className="pt-1">
           <Link

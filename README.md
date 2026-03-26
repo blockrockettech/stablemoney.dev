@@ -1,6 +1,6 @@
 # StableMoney.Dev
 
-Technical reference site for engineers and DeFi developers: the top stablecoins by market cap, with networks, contracts, features, and risk notes. Data is **static** (no live prices or oracles in v1). Live at [stablemoney.dev](https://stablemoney.dev).
+Technical reference site for engineers and DeFi developers: the top stablecoins by market cap, with networks, contracts, features, and risk notes. Market cap and chain counts are refreshed daily from [DefiLlama](https://defillama.com/); all other data is manually curated. Live at [stablemoney.dev](https://stablemoney.dev).
 
 ## Stack
 
@@ -21,14 +21,15 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command                | Description           |
-| ---------------------- | --------------------- |
-| `npm run dev`          | Development server    |
-| `npm run build`        | Production build      |
-| `npm run start`        | Run production server |
-| `npm run lint`         | ESLint                |
-| `npm run format`       | Prettier write        |
-| `npm run format:check` | Prettier check        |
+| Command                | Description                                          |
+| ---------------------- | ---------------------------------------------------- |
+| `npm run dev`          | Development server                                   |
+| `npm run build`        | Production build (runs `prebuild` automatically)     |
+| `npm run prebuild`     | Fetch live market data from DefiLlama                |
+| `npm run start`        | Run production server                                |
+| `npm run lint`         | ESLint                                               |
+| `npm run format`       | Prettier write                                       |
+| `npm run format:check` | Prettier check                                       |
 
 ## Project layout
 
@@ -55,11 +56,20 @@ Build with `npm run build` and run with `npm run start` on any Node host, or use
 ### Netlify
 
 - `netlify.toml` is included with:
-  - build command: `npm run build`
+  - build command: `npm run build` (runs `prebuild` first via npm lifecycle, fetching DefiLlama data)
   - default production URL: `NEXT_PUBLIC_SITE_URL=https://stablemoney.dev`
 - In Netlify site settings, set the same env var for Production:
   - `NEXT_PUBLIC_SITE_URL=https://stablemoney.dev`
 - Connect your repository, deploy, then attach `stablemoney.dev` in Domain management.
+
+#### Daily data refresh (cron rebuild)
+
+Market cap and chain counts are fetched at build time. To keep them fresh:
+
+1. In Netlify go to **Site settings > Build & deploy > Build hooks** and create a hook.
+2. Use an external cron service (e.g. [cron-job.org](https://cron-job.org/)) to POST to the hook URL once daily.
+
+Each triggered rebuild runs `prebuild`, pulling the latest data from DefiLlama before the Next.js build starts. If the API is unreachable, the build still succeeds using the last cached `data/generated/market-data.json` or static fallbacks from `data/coins.ts`.
 
 ## License
 

@@ -1,7 +1,8 @@
 import { coins } from "@/data/coins"
 import { HomeClient } from "@/components/HomeClient"
 import { getAllChainSlugs } from "@/lib/chains"
-import { TOTAL_MARKET_CAP_DISPLAY, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site"
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site"
+import { getTotalMarketCap, getDataFreshness, isDynamic } from "@/lib/market-data"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -15,6 +16,8 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   const networkCount = getAllChainSlugs().length
+  const freshness = getDataFreshness()
+  const dynamic = isDynamic()
 
   return (
     <div className="space-y-10">
@@ -30,10 +33,14 @@ export default function HomePage() {
         className="grid gap-3 rounded-xl border border-border bg-card/40 p-4 sm:grid-cols-2 lg:grid-cols-4"
         aria-label="Site statistics"
       >
-        <Stat label="Total market cap (approx.)" value={TOTAL_MARKET_CAP_DISPLAY} />
+        <Stat label="Total market cap" value={getTotalMarketCap()} />
         <Stat label="Coins tracked" value={String(coins.length)} />
         <Stat label="Networks covered" value={`${networkCount}+`} />
-        <Stat label="Data mode" value="Static" hint="No live feeds" />
+        <Stat
+          label="Data"
+          value={dynamic ? "Hybrid / Daily" : "Static"}
+          hint={dynamic ? `Market data refreshed ${freshness}` : "No live feeds"}
+        />
       </section>
 
       <HomeClient coins={coins} />

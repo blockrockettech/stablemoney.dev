@@ -3,3 +3,7 @@
 
 [build.environment]
   NEXT_PUBLIC_SITE_URL = "https://stablemoney.dev"
+
+# Daily rebuild — create a Build hook in Netlify (Site settings > Build & deploy > Build hooks)
+# and trigger it with an external cron service (e.g. cron-job.org) or a Netlify scheduled function.
+# The prebuild script fetches live market data from DefiLlama before next build runs.

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { NetworkChip } from "@/components/NetworkChip"
 import { cn } from "@/lib/utils"
 import { countImplementedEips } from "@/lib/eip-helpers"
+import { getMarketCap, getChainCount } from "@/lib/market-data"
 
 const typeLabel: Record<StablecoinType, string> = {
   fiat: "Fiat-backed",
@@ -59,11 +60,12 @@ export function CoinCard({
       <CardContent className="space-y-3 pt-3">
         <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
           <span>
-            <span className="text-foreground font-medium">MCap</span> {coin.marketCap}
+            <span className="text-foreground font-medium">MCap</span>{" "}
+            {getMarketCap(coin.symbol)}
           </span>
           <span>
             <span className="text-foreground font-medium">Networks</span>{" "}
-            {coin.networks.length}
+            {getChainCount(coin.symbol)}
           </span>
           {eipImplemented != null ? (
             <Badge
