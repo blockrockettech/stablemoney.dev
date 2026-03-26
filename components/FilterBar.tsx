@@ -8,7 +8,6 @@ const options: { value: "all" | StablecoinType; label: string }[] = [
   { value: "fiat", label: "Fiat-backed" },
   { value: "crypto", label: "Crypto-backed" },
   { value: "synthetic", label: "Synthetic" },
-  { value: "hybrid", label: "Hybrid" },
 ]
 
 export function FilterBar({
@@ -23,7 +22,7 @@ export function FilterBar({
   return (
     <div
       className={cn(
-        "flex flex-wrap gap-2 rounded-lg border border-border bg-card/40 p-1",
+        "inline-flex flex-wrap gap-1 rounded-xl border border-border bg-muted/50 p-1",
         className
       )}
       role="tablist"
@@ -39,8 +38,10 @@ export function FilterBar({
             aria-selected={active}
             onClick={() => onChange(o.value)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted/80",
-              active ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              "relative rounded-lg px-3.5 py-1.5 text-sm font-medium transition-all duration-200",
+              active
+                ? "bg-card text-foreground shadow-sm ring-1 ring-border/60"
+                : "text-muted-foreground hover:text-foreground/80"
             )}
           >
             {o.label}

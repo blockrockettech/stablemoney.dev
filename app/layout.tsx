@@ -2,9 +2,6 @@ import type { Metadata } from "next"
 import localFont from "next/font/local"
 import Link from "next/link"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { ThemeToggle } from "@/components/ThemeToggle"
-import { SearchBar } from "@/components/SearchBar"
 import {
   SITE_CANONICAL_URL,
   SITE_DESCRIPTION,
@@ -50,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark">
       <body
         className={cn(
           geistSans.variable,
@@ -58,36 +55,32 @@ export default function RootLayout({
           "min-h-screen bg-background font-sans antialiased"
         )}
       >
-        <ThemeProvider>
           <div className="flex min-h-screen flex-col">
-            <header className="border-b border-border bg-card/30 backdrop-blur">
-              <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-1">
-                  <Link
-                    href="/"
-                    className="hover:text-primary block text-xl font-semibold tracking-tight"
-                  >
-                    {SITE_NAME}
+            <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-lg">
+              <div className="mx-auto flex w-full max-w-6xl items-center gap-6 px-4 py-3">
+                <Link href="/" className="group flex shrink-0 items-baseline gap-1.5">
+                  <span className="font-mono text-lg font-bold tracking-tight text-primary">
+                    Stable
+                  </span>
+                  <span className="font-mono text-lg font-bold tracking-tight text-foreground">
+                    Money
+                  </span>
+                  <span className="font-mono text-sm font-medium text-muted-foreground">.dev</span>
+                </Link>
+
+                <span className="text-muted-foreground/40 hidden text-sm sm:inline">|</span>
+                <span className="text-muted-foreground hidden text-xs sm:inline">
+                  {SITE_TAGLINE}
+                </span>
+
+                <nav className="ml-auto flex items-center gap-4 text-sm font-medium">
+                  <Link href="/" className="text-muted-foreground transition-colors hover:text-primary">
+                    Home
                   </Link>
-                  <p className="text-muted-foreground max-w-md text-sm">
-                    {SITE_TAGLINE}
-                  </p>
-                  <nav className="flex flex-wrap gap-3 text-sm font-medium">
-                    <Link href="/" className="hover:text-primary text-muted-foreground">
-                      Home
-                    </Link>
-                    <Link
-                      href="/standards"
-                      className="hover:text-primary text-muted-foreground"
-                    >
-                      Standards
-                    </Link>
-                  </nav>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                  <SearchBar className="min-w-[240px] flex-1 sm:max-w-md" />
-                  <ThemeToggle />
-                </div>
+                  <Link href="/standards" className="text-muted-foreground transition-colors hover:text-primary">
+                    Standards
+                  </Link>
+                </nav>
               </div>
             </header>
             <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
@@ -95,7 +88,6 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
-        </ThemeProvider>
       </body>
     </html>
   )

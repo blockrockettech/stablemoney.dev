@@ -14,6 +14,20 @@ const typeLabel: Record<StablecoinType, string> = {
   hybrid: "Hybrid",
 }
 
+const typeAccent: Record<StablecoinType, string> = {
+  fiat: "border-l-emerald-500/60",
+  crypto: "border-l-violet-500/60",
+  synthetic: "border-l-amber-500/60",
+  hybrid: "border-l-sky-500/60",
+}
+
+function rankClass(rank: number): string {
+  if (rank === 1) return "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40"
+  if (rank === 2) return "bg-slate-300/25 text-slate-600 dark:text-slate-300 border-slate-400/40"
+  if (rank === 3) return "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30"
+  return "bg-secondary text-secondary-foreground border-transparent"
+}
+
 export function CoinCard({
   coin,
   className,
@@ -21,7 +35,6 @@ export function CoinCard({
 }: {
   coin: Coin
   className?: string
-  /** Set false when the card is wrapped by another interactive element (e.g. search results). */
   asLink?: boolean
 }) {
   const topNetworks = [...coin.networks]
@@ -34,21 +47,25 @@ export function CoinCard({
     <Card
       size="sm"
       className={cn(
-        "h-full transition-[box-shadow,transform]",
-        asLink && "hover:-translate-y-px hover:shadow-md"
+        "h-full border-l-[3px] transition-all duration-200",
+        typeAccent[coin.type],
+        asLink && "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5 hover:border-l-primary/60"
       )}
     >
       <CardHeader className="border-b border-border/60 pb-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="font-mono text-xs">
+            <Badge
+              variant="outline"
+              className={cn("font-mono text-xs font-bold border", rankClass(coin.rank))}
+            >
               #{coin.rank}
             </Badge>
-            <span className="font-mono text-lg font-semibold tracking-tight">
+            <span className="font-mono text-lg font-bold tracking-tight">
               {coin.symbol}
             </span>
           </div>
-          <Badge variant="outline" className="text-[0.65rem] uppercase">
+          <Badge variant="outline" className="text-[0.6rem] uppercase tracking-wider">
             {typeLabel[coin.type]}
           </Badge>
         </div>
@@ -58,20 +75,19 @@ export function CoinCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-3 pt-3">
-        <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <span>
-            <span className="text-foreground font-medium">MCap</span>{" "}
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <span className="text-lg font-bold tabular-nums tracking-tight text-primary">
             {getMarketCap(coin.symbol)}
           </span>
-          <span>
-            <span className="text-foreground font-medium">Networks</span>{" "}
-            {getChainCount(coin.symbol)}
+          <span className="text-muted-foreground text-sm">
+            <span className="text-foreground/80 font-medium">{getChainCount(coin.symbol)}</span>{" "}
+            networks
           </span>
           {eipImplemented != null ? (
             <Badge
               variant="secondary"
-              className="font-mono text-[0.65rem]"
-              title="EIP/ERC standards marked implemented in StableMoney.Dev profile"
+              className="font-mono text-[0.6rem]"
+              title="EIP/ERC standards marked implemented"
             >
               {eipImplemented} EIPs
             </Badge>
