@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import localFont from "next/font/local"
+import Image from "next/image"
 import Link from "next/link"
 import "./globals.css"
 import {
@@ -58,14 +59,24 @@ export default function RootLayout({
           <div className="flex min-h-screen flex-col">
             <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-lg">
               <div className="mx-auto flex w-full max-w-6xl items-center gap-6 px-4 py-3">
-                <Link href="/" className="group flex shrink-0 items-baseline gap-1.5">
-                  <span className="font-mono text-lg font-bold tracking-tight text-primary">
-                    Stable
+                <Link href="/" className="group flex shrink-0 items-center gap-2.5">
+                  <Image
+                    src="/favicon.svg"
+                    alt=""
+                    width={28}
+                    height={28}
+                    className="rounded-md"
+                    aria-hidden="true"
+                  />
+                  <span className="flex items-baseline gap-1.5">
+                    <span className="font-mono text-lg font-bold tracking-tight text-primary">
+                      Stable
+                    </span>
+                    <span className="font-mono text-lg font-bold tracking-tight text-foreground">
+                      Money
+                    </span>
+                    <span className="font-mono text-sm font-medium text-muted-foreground">.dev</span>
                   </span>
-                  <span className="font-mono text-lg font-bold tracking-tight text-foreground">
-                    Money
-                  </span>
-                  <span className="font-mono text-sm font-medium text-muted-foreground">.dev</span>
                 </Link>
 
                 <span className="text-muted-foreground/40 hidden text-sm sm:inline">|</span>
