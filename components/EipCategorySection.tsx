@@ -8,6 +8,8 @@ const categoryTitles: Record<EipCategory, string> = {
   upgradeability: "Upgradeability & proxies",
   vault: "Vaults & yield",
   compliance: "Compliance",
+  "cross-chain": "Cross-chain",
+  flash: "Flash Loans",
 }
 
 function NotImplementedCell({ symbol, eipId }: { symbol: string; eipId: string }) {

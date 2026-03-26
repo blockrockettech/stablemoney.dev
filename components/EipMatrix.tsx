@@ -58,6 +58,8 @@ export function EipMatrix() {
     "upgradeability",
     "vault",
     "compliance",
+    "cross-chain",
+    "flash",
   ]
 
   return (

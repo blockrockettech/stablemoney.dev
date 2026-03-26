@@ -10,6 +10,8 @@ export type EipCategory =
   | "upgradeability"
   | "vault"
   | "compliance"
+  | "cross-chain"
+  | "flash"
 
 export interface Eip {
   id: string
@@ -33,6 +35,7 @@ export interface CoinEipImpl {
 export interface CoinEipProfile {
   symbol: string
   contractName: string
+  decimals: number
   deployedBlock?: number
   isUpgradeable: boolean
   upgradePattern?: string

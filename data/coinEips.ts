@@ -4,6 +4,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDC",
     contractName: "FiatToken v2.2",
+    decimals: 6,
     deployedBlock: 6082465,
     isUpgradeable: true,
     upgradePattern: "TransparentUpgradeableProxy (EIP-1967)",
@@ -21,7 +22,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "totalSupply() → uint256",
         ],
         implementationNotes:
-          "Standard ERC-20. approve() requires allowance to be set to zero before changing to non-zero (double-spend guard). Transfer and approve are blocked for blacklisted addresses. The transfer() function checks both sender and receiver against the blacklist mapping.",
+          "Standard ERC-20. v2.2 bit-packs balance and blacklist into a single storage slot (bit 255 = blacklist flag, bits 0-254 = balance) — saves ~6-7% gas on transfer/transferFrom. approve() requires allowance to be set to zero before changing to non-zero (double-spend guard). Transfer and approve are blocked for blacklisted addresses. Five-role admin architecture: admin (upgrades), owner (role assignment), masterMinter (mint allowances), pauser (global pause), blacklister (freeze addresses), plus a rescuer role for recovering tokens sent to the contract via rescueERC20().",
         devImpact:
           "Foundation interface. Every EVM wallet, DEX, and DeFi protocol interacts with USDC via this interface.",
         footguns:
@@ -114,13 +115,33 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1271",
+        status: "implemented",
+        contractPattern: "FiatTokenV2_2 — EIP-1271 isValidSignature",
+        keyFunctions: ["isValidSignature(bytes32 hash, bytes signature) → bytes4"],
+        implementationNotes:
+          "Added in v2.2 (November 2023). Returns magic value 0x1626ba7e when signature is valid. Enables smart contract wallets (Safe multisig, Argent, ERC-4337 accounts) to act as signers for permit(), transferWithAuthorization(), receiveWithAuthorization(), and cancelAuthorization(). This was a key enabler for account abstraction and ERC-4337 paymaster flows with USDC.",
+        devImpact:
+          "Institutional flows where the USDC holder is a Safe or AA wallet can now use signature-based permit flows directly. Previously required Permit2 or EOA co-signer workarounds.",
+      },
+      {
+        eipId: "ERC-7802",
         status: "not-implemented",
-        contractPattern: "No isValidSignature on FiatToken v2.2",
+        contractPattern: "USDC uses CCTP v2 (proprietary), not ERC-7802",
         keyFunctions: [],
         implementationNotes:
-          "FiatToken v2.2 does not implement isValidSignature(bytes32,bytes). Smart contract wallets (Safe multisig, ERC-4337 accounts) cannot use EIP-1271 to sign USDC permits. This is a notable gap vs USDS, which does implement EIP-1271 via OpenZeppelin v5.",
+          "Circle's cross-chain model is CCTP v2 — a proprietary burn-and-mint protocol with Circle's off-chain attestation service (Iris). Unlike ERC-7802's standardised crosschainMint/crosschainBurn interface, CCTP uses TokenMessengerV2 and MessageTransmitterV2 contracts with fast finality (~20s Ethereum, ~8s L2s) and hooks for atomic post-transfer actions.",
         devImpact:
-          "Institutional flows where the USDC holder is a Safe or AA wallet cannot use signature-based permit flows. Use Permit2 as a workaround, or require an EOA co-signer for permit-based integrations.",
+          "USDC cross-chain transfers use CCTP, not any open ERC-7802 bridge interface. Integrators must use Circle's SDK and contracts.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint on canonical USDC",
+        keyFunctions: [],
+        implementationNotes:
+          "USDC has no native flash loan or flash mint capability. Flash loans of USDC are available through external protocols (Aave, dYdX, Balancer) that hold USDC liquidity.",
+        devImpact:
+          "Use Aave or Balancer flash loan pools for single-transaction USDC borrowing.",
       },
     ],
   },
@@ -128,6 +149,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDT",
     contractName: "TetherToken",
+    decimals: 6,
     deployedBlock: 4634748,
     isUpgradeable: true,
     upgradePattern: "Custom deprecate() delegation (NOT EIP-1967)",
@@ -150,11 +172,11 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "destroyBlackFunds(address _blackListedUser) — owner only, destroys tokens",
         ],
         implementationNotes:
-          "Written in Solidity 0.4.x. Deviates from ERC-20 spec in two critical ways: (1) approve() race condition guard — requires allowance be set to 0 before setting a non-zero value; (2) contains onlyPayloadSize modifier for short-address attack defence (obsolete on modern tooling). Contains a fee-on-transfer mechanism (basisPointsRate, maximumFee) currently set to 0 but activatable by owner.",
+          "Written in Solidity 0.4.x with THREE critical ERC-20 deviations: (1) transfer(), transferFrom(), and approve() do NOT return bool — they return void, breaking any contract that uses the standard IERC20 interface. OpenZeppelin SafeERC20 with safeTransfer/safeTransferFrom/forceApprove is REQUIRED. (2) approve() race condition guard — requires allowance be set to 0 before setting a non-zero value. (3) Contains onlyPayloadSize modifier for obsolete short-address attack defence. Contains a dormant fee-on-transfer mechanism (basisPointsRate, maximumFee) set to 0 but activatable by owner via setParams(). Also has destroyBlackFunds() which burns the entire balance of blacklisted addresses — more aggressive than USDC's freeze-in-place approach.",
         devImpact:
           "Most liquid stablecoin but worst DeFi UX due to non-standard approve(). Every approve() call in a standard ERC-20 integration requires a two-step zero-first pattern for USDT, or the transaction reverts silently.",
         footguns:
-          "THREE major footguns: (1) approve() will revert if allowance is non-zero — always call approve(spender, 0) first. (2) fee-on-transfer mechanism exists but is dormant — use balanceBefore/balanceAfter pattern for any safeTransfer. (3) destroyBlackFunds can reduce totalSupply without a Burn event — supply tracking tools must account for this.",
+          "FOUR major footguns: (1) transfer/transferFrom/approve return void, not bool — any IERC20 cast reverts. Use SafeERC20 safeTransfer/safeTransferFrom/forceApprove. (2) approve() reverts if allowance is non-zero — always approve(spender, 0) first, or use forceApprove(). (3) Dormant fee-on-transfer (basisPointsRate/maximumFee) can be activated without warning — always use balanceBefore/balanceAfter pattern. (4) destroyBlackFunds() burns blacklisted balances without standard Burn event — supply tracking tools must account for this.",
       },
       {
         eipId: "EIP-712",
@@ -230,12 +252,38 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         devImpact:
           "Smart-wallet permit flows are blocked upstream by USDT's lack of signature standards, not EIP-1271 specifically.",
       },
+      {
+        eipId: "ERC-7802",
+        status: "implemented",
+        contractPattern: "USDT0 — TetherTokenOFTExtension + ArbitrumExtensionV2 via LayerZero OFT",
+        keyFunctions: [
+          "crosschainMint(address to, uint256 amount) — bridge-authorized",
+          "crosschainBurn(address from, uint256 amount) — bridge-authorized",
+        ],
+        implementationNotes:
+          "USDT0 (launched January 2025) adopts the draft ERC-7802 Crosschain Token Interface on top of LayerZero's OFT standard. Enables native burn-and-mint cross-chain transfers across 15+ networks without wrapped tokens. ArbitrumExtensionV2 facilitates migration of existing Arbitrum USDT to the OFT standard. OpenZeppelin audited Jan-May 2025 with no critical findings. Over $50B moved via USDT0 within months of launch.",
+        devImpact:
+          "For cross-chain USDT transfers, USDT0 OFT is the official path — no bridge wrappers needed. ERC-7802 crosschainMint/crosschainBurn events enable deterministic indexing by off-chain agents.",
+        footguns:
+          "ERC-7802 is still a DRAFT standard — interfaces may change. Only bridge-authorized addresses can call crosschainMint/crosschainBurn. Legacy bridged USDT on some chains is NOT the same as USDT0 — verify which contract you interact with.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint on canonical USDT",
+        keyFunctions: [],
+        implementationNotes:
+          "No native flash loan capability. Flash loans of USDT available through external protocols (Aave, Balancer).",
+        devImpact:
+          "Use external flash loan providers for single-transaction USDT borrowing.",
+      },
     ],
   },
 
   {
     symbol: "DAI",
     contractName: "dai.sol (MCD)",
+    decimals: 18,
     deployedBlock: 8928158,
     isUpgradeable: false,
     upgradePattern: "None — immutable contract",
@@ -345,12 +393,39 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         devImpact:
           "Contract wallets must use EOA co-signers or off-chain message flows for DAI permit. Migrate to USDS if EIP-1271 smart-wallet support is a requirement.",
       },
+      {
+        eipId: "ERC-3156",
+        status: "implemented",
+        contractPattern: "DssFlash module — ERC-3156 flash mint",
+        keyFunctions: [
+          "maxFlashLoan(address token) → uint256",
+          "flashFee(address token, uint256 amount) → uint256",
+          "flashLoan(IERC3156FlashBorrower receiver, address token, uint256 amount, bytes calldata data) → bool",
+        ],
+        implementationNotes:
+          "DAI is the ONLY major stablecoin with native ERC-3156 flash loans via the DssFlash module (0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA). Anyone can mint DAI up to a governance-set ceiling, use it within the same transaction, and repay + fee. Fee goes to the vow (protocol surplus). Supports both ERC-20 DAI and internal Vat DAI operations. Includes reentrancy guard protection.",
+        devImpact:
+          "Unique DeFi primitive — enables arbitrage, liquidation, and refinancing without upfront capital. No other stablecoin in the top 10 offers native flash minting. DssFlash democratizes MEV by making flash liquidity available to anyone, not just protocols with pre-funded pools.",
+        footguns:
+          "Flash mint ceiling is governance-controlled and can change. The fee (toll) is also governance-set — check both before building automated strategies. The borrowed DAI must be returned in the SAME transaction or the entire call reverts.",
+      },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern: "Immutable contract — cannot add cross-chain interfaces",
+        keyFunctions: [],
+        implementationNotes:
+          "DAI is an immutable contract with no proxy. ERC-7802 cross-chain mint/burn cannot be added. L2 DAI uses canonical bridges (Arbitrum/Optimism native bridges) not burn-and-mint standards.",
+        devImpact:
+          "Cross-chain DAI relies on canonical L2 bridges, not a standardised cross-chain token interface.",
+      },
     ],
   },
 
   {
     symbol: "USDS",
     contractName: "USDS + sUSDS (Sky Protocol)",
+    decimals: 18,
     deployedBlock: 20690000,
     isUpgradeable: true,
     upgradePattern: "ERC1967Proxy (USDS) + UUPS EIP-1822 (sUSDS)",
@@ -460,7 +535,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "previewRedeem(uint256 shares) → uint256",
         ],
         implementationNotes:
-          "Asset = USDS, share = sUSDS. Exchange rate (USDS per sUSDS) accrues via an internal accumulator (chi) updated by the drip() function, similar to DAI DSR pot.sol. convertToAssets() gives real-time value even if drip() has not been called recently. No lockup — instant deposit and redemption. Emits both ERC-20 Transfer and ERC-4626 Deposit/Withdraw events.",
+          "Asset = USDS, share = sUSDS. Exchange rate accrues via an internal chi rate accumulator updated by drip(). Critically, convertToAssets() calculates the theoretical current chi on-the-fly — returns accurate values even if drip() has not been called recently. This is essential for DeFi composability where stale pricing would be dangerous. No lockup — instant deposit and redemption. No fees assessed, and fees CANNOT be enabled in the future (encoded in contract, not just policy). Emits both ERC-20 Transfer and ERC-4626 Deposit/Withdraw events.",
         devImpact:
           "Any protocol that integrates the ERC-4626 interface (Aave, Compound, Yearn, Gearbox, EigenLayer) gets sUSDS support automatically. This is the single biggest advantage of sUSDS over DAI's DSR — the DSR has no standard interface, requiring custom integrations per protocol.",
         footguns:
@@ -478,12 +553,33 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         devImpact:
           "Without EIP-1271, permit() only works for EOA private keys. With it, any smart contract wallet or institutional custody solution (Safe, Fireblocks smart contract wallet) can sign USDS permits — critical for institutional DeFi adoption.",
       },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern: "USDS uses Wormhole NTT, not ERC-7802",
+        keyFunctions: [],
+        implementationNotes:
+          "USDS expanded to Solana via Wormhole's Native Token Transfers (NTT) framework with burn-and-mint mechanics and built-in rate-limiting. This is a third cross-chain paradigm distinct from both CCTP (USDC) and OFT/ERC-7802 (USDT). Governance could add ERC-7802 support via proxy upgrade.",
+        devImpact:
+          "Multi-chain USDS uses Wormhole NTT — integrators must use the Portal bridge (portalbridge.com) and NTT SDK, not ERC-7802 interfaces.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint on USDS — DAI's DssFlash operates on DAI only",
+        keyFunctions: [],
+        implementationNotes:
+          "The DssFlash module only mints DAI, not USDS. For flash liquidity in USDS, convert via DaiUsds.sol: flash-mint DAI → convert to USDS → use → convert back → repay DAI. This adds gas cost vs native flash mint but is technically viable.",
+        devImpact:
+          "No native USDS flash loans. Use the DAI flash mint + DaiUsds conversion path as a workaround.",
+      },
     ],
   },
 
   {
     symbol: "USDe",
     contractName: "USDe.sol + StakedUSDe.sol (Ethena Labs)",
+    decimals: 18,
     isUpgradeable: true,
     upgradePattern:
       "Upgradeable proxy stack (OpenZeppelin-style) — confirm implementation + admin roles on Etherscan",
@@ -518,7 +614,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "Mint path: typed data orders signed off-chain — verify Order struct in audited EthenaMinting.sol",
         ],
         implementationNotes:
-          "Two distinct EIP-712 surfaces: (1) USDe token uses a standard ERC-20 permit domain for approvals; (2) mint/redeem uses EIP-712 structured orders verified inside EthenaMinting.sol (not the same as token transfer authorizations). Relayers submit signed orders atomically with collateral movements.",
+          "Two distinct EIP-712 surfaces: (1) USDe token uses a standard ERC-20 permit domain for approvals; (2) EthenaMinting V2 (0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3, deployed July 2024) uses EIP-712 structured orders with fields: order_id, benefactor, collateral_amount, usde_amount, slippage. Signatures are immutable — Ethena cannot alter user-signed orders. Supports both EIP-712 and EIP-1271 signature types, enabling smart contract wallets to participate in minting.",
         devImpact:
           "Builders of mint widgets must implement the minting order schema from Ethena’s contracts — not generic transferWithAuthorization.",
       },
@@ -582,7 +678,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "cooldownDuration() / cooldowns(address) — vesting before full exit",
         ],
         implementationNotes:
-          "sUSDe is the yield-bearing share token over USDe with ERC-4626-style deposit/redeem. Ethena adds cooldown/restricted unstake mechanics — governance has shifted cooldown behavior over time (commonly described as dynamic ~1–7 days depending on liquidity). Interface matches ERC-4626 but timing and maxWithdraw behavior reflect protocol policy.",
+          "sUSDe is the yield-bearing share token over USDe with ERC-4626-style deposit/redeem. Cooldown: dynamic 1-7 days (governance-configurable, max 90 days). Auto-extension trigger: if daily unstake requests exceed 2x the 14-day rolling average AND 3-day coverage drops below 1.5x. Anti-attack measures: 8-hour linear reward vesting prevents sandwich attacks; minimum 1 ETH total sUSDe supply threshold prevents donation attacks; rewards can only be positive or zero (no principal slashing). Two-tier sanctions compliance: SOFT_RESTRICTED_STAKER_ROLE (e.g. US addresses) cannot deposit/withdraw but can trade sUSDe on secondary markets; FULL_RESTRICTED_STAKER_ROLE cannot receive sUSDe at all and admin can call redistributeLockedAmount() to move their tokens. Five-role access control on EthenaMinting: DEFAULT_ADMIN_ROLE (multisig), GATEKEEPER (3+ internal + 3+ external security firms — can disable but NOT re-enable), MINTER (~20 EOAs), REDEEMER (~20 EOAs), plus DelegatedSigner for smart contract participants.",
         devImpact:
           "ERC-4626-aware aggregators can price and route sUSDe like other vault shares; account for cooldown when quoting user exits.",
         footguns:
@@ -590,13 +686,34 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1271",
-        status: "not-implemented",
-        contractPattern: "Not standard on USDe token",
+        status: "partial",
+        contractPattern:
+          "Supported in EthenaMinting V2 via signature_type parameter, not on USDe token itself",
         keyFunctions: [],
         implementationNotes:
-          "No broad EIP-1271 helper on USDe comparable to Sky’s USDS deployment — smart-wallet permit flows may require alternate patterns.",
+          "EthenaMinting V2 accepts EIP-1271 signatures for mint/redeem orders via a signature_type parameter, enabling smart contract wallets to participate. However, the USDe ERC-20 token itself does not implement isValidSignature() — so smart-wallet permit flows on the token layer still require workarounds.",
         devImpact:
-          "Contract wallets may need middleware or EOAs for permit signing unless future upgrades add validation hooks.",
+          "Smart contract wallets (Safe, AA wallets) can mint/redeem USDe directly via EthenaMinting. For token-level permit flows, EOA co-signers or Permit2 are still needed.",
+      },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern: "USDe uses LayerZero OFT, not ERC-7802",
+        keyFunctions: [],
+        implementationNotes:
+          "Cross-chain USDe movement uses LayerZero Omnichain Fungible Token standard. Unlike USDT0, USDe has not adopted the ERC-7802 crosschain interface on top of OFT.",
+        devImpact:
+          "Use LayerZero OFT SDK for cross-chain USDe transfers, not ERC-7802 interfaces.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint on USDe",
+        keyFunctions: [],
+        implementationNotes:
+          "No native flash loan capability. Permissioned mint path via EthenaMinting prevents flash minting by design.",
+        devImpact:
+          "Flash loans of USDe available through external DeFi protocols that hold USDe liquidity.",
       },
     ],
   },
@@ -604,8 +721,10 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "FDUSD",
     contractName: "First Digital USD (EVM deployment)",
+    decimals: 18,
     isUpgradeable: true,
-    upgradePattern: "Issuer-controlled upgrade path — verify proxy type on Etherscan / official docs",
+    upgradePattern:
+      "TransparentUpgradeableProxy (EIP-1967) — confirmed via fd-121/fd-stablecoin repository",
     implementations: [
       {
         eipId: "ERC-20",
@@ -628,23 +747,23 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-712",
-        status: "partial",
+        status: "implemented",
         contractPattern: "Present when EIP-3009 is enabled (typed authorizations)",
         keyFunctions: ["DOMAIN_SEPARATOR() → bytes32 — call on target chain deployment"],
         implementationNotes:
-          "EIP-3009 depends on EIP-712 structured data. If your target chain’s FDUSD implementation includes transferWithAuthorization, DOMAIN_SEPARATOR must be queried from that contract.",
+          "Confirmed via public fd-121/fd-stablecoin repository. FDUSD conforms to EIP-20, EIP-712, and EIP-2612. DOMAIN_SEPARATOR computed per deployment chain — always query from the target chain's contract.",
         devImpact:
           "Required to build relayer-signed payment flows wherever EIP-3009 is live.",
       },
       {
         eipId: "EIP-2612",
-        status: "unknown",
-        contractPattern: "Unconfirmed on Ethereum mainnet deployment",
+        status: "implemented",
+        contractPattern: "Standard EIP-2612 permit (fd-121/fd-stablecoin)",
         keyFunctions: [],
         implementationNotes:
-          "First Digital documentation highlights EIP-3009-style gasless flows on BNB Chain; permit() may or may not ship alongside — verify with eth_call to nonces(address) and permit on the bytecode you use.",
+          "Confirmed in fd-121/fd-stablecoin source code. Standard EIP-2612 permit() with uint256 value parameter. Deployed via Foundry with verification scripts for multiple blockchain explorers.",
         devImpact:
-          "If permit is absent, DeFi UX falls back to classic approve or Permit2.",
+          "Gasless approvals and single-transaction DeFi flows where permit is supported on the target deployment.",
       },
       {
         eipId: "EIP-3009",
@@ -663,11 +782,11 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1967",
-        status: "unknown",
+        status: "implemented",
         contractPattern: "Possible proxy — confirm storage slots",
         keyFunctions: [],
         implementationNotes:
-          "Issuer tokens often use proxies; exact pattern (transparent vs UUPS) should be read from explorer “Contract” tab.",
+          "Transparent Proxy pattern confirmed in fd-121/fd-stablecoin repository. Standard EIP-1967 storage slots with separate ProxyAdmin contract. Deployed on Ethereum and BNB Chain independently — contracts are functionally similar but can diverge through separate upgrades.",
         devImpact:
           "Proxy detection drives correct ABI attachment in indexers and wallets.",
       },
@@ -695,12 +814,30 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes: "No public EIP-1271 hook on FDUSD.",
         devImpact: "Smart contract wallets use standard permit only if EIP-2612 exists.",
       },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern: "No cross-chain token standard",
+        keyFunctions: [],
+        implementationNotes:
+          "FDUSD deploys independently per chain, not via a cross-chain burn-and-mint standard.",
+        devImpact: "Always verify the correct chain-native deployment address.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint",
+        keyFunctions: [],
+        implementationNotes: "No native flash loan capability on FDUSD.",
+        devImpact: "Use external flash loan providers.",
+      },
     ],
   },
 
   {
     symbol: "PYUSD",
     contractName: "PayPal USD — Paxos FiatToken derivative (Ethereum)",
+    decimals: 6,
     isUpgradeable: true,
     upgradePattern:
       "Proxy + AccessControl default-admin delay (Paxos) — EIP-1967-style implementation slot typical",
@@ -813,12 +950,32 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         devImpact:
           "May lag USDS-style institutional smart-wallet ergonomics unless middleware wraps PYUSD.",
       },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern: "PYUSD uses LayerZero OFT for cross-chain, not ERC-7802",
+        keyFunctions: [],
+        implementationNotes:
+          "Cross-chain PYUSD uses LayerZero OFT burn-and-mint mechanics. Not ERC-7802 standardised interface.",
+        devImpact: "Use LayerZero SDK for cross-chain PYUSD, not ERC-7802.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint on PYUSD",
+        keyFunctions: [],
+        implementationNotes:
+          "No native flash loan capability. Paxos custody model is incompatible with permissionless flash minting.",
+        devImpact:
+          "Use external flash loan providers for single-transaction PYUSD borrowing.",
+      },
     ],
   },
 
   {
     symbol: "frxUSD",
     contractName: "frxUSD (Frax Finance) + sfrxUSD vault",
+    decimals: 18,
     isUpgradeable: true,
     upgradePattern: "Upgradeable proxy — verify pattern on official Frax docs post-December 2025 migration",
     implementations: [
@@ -899,7 +1056,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "asset() → address (frxUSD)",
         ],
         implementationNotes:
-          "sfrxUSD distributes yield from the underlying BlackRock BUIDL fund (US Treasury income) via ERC-4626. Use official Frax docs for current vault address.",
+          "sfrxUSD (StakedFrxUSD) extends LinearRewardsErc4626 with ERC-4626 vault interface. Non-rebasing — share price increases as yield accumulates. Employs Benchmark Yield Strategy (BYS) that dynamically allocates to highest-yielding venue among three governance-approved tiers: (1) carry-trade strategies (Ethena, Superstate), (2) DeFi AMO venues (Aave, Curve, Convex, Euler, Fraxlend, dTrinity), (3) IORB/T-Bill RWA strategies (BlackRock, FinresPBC). Redemption via FraxtalERC4626MintRedeemer with zero fees and zero price impact — contrasts with Ethena's cooldown approach.",
         devImpact:
           "Composable with ERC-4626 routers and aggregators. Yield rate reflects BUIDL fund's T-bill income rather than AMO revenues.",
         footguns:
@@ -913,12 +1070,31 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes: "No token-level isValidSignature confirmed.",
         devImpact: "Smart wallets follow standard ERC-20 approval paths.",
       },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern: "No cross-chain token standard confirmed",
+        keyFunctions: [],
+        implementationNotes:
+          "frxUSD is primarily on Ethereum and Fraxtal L2. No ERC-7802 interface.",
+        devImpact: "Cross-chain movement through Fraxtal bridge or future integrations.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint on frxUSD",
+        keyFunctions: [],
+        implementationNotes:
+          "No native flash loan capability. frxUSD is collateralized by BlackRock BUIDL — permissionless flash minting would conflict with the reserve-backed model.",
+        devImpact: "Use external flash loan providers.",
+      },
     ],
   },
 
   {
     symbol: "TUSD",
     contractName: "TrueUSD — TokenController proxy + delegate",
+    decimals: 18,
     isUpgradeable: true,
     upgradePattern: "Controller → implementation delegate (legacy TrustToken/Techteryx pattern — Archblock filed Chapter 11 bankruptcy 2025)",
     implementations: [
@@ -933,7 +1109,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "freezeAccount / wipeFrozenAccount — compliance",
         ],
         implementationNotes:
-          "Older fiat-token architecture than Circle v2.2: uses delegatecall-style upgrades via controller. Historical TrueReward feature complicated balance views — confirm current deployment has rewards disabled for integrators expecting simple balances.",
+          "Legacy fiat-token architecture using TrueCurrencyWithLegacyAutosweep inheritance chain. Proxy address 0x0000000000085d4780B73119b644AE5ecd22b376 uses deliberate leading zeros (vanity deployment) — can confuse address parsers that strip leading zeros. Implementation at 0xDBC97a631c2fee80417d5d69f32b198c8c39c27e. Historical TrueReward feature allowed per-account interest toggling via balance struct flag — deprecated but legacy code remains. Extreme operational risk: $456M reserves stuck in illiquid investments, Justin Sun $456M bailout, SEC fraud settlement, Archblock bankruptcy.",
         devImpact:
           "Still usable as ERC-20 on DEXes but with thinner liquidity and more issuer-specific edge cases than USDC.",
         footguns:
@@ -1002,14 +1178,33 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes: "No isValidSignature on TUSD.",
         devImpact: "Standard EOA-centric flows only for approvals.",
       },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern: "No cross-chain token standard",
+        keyFunctions: [],
+        implementationNotes:
+          "TUSD has no standardised cross-chain interface. L2 deployments are independent.",
+        devImpact: "Manual bridging required.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint",
+        keyFunctions: [],
+        implementationNotes: "No native flash loan capability on TUSD.",
+        devImpact: "Use external flash loan providers.",
+      },
     ],
   },
 
   {
     symbol: "USD1",
-    contractName: "USD1 (WLFI — early stage)",
+    contractName: "USD1 (WLFI) — Foundry/Solidity",
+    decimals: 18,
     isUpgradeable: true,
-    upgradePattern: "Likely ERC1967Proxy — unconfirmed, verify on Etherscan",
+    upgradePattern:
+      "TransparentUpgradeableProxy (EIP-1967) — confirmed via worldliberty/usd1-smart-contracts",
     implementations: [
       {
         eipId: "ERC-20",
@@ -1031,23 +1226,23 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-712",
-        status: "unknown",
-        contractPattern: "Unconfirmed",
+        status: "implemented",
+        contractPattern: "EIP-712 domain for permit (worldliberty/usd1-smart-contracts)",
         keyFunctions: [],
         implementationNotes:
-          "Not confirmed at time of research. If USD1 uses OpenZeppelin ERC20 v4+ or v5 as a base, EIP-712 would be included automatically. Verify by calling DOMAIN_SEPARATOR() on the deployed contract.",
+          "Confirmed via worldliberty/usd1-smart-contracts repository — conforms to EIP-712 for typed data signing. Used by EIP-2612 permit.",
         devImpact:
-          "Required for any signature-based flow. Check before building relayer or gasless payment infrastructure on top of USD1.",
+          "Typed-data signing for permit and similar flows matches standard ERC-20Permit patterns.",
       },
       {
         eipId: "EIP-2612",
-        status: "unknown",
-        contractPattern: "Unconfirmed",
+        status: "implemented",
+        contractPattern: "Standard EIP-2612 permit (worldliberty/usd1-smart-contracts)",
         keyFunctions: [],
         implementationNotes:
-          "Not confirmed publicly. If using OpenZeppelin ERC20Permit base, EIP-2612 is present. Verify by calling nonces(address) on the deployed contract — if it returns without error, the function exists.",
+          "Confirmed via worldliberty/usd1-smart-contracts — standard EIP-2612 permit() for gasless approvals.",
         devImpact:
-          "Critical gap for DeFi integration if absent. USD1 must add EIP-2612 to compete with USDC for developer adoption.",
+          "Enables gasless approvals and USDC-class DeFi router integration on supported deployments.",
       },
       {
         eipId: "EIP-3009",
@@ -1061,15 +1256,15 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1967",
-        status: "unknown",
-        contractPattern: "Likely ERC1967 proxy slots — unverified",
+        status: "implemented",
+        contractPattern: "TransparentUpgradeableProxy (worldliberty/usd1-smart-contracts)",
         keyFunctions: [
           "implementation() / admin() via proxy tooling (if standard slots are used)",
         ],
         implementationNotes:
-          "Project messaging suggests an upgradeable proxy architecture. Until the live contract is verified on explorer, treat EIP-1967 support as unconfirmed.",
+          "TransparentUpgradeableProxy confirmed in worldliberty/usd1-smart-contracts. Contract address 0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d on both Ethereum and BNB Chain. Deployed across 11 networks: Ethereum, BNB, Plume, Monad, Mantle, Morph, XLayer, Solana, TRON, Aptos.",
         devImpact:
-          "If EIP-1967 is present, monitoring and ABI resolution tooling work automatically; if not, integrations need manual proxy tracking.",
+          "Standard proxy tooling and implementation tracking apply on EVM deployments.",
         footguns:
           "Do not assume storage slot layout from marketing copy. Confirm on-chain before relying on automated proxy detection.",
       },
@@ -1099,9 +1294,28 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         contractPattern: "Unconfirmed smart-contract signature validation",
         keyFunctions: [],
         implementationNotes:
-          "No verified bytecode/docs clearly confirm an isValidSignature(bytes32,bytes) path on the token.",
+          "Not confirmed in public repository. The contract uses Foundry/Solidity and conforms to EIP-20, EIP-712, EIP-2612 but EIP-1271 isValidSignature is not explicitly documented. No formal smart contract security audit from a recognized firm has been publicly disclosed — a notable gap given the project's profile.",
         devImpact:
           "Institutional smart-wallet permit flows remain uncertain until this is verified.",
+      },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern:
+          "No cross-chain token standard — independent deployments per chain",
+        keyFunctions: [],
+        implementationNotes:
+          "USD1 deploys independently across 11 chains. No standardised cross-chain burn-and-mint interface. Same contract address used on EVM chains.",
+        devImpact: "Verify deployment on each target chain independently.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash mint on USD1",
+        keyFunctions: [],
+        implementationNotes:
+          "No native flash loan capability. Fiat-backed reserve model is incompatible with permissionless flash minting.",
+        devImpact: "Use external flash loan providers.",
       },
     ],
   },

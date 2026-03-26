@@ -137,7 +137,7 @@ export const coins: Coin[] = [
       { label: "Historical reserve opacity", level: "low" },
     ],
     technicalNotes:
-      "Ethereum contract is a custom ERC-20 (non-upgradeable) with owner-controlled pause, blacklist mapping, issue and redeem functions. USDT0 on Arbitrum/op-chains uses LayerZero OFT standard — 1:1 backed by canonical USDT locked on Ethereum. TRON TRC-20 mirrors the functional pattern.",
+      "6 decimals. Ethereum TetherToken (Solidity 0.4.x) is one of the most non-standard ERC-20s: transfer/transferFrom/approve return void (not bool) — requires SafeERC20. approve() reverts if allowance != 0 (use forceApprove). Dormant fee-on-transfer via basisPointsRate/maximumFee (currently 0/0, activatable by owner). destroyBlackFunds() burns blacklisted balances — more aggressive than USDC's freeze-in-place. USDT0 (Jan 2025) adopts LayerZero OFT + draft ERC-7802 crosschainMint/crosschainBurn across 15+ networks (OpenZeppelin audited, no critical findings, $50B+ moved). Custom deprecate() upgrade mechanism — NOT EIP-1967 standard proxy slots.",
     docsUrl: "https://tether.to",
   },
   {
@@ -325,7 +325,7 @@ export const coins: Coin[] = [
       { label: "Banking dependency — SVB depeg March 2023", level: "low" },
     ],
     technicalNotes:
-      "FiatToken v2.2 contract pattern used across all EVM deployments. Admin roles: Owner, MasterMinter, Blacklister, Pauser. The allowance mapping supports both approve and permit. CCTP contracts: TokenMessenger (mint/burn coordinator), MessageTransmitter (cross-chain messaging). Critical distinction: native USDC vs bridged USDC.e — always confirm native address per chain before integrating.",
+      "6 decimals. FiatToken v2.2 uses bit-packing: single storage slot per address (bit 255 = blacklist, bits 0-254 = balance) — saves ~6-7% gas. Five-role admin: admin (upgrades), owner (roles), masterMinter (mint allowances), pauser (global pause), blacklister (freeze), plus rescuer (rescueERC20 for stuck tokens). EIP-1271 added in v2.2 — smart contract wallets can sign permits. CCTP v2: fast finality (~20s ETH, ~8s L2), hooks for atomic post-transfer actions, TokenMessengerV2 + MessageTransmitterV2. Critical: native USDC vs bridged USDC.e — always confirm native address per chain.",
     docsUrl: "https://www.circle.com/usdc",
   },
   {
@@ -465,7 +465,7 @@ export const coins: Coin[] = [
       },
     ],
     technicalNotes:
-      "Core contracts — EthenaMinting.sol (mint/redeem with EIP-712 signed orders), StakedUSDe.sol (ERC-4626 vault with dynamic unstaking cooldown ~1–7 days depending on liquidity, per governance changes), USDe.sol (ERC-20 plus EIP-2612 permit). Mint flow: user signs EIP-712 order → relayer submits → atomic collateral swap → USDe minted in same block. Off-exchange settlement custodians: Copper ClearLoop, Ceffu (Binance institutional), Fireblocks, Anchorage Digital Bank, Kraken Custody (added January 2026). October 2025 flash crash caused brief $0.65 price on thin Binance order book — on-chain Curve pool maintained peg throughout.",
+      "18 decimals. EthenaMinting V2 (0xe3490297…, July 2024): EIP-712 signed orders are immutable — Ethena cannot alter user signatures. Supports both EIP-712 and EIP-1271 signature types (smart contract wallets can mint). Five-role access control: DEFAULT_ADMIN (multisig), GATEKEEPER (3+ internal + 3+ external security firms — can disable but NOT re-enable), MINTER (~20 EOAs), REDEEMER (~20 EOAs), DelegatedSigner. sUSDe: dynamic cooldown 1-7 days (max 90), auto-extends if unstake requests exceed 2x 14-day average, 8-hour linear reward vesting (anti-sandwich), two-tier sanctions (SOFT_RESTRICTED cannot deposit/withdraw but can trade; FULL_RESTRICTED + redistributeLockedAmount). Custodians: Copper, Ceffu, Fireblocks, Anchorage, Kraken (Jan 2026).",
     docsUrl: "https://www.ethena.fi",
     githubUrl: "https://github.com/ethena-labs",
   },
@@ -574,7 +574,7 @@ export const coins: Coin[] = [
       { label: "Oracle manipulation", level: "medium" },
     ],
     technicalNotes:
-      "MCD core contracts — Vat.sol (central accounting ledger for collateral and debt), Jug.sol (stability fee accumulator), Dog.sol (liquidation trigger), Clip.sol (Dutch auction liquidator), Pot.sol (DSR savings), Cat.sol (legacy liquidator). DAI is a standard immutable ERC-20. PSM: call gemJoin to swap USDC→DAI fee-less. Oracle: Medianizer aggregates from whitelisted price feeds. MKR→SKY migration ratio 1:24,000.",
+      "18 decimals. DAI is the ONLY major stablecoin with native ERC-3156 flash loans (DssFlash module 0x60744434d6339a6B27d73d9Eda62b6F66a0a04FA). permit() is NON-STANDARD: uses bool allowed (not uint256 value) — setting true = MAX_UINT approval, false = 0. Silently coerces uint256 to bool, breaking standard EIP-2612 ABIs. MCD core: Vat.sol, Jug.sol, Dog.sol, Clip.sol, Pot.sol. Immutable contract — no upgrade path, no freeze capability. DaiUsds.sol enables permissionless 1:1 DAI↔USDS conversion.",
     docsUrl: "https://sky.money",
     githubUrl: "https://github.com/makerdao",
   },
@@ -656,7 +656,7 @@ export const coins: Coin[] = [
       { label: "Slower adoption than DAI", level: "low" },
     ],
     technicalNotes:
-      "USDS is an IOU token in the MCD Vat, technically identical to DAI in backing. DaiUsds.sol: call daiToUsds(address, amount) or usdsToDai(address, amount) for 1:1 swap. sUSDS is ERC-4626 and accumulates SSR continuously. Upgrade path requires on-chain governance vote via spell with timelock.",
+      "18 decimals. sUSDS uses chi rate accumulator — convertToAssets() calculates theoretical current chi on-the-fly even if drip() hasn't been called. No fees assessed and fees CANNOT be enabled (encoded in contract). UUPS (EIP-1822) upgrade pattern on sUSDS — if implementation without upgradeTo() is deployed, contract becomes permanently non-upgradeable (safety property). Cross-chain via Wormhole NTT with burn-and-mint and rate-limiting. DaiUsds.sol: permissionless bidirectional DAI↔USDS 1:1 converter.",
     docsUrl: "https://sky.money",
     githubUrl: "https://github.com/makerdao",
   },
@@ -748,7 +748,7 @@ export const coins: Coin[] = [
       { label: "Binance concentration", level: "medium" },
     ],
     technicalNotes:
-      "Standard ERC-20/BEP-20 with issuer admin — mint, burn, blacklist. EIP-3009 BSC upgrade (Dec 2025) adds transferWithAuthorization function for gasless BNB Chain transfers. Chainlink oracle: FDUSD/USD price feed on BNB Chain mainnet. Always verify contract address on official docs before integration.",
+      "18 decimals. TransparentUpgradeableProxy (EIP-1967) confirmed via fd-121/fd-stablecoin repository. Conforms to EIP-20, EIP-712, EIP-2612 (standard permit). Built with Foundry. freeze/unfreeze functions for individual accounts. Ethereum and BNB Chain contracts are independent deployments (same address, different chains) — can diverge through separate upgrades. EIP-3009 BSC upgrade (Dec 2025). Chainlink FDUSD/USD price feed on BNB Chain.",
   },
   {
     symbol: "PYUSD",
@@ -863,7 +863,7 @@ export const coins: Coin[] = [
       { label: "Limited DeFi depth", level: "low" },
     ],
     technicalNotes:
-      "Ethereum — ERC-20 FiatToken (Paxos standard) with assetProtection (freeze), supplyController (mint/burn), pausing. Solana — Token-2022 program address: TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb. Initialized extensions at mint creation: ConfidentialTransferMint (not yet active), TransferHookAccount (null program for future use), PermanentDelegate (Paxos authority), TransferFeeConfig (0% currently), MemoTransfer. PYUSD is now multi-chain beyond Ethereum/Solana — always verify the canonical address for the chain you integrate.",
+      "6 decimals. Paxos extensions beyond standard EIPs: AuthorizationAlreadyUsed, InvalidNonceCount, PermitInvalidated events — extra safety rails around EIP-2612/3009. cancelPermits() admin-style nonce invalidation. Solana Token-2022 extensions: ConfidentialTransfers (ZK proofs, initialized but not active), TransferHooks (programmable per-transfer logic), RequiredMemoOnTransfer (compliance), PermanentDelegate (Paxos), TransferFeeConfig (0% currently). IMPORTANT: confidential transfers CANNOT be combined with transfer fees or transfer hooks simultaneously. Auditor upgraded from Withum to KPMG LLP (Big Four, Feb 2025).",
     docsUrl: "https://www.paypal.com/us/digital-wallet/pyusd",
   },
   {
@@ -931,7 +931,7 @@ export const coins: Coin[] = [
       { label: "Migration still in progress — verify contract addresses", level: "medium" },
     ],
     technicalNotes:
-      "Launched December 2025 following Frax Finance restructuring. frxUSD is fully collateralized by BlackRock BUIDL, a tokenized money market fund managed by BlackRock and tokenized by Securitize on Ethereum. The original fractional-algorithmic FRAX model is retired. FRAX ticker (formerly FXS) is now the governance and gas token for Fraxtal L2. Always verify the canonical frxUSD contract address from official Frax Finance docs before integrating — new contracts were deployed post-migration.",
+      "18 decimals. frxUSD can be minted 1:1 by depositing BlackRock BUIDL directly into mint contract (0xe827abf9f462ac4f147753d86bc5f91e186e4e9c) — first direct DeFi↔BlackRock tokenized asset integration. sfrxUSD (StakedFrxUSD) extends LinearRewardsErc4626: non-rebasing, share price increases. Benchmark Yield Strategy (BYS) dynamically allocates across carry-trade (Ethena/Superstate), DeFi AMOs (Aave/Curve/Convex/Euler/Fraxlend), and IORB/T-Bill RWA strategies. Redemption via FraxtalERC4626MintRedeemer: zero fees, zero price impact. Original FRAX fractional-algorithmic model retired.",
     docsUrl: "https://docs.frax.finance",
     githubUrl: "https://github.com/FraxFinance",
   },
@@ -1016,7 +1016,7 @@ export const coins: Coin[] = [
       { label: "Declining exchange support and MiCA delisting", level: "medium" },
     ],
     technicalNotes:
-      "TUSD uses a Controller proxy pattern — indirection pointing to implementation. The TrueReward mechanism (legacy feature) allowed per-account interest toggling via a flag in the balance struct. Chainlink PoR: reserves were published at regular intervals to an on-chain AggregatorV3Interface contract, but real-time attestations have been suspended amid the reserve controversy. Integrations should treat TUSD reserve transparency as unreliable until fully resolved.",
+      "18 decimals. Proxy address 0x0000000000085d4780B73119b644AE5ecd22b376 uses deliberate leading zeros (vanity deployment) — can confuse address parsers. Implementation 0xDBC97a631c2fee80417d5d69f32b198c8c39c27e. TrueCurrencyWithLegacyAutosweep inheritance chain. Deprecated TrueReward feature (per-account interest toggle) — legacy code remains. Controller proxy pattern is NOT standard EIP-1967 — proxy detection tooling may mislabel. $456M reserves stuck in unauthorized illiquid investments ('large-scale fraud' per court filings). Peg maintained by Justin Sun $456M bailout. Attestations suspended.",
     docsUrl: "https://tusd.io",
   },
   {
@@ -1033,19 +1033,17 @@ export const coins: Coin[] = [
         name: "Ethereum",
         chain: "ethereum",
         standard: "ERC-20",
-        contract: "0x0000000000000000000000000000000000000000",
+        contract: "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
         isPrimary: true,
-        notes:
-          "Placeholder — verify canonical address on Etherscan from official WLFI sources before integration.",
+        notes: "TransparentUpgradeableProxy (EIP-1967)",
       },
       {
         name: "BNB Chain",
         chain: "bnb",
         standard: "BEP-20",
-        contract: "0x0000000000000000000000000000000000000000",
+        contract: "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
         isPrimary: true,
-        notes:
-          "Placeholder — verify canonical address on BscScan from official WLFI sources before integration.",
+        notes: "Same address as Ethereum",
       },
       {
         name: "Solana",
@@ -1113,7 +1111,7 @@ export const coins: Coin[] = [
       { label: "No DeFi depth", level: "medium" },
     ],
     technicalNotes:
-      "Standard ERC-20/BEP-20 with mint/burn/freeze admin. Always verify contract addresses on Etherscan and BscScan from official WLFI sources before any integration — do not use addresses from unofficial sources. Early-stage transparency — full due diligence recommended.",
+      "18 decimals. Source code public at worldliberty/usd1-smart-contracts (Foundry/Solidity). TransparentUpgradeableProxy (EIP-1967) confirmed. Conforms to EIP-20, EIP-712, EIP-2612. Freeze capability. Contract address 0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d on EVM chains. Deployed across 11 networks: Ethereum, BNB, Plume, Monad, Mantle, Morph, XLayer, Solana, TRON, Aptos. Monthly AICPA attestations (2025 criteria). Notable gap: no formal smart contract security audit from a recognized firm publicly disclosed.",
   },
 ]
 

@@ -65,4 +65,20 @@ export const EIPS: Eip[] = [
       "isValidSignature() lets smart contract wallets (Safe multisig, Argent, AA wallets) verify signatures — enables permit flows for contracts, not just EOAs",
     eipsUrl: "https://eips.ethereum.org/EIPS/eip-1271",
   },
+  {
+    id: "ERC-7802",
+    name: "Crosschain token interface",
+    category: "cross-chain",
+    summary:
+      "Minimal interface for cross-chain mint/burn — standardises crosschainMint() and crosschainBurn() so any bridge can move tokens without wrapped representations",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-7802",
+  },
+  {
+    id: "ERC-3156",
+    name: "Flash loans",
+    category: "flash",
+    summary:
+      "Standard interface for single-transaction borrow-use-repay flash loans — maxFlashLoan(), flashFee(), flashLoan(). Enables arbitrage, liquidation, and refinancing without upfront capital",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-3156",
+  },
 ]

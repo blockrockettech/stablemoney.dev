@@ -37,6 +37,9 @@ const categoryStyles: Record<EipCategory, string> = {
     "border-emerald-500/40 bg-emerald-500/10 text-emerald-900 dark:text-emerald-200",
   vault: "border-violet-500/40 bg-violet-500/10 text-violet-900 dark:text-violet-200",
   compliance: "border-orange-500/40 bg-orange-500/10 text-orange-900 dark:text-orange-200",
+  "cross-chain":
+    "border-cyan-500/40 bg-cyan-500/10 text-cyan-900 dark:text-cyan-200",
+  flash: "border-amber-500/40 bg-amber-500/10 text-amber-900 dark:text-amber-200",
 }
 
 export function EipCard({

@@ -18,6 +18,8 @@ const CATEGORY_ORDER: EipCategory[] = [
   "upgradeability",
   "vault",
   "compliance",
+  "cross-chain",
+  "flash",
 ]
 
 export function generateStaticParams() {
