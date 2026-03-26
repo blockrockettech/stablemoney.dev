@@ -2,8 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { coinBySymbol, coins } from "@/data/coins"
-import { EIPS } from "@/data/eips"
-import type { EipCategory } from "@/types/eip"
+import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/eips"
 import {
   eipImplementationStats,
   getCoinEipProfile,
@@ -11,16 +10,6 @@ import {
 import { EipCard } from "@/components/EipCard"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft } from "lucide-react"
-
-const CATEGORY_ORDER: EipCategory[] = [
-  "core",
-  "signature",
-  "upgradeability",
-  "vault",
-  "compliance",
-  "cross-chain",
-  "flash",
-]
 
 export function generateStaticParams() {
   return coins.map((c) => ({ symbol: c.symbol.toLowerCase() }))
@@ -146,7 +135,7 @@ export default function CoinEipsPage({ params }: { params: { symbol: string } })
         </div>
       </section>
 
-      {CATEGORY_ORDER.map((category) => {
+      {EIP_CATEGORY_ORDER.map((category) => {
         const eipsInCat = EIPS.filter((e) => e.category === category)
         const withImpl = eipsInCat.filter((e) =>
           profile.implementations.some((i) => i.eipId === e.id),
@@ -155,7 +144,7 @@ export default function CoinEipsPage({ params }: { params: { symbol: string } })
 
         return (
           <section key={category} className="space-y-4">
-            <h2 className="text-lg font-semibold capitalize tracking-tight">{category}</h2>
+            <h2 className="text-lg font-semibold tracking-tight">{EIP_CATEGORY_TITLES[category]}</h2>
             <div className="space-y-3">
               {withImpl.map((eip) => {
                 const impl = profile.implementations.find((i) => i.eipId === eip.id)

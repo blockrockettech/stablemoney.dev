@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { EIPS } from "@/data/eips"
+import { EIPS, EIP_CATEGORY_ORDER } from "@/data/eips"
 import type { Eip, EipCategory, EipStatus } from "@/types/eip"
 import {
   COIN_EIP_SYMBOLS,
@@ -51,16 +51,7 @@ export function EipMatrix() {
     return list
   }, [category])
 
-  const categories: (EipCategory | "all")[] = [
-    "all",
-    "core",
-    "signature",
-    "upgradeability",
-    "vault",
-    "compliance",
-    "cross-chain",
-    "flash",
-  ]
+  const categories: (EipCategory | "all")[] = ["all", ...EIP_CATEGORY_ORDER]
 
   return (
     <div className="space-y-4">

@@ -1,4 +1,31 @@
-import type { Eip } from "@/types/eip"
+import type { Eip, EipCategory } from "@/types/eip"
+
+export interface EipCategoryMeta {
+  id: EipCategory
+  title: string
+}
+
+/**
+ * Canonical ordered list of EIP categories. Every page, matrix, and section
+ * component should import this instead of maintaining a local copy.
+ */
+export const EIP_CATEGORIES: EipCategoryMeta[] = [
+  { id: "core", title: "Core" },
+  { id: "signature", title: "Signatures & typed data" },
+  { id: "upgradeability", title: "Upgradeability & proxies" },
+  { id: "vault", title: "Vaults & yield" },
+  { id: "compliance", title: "Compliance" },
+  { id: "cross-chain", title: "Cross-chain" },
+  { id: "flash", title: "Flash Loans" },
+]
+
+/** Just the category IDs in display order — convenience re-export. */
+export const EIP_CATEGORY_ORDER: EipCategory[] = EIP_CATEGORIES.map((c) => c.id)
+
+/** Map from category ID → human-readable title. */
+export const EIP_CATEGORY_TITLES: Record<EipCategory, string> = Object.fromEntries(
+  EIP_CATEGORIES.map((c) => [c.id, c.title]),
+) as Record<EipCategory, string>
 
 export const EIPS: Eip[] = [
   {

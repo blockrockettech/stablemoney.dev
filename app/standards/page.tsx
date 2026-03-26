@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
-import { EIPS } from "@/data/eips"
-import type { EipCategory } from "@/types/eip"
+import { EIPS, EIP_CATEGORY_ORDER } from "@/data/eips"
 import { EipMatrix } from "@/components/EipMatrix"
 import { EipCategorySection } from "@/components/EipCategorySection"
 
@@ -9,16 +8,6 @@ export const metadata: Metadata = {
   description:
     "How USDC, USDT, DAI, USDS, and USD1 implement core token, signature, proxy, and vault standards — with on-chain notes for integrators.",
 }
-
-const CATEGORY_ORDER: EipCategory[] = [
-  "core",
-  "signature",
-  "upgradeability",
-  "vault",
-  "compliance",
-  "cross-chain",
-  "flash",
-]
 
 export default function StandardsPage() {
   return (
@@ -56,7 +45,7 @@ export default function StandardsPage() {
 
       <section id="standards-deep-dive" className="scroll-mt-24 space-y-16">
         <h2 className="text-2xl font-semibold tracking-tight">Standards deep dive</h2>
-        {CATEGORY_ORDER.map((category) => (
+        {EIP_CATEGORY_ORDER.map((category) => (
           <EipCategorySection
             key={category}
             category={category}

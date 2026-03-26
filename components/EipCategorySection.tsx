@@ -1,16 +1,7 @@
 import type { Eip, EipCategory } from "@/types/eip"
+import { EIP_CATEGORY_TITLES } from "@/data/eips"
 import { COIN_EIP_SYMBOLS, eipAnchorId, getEipImplementation } from "@/lib/eip-helpers"
 import { EipCard } from "@/components/EipCard"
-
-const categoryTitles: Record<EipCategory, string> = {
-  core: "Core",
-  signature: "Signatures & typed data",
-  upgradeability: "Upgradeability & proxies",
-  vault: "Vaults & yield",
-  compliance: "Compliance",
-  "cross-chain": "Cross-chain",
-  flash: "Flash Loans",
-}
 
 function NotImplementedCell({ symbol, eipId }: { symbol: string; eipId: string }) {
   return (
@@ -35,7 +26,7 @@ export function EipCategorySection({
 
   return (
     <section className="space-y-8">
-      <h2 className="text-xl font-semibold tracking-tight">{categoryTitles[category]}</h2>
+      <h2 className="text-xl font-semibold tracking-tight">{EIP_CATEGORY_TITLES[category]}</h2>
       {eips.map((eip) => (
         <div
           key={eip.id}
