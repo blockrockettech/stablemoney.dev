@@ -10,4 +10,4 @@ export const SITE_DESCRIPTION =
 export const LAST_UPDATED = "2026-03-21"
 
 /** Display-only aggregate for the stats bar (static, not live) */
-export const TOTAL_MARKET_CAP_DISPLAY = "~$312B"
+export const TOTAL_MARKET_CAP_DISPLAY = "~$314B"

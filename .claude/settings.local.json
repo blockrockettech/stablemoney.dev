@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:coinmarketcap.com)",
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)",
+      "Bash(node -e \":*)",
+      "Bash(npx tsx -e \":*)"
+    ]
+  }
+}

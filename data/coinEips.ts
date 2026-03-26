@@ -582,7 +582,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "cooldownDuration() / cooldowns(address) — vesting before full exit",
         ],
         implementationNotes:
-          "sUSDe is the yield-bearing share token over USDe with ERC-4626-style deposit/redeem. Ethena adds cooldown/restricted unstake mechanics — interface matches ERC-4626 but timing and maxWithdraw behavior reflect protocol policy.",
+          "sUSDe is the yield-bearing share token over USDe with ERC-4626-style deposit/redeem. Ethena adds cooldown/restricted unstake mechanics — governance has shifted cooldown behavior over time (commonly described as dynamic ~1–7 days depending on liquidity). Interface matches ERC-4626 but timing and maxWithdraw behavior reflect protocol policy.",
         devImpact:
           "ERC-4626-aware aggregators can price and route sUSDe like other vault shares; account for cooldown when quoting user exits.",
         footguns:

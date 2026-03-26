@@ -17,7 +17,7 @@ export const coins: Coin[] = [
         standard: "ERC-20",
         contract: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         isPrimary: true,
-        notes: "~96B supply, 13M+ holders",
+        notes: "~103B supply, 13M+ holders",
       },
       {
         name: "TRON",
@@ -124,7 +124,8 @@ export const coins: Coin[] = [
           "Tether mints and burns centrally; on-chain supply reflects reserve backing decisions.",
       },
     ],
-    reserves: "US Treasury bills (~$135B+), money market funds, repo agreements, gold (~$13B), Bitcoin (~$5B+), other assets",
+    reserves:
+      "Total reserves ~$192.9B (Q4 2025): US Treasuries ~$141.6B plus cash & equivalents, repo, money market funds, Bitcoin, gold, and other assets (figures shift each quarter)",
     collateralType: "Fiat and equivalents (off-chain)",
     pegMechanism: "Hard 1:1 via centralized issuer redemption",
     auditor: "BDO Italia (quarterly attestation)",
@@ -464,7 +465,7 @@ export const coins: Coin[] = [
       },
     ],
     technicalNotes:
-      "Core contracts — EthenaMinting.sol (mint/redeem with EIP-712 signed orders), StakedUSDe.sol (ERC-4626 vault with 7-day unstaking cooldown), USDe.sol (ERC-20 plus EIP-2612 permit). Mint flow: user signs EIP-712 order → relayer submits → atomic collateral swap → USDe minted in same block. Off-exchange settlement custodians: Copper ClearLoop, Ceffu (Binance institutional), Fireblocks, Anchorage Digital Bank, Kraken Custody (added January 2026). October 2025 flash crash caused brief $0.65 price on thin Binance order book — on-chain Curve pool maintained peg throughout.",
+      "Core contracts — EthenaMinting.sol (mint/redeem with EIP-712 signed orders), StakedUSDe.sol (ERC-4626 vault with dynamic unstaking cooldown ~1–7 days depending on liquidity, per governance changes), USDe.sol (ERC-20 plus EIP-2612 permit). Mint flow: user signs EIP-712 order → relayer submits → atomic collateral swap → USDe minted in same block. Off-exchange settlement custodians: Copper ClearLoop, Ceffu (Binance institutional), Fireblocks, Anchorage Digital Bank, Kraken Custody (added January 2026). October 2025 flash crash caused brief $0.65 price on thin Binance order book — on-chain Curve pool maintained peg throughout.",
     docsUrl: "https://www.ethena.fi",
     githubUrl: "https://github.com/ethena-labs",
   },
@@ -550,7 +551,7 @@ export const coins: Coin[] = [
         name: "Real-world asset integration",
         category: "stability",
         description:
-          "US Treasuries and private credit held in off-chain SPVs contribute to collateral pool (~$948M RWA backing).",
+          "US Treasuries and private credit held in off-chain SPVs contribute to collateral pool (RWA exposure was ~$2.68B+ mid‑2025; varies over time).",
       },
       {
         name: "Decentralised oracle — Medianizer",
@@ -559,7 +560,7 @@ export const coins: Coin[] = [
           "Median of whitelist oracle feeds used for collateral price — resistant to single oracle manipulation.",
       },
     ],
-    reserves: "ETH (~40%), stETH, WBTC, RWAs (~$948M), USDC via PSM",
+    reserves: "ETH (~40%), stETH, WBTC, RWAs (~$2.68B+ mid‑2025), USDC via PSM (varies over time)",
     collateralType: "On-chain crypto and RWAs",
     pegMechanism: "Algorithmic via DSR, PSM arbitrage, and liquidation mechanisms",
     auditor: "Trail of Bits, PwC (periodic), community-audited",
@@ -790,6 +791,15 @@ export const coins: Coin[] = [
         contract: "See Paxos docs for Stellar issuer",
         isPrimary: false,
       },
+      {
+        name: "Other chains",
+        chain: "multichain",
+        standard: "OFT / native",
+        contract: "See Paxos/PayPal docs for current deployments",
+        isPrimary: false,
+        notes:
+          "PYUSD is live on additional chains beyond this static list — always verify canonical addresses.",
+      },
     ],
     features: [
       {
@@ -835,10 +845,10 @@ export const coins: Coin[] = [
           "Users see a single dollar balance in PayPal and Venmo apps regardless of underlying chain.",
       },
       {
-        name: "3.7% APY on PYUSD",
+        name: "~4% APY on PYUSD (custodial)",
         category: "yield",
         description:
-          "PayPal announced 3.7% annual yield on PYUSD deposits (2026) — fiat yield competing with savings accounts.",
+          "PayPal offers ~4% annual yield on PYUSD deposits (rate can change) — fiat yield competing with savings accounts.",
       },
     ],
     reserves: "USD deposits, US Treasuries, cash equivalents",
@@ -846,14 +856,14 @@ export const coins: Coin[] = [
     pegMechanism: "Hard 1:1 via Paxos redemption",
     auditor: "KPMG LLP (monthly attestation, effective Feb 2025)",
     defiIntegration: "Kamino, Marginfi (Solana); Aave (Ethereum); emerging",
-    yield: "3.7% APY via PayPal (custodial)",
+    yield: "~4% APY via PayPal (custodial; rate variable)",
     risks: [
       { label: "Low liquidity vs USDT/USDC", level: "low" },
       { label: "Paxos regulatory dependency", level: "low" },
       { label: "Limited DeFi depth", level: "low" },
     ],
     technicalNotes:
-      "Ethereum — ERC-20 FiatToken (Paxos standard) with assetProtection (freeze), supplyController (mint/burn), pausing. Solana — Token-2022 program address: TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb. Initialized extensions at mint creation: ConfidentialTransferMint (not yet active), TransferHookAccount (null program for future use), PermanentDelegate (Paxos authority), TransferFeeConfig (0% currently), MemoTransfer. LayerZero escrow on Solana: 6JHAfeFjJLrn9enjvBUsmqLSy8B8Wyobr4uXuPVKyjhT. Devnet contract: CXk2AMBfi3TwaEL2468s6zP8xq9NxTXjp9gjMgzeUynM.",
+      "Ethereum — ERC-20 FiatToken (Paxos standard) with assetProtection (freeze), supplyController (mint/burn), pausing. Solana — Token-2022 program address: TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb. Initialized extensions at mint creation: ConfidentialTransferMint (not yet active), TransferHookAccount (null program for future use), PermanentDelegate (Paxos authority), TransferFeeConfig (0% currently), MemoTransfer. PYUSD is now multi-chain beyond Ethereum/Solana — always verify the canonical address for the chain you integrate.",
     docsUrl: "https://www.paypal.com/us/digital-wallet/pyusd",
   },
   {
@@ -1017,7 +1027,7 @@ export const coins: Coin[] = [
     marketCap: "~$4.6B",
     type: "fiat",
     description:
-      "Fastest-growing stablecoin of 2025 — launched by WLFI (Trump-family-linked project) in March 2025. Reached $4.7B by February 2026 via Binance and Abu Dhabi MGX partnerships. Backed 1:1 by USD, US Treasuries, and cash equivalents, custodied by BitGo. In February 2026, USD1 briefly de-pegged to $0.98 in what WLFI described as a coordinated attack; it recovered within hours. WLFI launched World Liberty Markets (lending platform using USD1) in January 2026 and an AI payments SDK in March 2026.",
+      "Fastest-growing stablecoin of 2025 — announced March 2025 and went live around April 2025 (sources vary). Reached $4.7B by February 2026 via Binance and Abu Dhabi MGX partnerships. Backed 1:1 by USD, US Treasuries, and cash equivalents, custodied by BitGo. In February 2026, USD1 briefly de-pegged to $0.98 in what WLFI described as a coordinated attack; it recovered within hours. WLFI launched World Liberty Markets (lending platform using USD1) in January 2026 and an AI payments SDK in March 2026.",
     networks: [
       {
         name: "Ethereum",
