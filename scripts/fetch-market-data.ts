@@ -10,6 +10,8 @@ const SYMBOL_TO_DEFILLAMA_ID: Record<string, string> = {
   USDe: "146",
   DAI: "5",
   USD1: "262",
+  RLUSD: "250",
+  GHO: "118",
   PYUSD: "120",
   TUSD: "7",
   FDUSD: "119",

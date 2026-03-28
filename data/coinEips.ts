@@ -1769,4 +1769,393 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
     ],
   },
+
+  {
+    symbol: "GHO",
+    contractName: "GhoToken (Solmate-derived ERC20 + OZ AccessControl)",
+    contractAddress: "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
+    decimals: 18,
+    deployedBlock: 17698470,
+    isUpgradeable: false,
+    upgradePattern:
+      "Non-proxied on Ethereum mainnet (constructor-deployed, immutable). L2 deployments (Arbitrum, Base, Avalanche, Gnosis, Mantle) use UpgradeableGhoToken behind TransparentUpgradeableProxy.",
+    implementations: [
+      {
+        eipId: "ERC-20",
+        status: "implemented",
+        contractPattern:
+          "Custom Solmate-derived ERC20 — gas-optimised, inherits IERC20",
+        keyFunctions: [
+          "transfer(address to, uint256 amount) → bool",
+          "transferFrom(address from, address to, uint256 amount) → bool",
+          "approve(address spender, uint256 amount) → bool",
+          "allowance(address owner, address spender) → uint256",
+          "balanceOf(address account) → uint256",
+          "totalSupply() → uint256",
+          "mint(address account, uint256 amount) — facilitator only",
+          "burn(uint256 amount) — facilitator only",
+        ],
+        implementationNotes:
+          "Standard ERC-20 with bool returns on transfer/transferFrom/approve. Based on Solmate ERC20 (gas-optimised, unchecked math for balance increments). Differs from standard tokens: mint() and burn() are not admin-gated by a single owner but by the facilitator model — any registered facilitator with available bucket capacity can mint. approve() has no zero-first requirement (unlike USDC). Infinite approval (type(uint256).max) short-circuits the allowance deduction in transferFrom. No fee-on-transfer. AccessControl roles: DEFAULT_ADMIN_ROLE (Aave Governance executor), FACILITATOR_MANAGER_ROLE, BUCKET_MANAGER_ROLE.",
+        devImpact:
+          "Standard ERC-20 integration — no SafeERC20 needed (returns bool). The facilitator-gated mint/burn is transparent to token holders; transfers are fully permissionless with no freeze or pause checks.",
+        footguns:
+          "Unlike USDC/USDT, GHO has no freeze or pause — transfers always succeed if balance is sufficient. This means GHO cannot be frozen for sanctions compliance at the token level. Facilitator bucket capacity limits total supply — check getFacilitatorBucket() before assuming unlimited mintability.",
+      },
+      {
+        eipId: "EIP-712",
+        status: "implemented",
+        contractPattern:
+          "Built into custom ERC20 base — DOMAIN_SEPARATOR computed from name, version, chainId, verifyingContract",
+        keyFunctions: [
+          "DOMAIN_SEPARATOR() → bytes32",
+          "PERMIT_TYPEHASH → bytes32 (constant)",
+        ],
+        typeHash:
+          'keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")',
+        implementationNotes:
+          'Domain separator uses name = "Gho Token", version = "1", block.chainid, address(this). On Ethereum mainnet, INITIAL_DOMAIN_SEPARATOR is cached at construction time (INITIAL_CHAIN_ID = block.chainid) and DOMAIN_SEPARATOR() returns the cached value if chainid matches — gas optimisation for the common case. On chain fork, recomputes dynamically. L2 UpgradeableERC20 always computes dynamically (no INITIAL_CHAIN_ID caching) since proxy deployment makes constructor caching unsafe.',
+        devImpact:
+          "Prerequisite for EIP-2612 permit. Signatures are bound to chain ID and contract address — correctly handles chain forks. Use the contract address (not any proxy) as verifyingContract on Ethereum mainnet.",
+      },
+      {
+        eipId: "EIP-2612",
+        status: "implemented",
+        contractPattern:
+          "Built into custom ERC20 base — standard sequential-nonce permit",
+        keyFunctions: [
+          "permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+          "nonces(address owner) → uint256",
+          "PERMIT_TYPEHASH → bytes32",
+          "DOMAIN_SEPARATOR() → bytes32",
+        ],
+        typeHash:
+          'keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)") = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9',
+        implementationNotes:
+          "Standard EIP-2612 implementation. Sequential per-owner nonce in nonces mapping, incremented in unchecked block. ecrecover-based signature verification. Reverts on expired deadline or invalid signer. permit() returns void (not bool) — matches Solmate pattern and is compatible with standard EIP-2612 since the spec does not mandate a return value. Aave V3 provides supplyWithPermit() and repayWithPermit() that batch permit + pool action atomically.",
+        devImpact:
+          "Enables gasless approval flows. Aave V3 natively supports permit-based interactions (supplyWithPermit, repayWithPermit). Third-party protocols can use permit() for single-tx approve+action patterns.",
+        footguns:
+          "permit() returns void, not bool — callers checking for a bool return will get unexpected behaviour. Front-running risk: an attacker can front-run your permit+transferFrom by submitting just the permit. Use Permit2 or ensure atomic execution.",
+      },
+      {
+        eipId: "EIP-3009",
+        status: "not-implemented",
+        contractPattern: "Not present in GhoToken or ERC20 base",
+        keyFunctions: [],
+        implementationNotes:
+          "GHO does not implement transferWithAuthorization, receiveWithAuthorization, or cancelAuthorization. The custom Solmate-derived ERC20 base only includes EIP-2612 permit. This is a deliberate design choice — GHO prioritises DeFi composability (permit + pool actions) over payment-flow authorizations.",
+        devImpact:
+          "No single-transaction gasless transfer capability. Payment flows requiring atomic transfers must use permit() + transferFrom() in two steps (or batched via multicall). For payment use cases, consider wrapping in a helper contract.",
+      },
+      {
+        eipId: "EIP-1967",
+        status: "not-implemented",
+        contractPattern:
+          "Ethereum mainnet GHO is not proxied — constructor-deployed immutable contract",
+        keyFunctions: [],
+        implementationNotes:
+          "The Ethereum mainnet GhoToken (0x40D16FC0…) is a plain contract deployed via constructor — no proxy, no EIP-1967 storage slots, no admin slot. Etherscan shows 'Source Code' (not 'Source Code (Proxy)'). The contract logic is immutable. L2 deployments (Arbitrum, Base, Avalanche, Gnosis, Mantle) use UpgradeableGhoToken behind TransparentUpgradeableProxy with standard EIP-1967 slots — those ARE proxied and upgradeable by governance.",
+        devImpact:
+          "On Ethereum mainnet, interact directly with 0x40D16FC0… — there is no proxy indirection. On L2s, use the proxy address and be aware of upgradeability. The split architecture (immutable L1, upgradeable L2) is unique among stablecoins.",
+        footguns:
+          "Do not assume GHO is upgradeable on Ethereum — it is not. L2 GHO tokens can be upgraded by governance. Monitor governance proposals for L2 implementation changes.",
+      },
+      {
+        eipId: "EIP-1822",
+        status: "not-implemented",
+        contractPattern:
+          "Not UUPS — Ethereum mainnet is non-proxied; L2s use TransparentUpgradeableProxy",
+        keyFunctions: [],
+        implementationNotes:
+          "GHO does not use UUPS on any chain. Ethereum mainnet is non-proxied entirely. L2 deployments use TransparentUpgradeableProxy (not UUPS). The upgrade logic lives in the proxy admin, not the UpgradeableGhoToken implementation contract.",
+        devImpact:
+          "No UUPS-specific concerns. On L2s, standard TransparentUpgradeableProxy patterns apply.",
+      },
+      {
+        eipId: "ERC-4626",
+        status: "not-implemented",
+        contractPattern:
+          "GHO is not a vault token. stkGHO uses custom StakeToken (not ERC-4626).",
+        keyFunctions: [],
+        implementationNotes:
+          "Neither GHO nor stkGHO implements ERC-4626. stkGHO (0x1a88Df1c…) uses bgd-labs/StakeToken — a custom staking contract with stake/redeem/previewStake/previewRedeem, exchange rate mechanics, cooldown period, and slashing — but does NOT conform to ERC-4626 (no deposit/withdraw/convertToShares/convertToAssets/maxDeposit/maxWithdraw). The GSM4626 variant accepts ERC-4626 vault shares as exogenous tokens (e.g., yield-bearing USDC vaults), but GHO itself is not a vault. Yield on GHO comes from stkGHO staking rewards (AAVE tokens) and stkAAVE discount rate, not from vault mechanics.",
+        devImpact:
+          "Do not expect ERC-4626 interfaces on GHO or stkGHO. For vault-compatible GHO yield, external protocols must wrap GHO. The stkGHO exchange rate mechanism (previewStake/previewRedeem) is custom — do not assume ERC-4626 naming or semantics.",
+        footguns:
+          "stkGHO has a cooldown period before unstaking — funds are not instantly redeemable. The exchange rate can change due to slashing events. Not compatible with ERC-4626 aggregators.",
+      },
+      {
+        eipId: "EIP-1271",
+        status: "not-implemented",
+        contractPattern: "No isValidSignature in GhoToken",
+        keyFunctions: [],
+        implementationNotes:
+          "GHO does not implement EIP-1271 isValidSignature(). The permit() function uses ecrecover only — smart contract wallets (Safe, Argent, ERC-4337 accounts) cannot natively sign GHO permits. This is inherited from the Solmate ERC20 base which only supports EOA signatures.",
+        devImpact:
+          "Smart contract wallets need Permit2 or EOA co-signer workarounds for gasless approval flows with GHO. This is a notable gap compared to USDC v2.2 which added EIP-1271 support.",
+        footguns:
+          "Safe multisig and AA wallets will fail when calling permit() directly — ecrecover returns address(0) for contract signatures, causing INVALID_SIGNER revert.",
+      },
+      {
+        eipId: "ERC-7802",
+        status: "alternative",
+        contractPattern:
+          "GHO uses Chainlink CCIP (lock-and-mint / burn-and-mint), not ERC-7802",
+        keyFunctions: [],
+        implementationNotes:
+          "GHO's cross-chain architecture uses Chainlink CCIP — not the ERC-7802 crosschainMint/crosschainBurn interface. On Ethereum: GhoCCIPTokenPoolEthereum (0x06179f7C…) locks/releases GHO. On L2s: GhoCCIPTokenPool burns/mints via UpgradeableGhoToken facilitator model. CCIP rate limits and pool capacities are governance-controlled. Available on Ethereum, Arbitrum, Base, Avalanche, Gnosis, Mantle (8 networks per CCIP directory including Ink and Plasma).",
+        devImpact:
+          "Cross-chain GHO transfers require CCIP Router interactions — not a simple crosschainMint/crosschainBurn call. Use Chainlink CCIP SDK and contracts. Bridge fees are CCIP message fees (paid in LINK or native token).",
+        alternativeStandard: "Chainlink CCIP",
+        alternativeNotes:
+          "Lock-and-mint from Ethereum, burn-and-mint between L2s. GhoCCIPTokenPool contracts are facilitators with governance-controlled bucket capacities. Rate-limited by CCIP lane configuration.",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "implemented",
+        contractPattern:
+          "GhoFlashMinter facilitator — separate contract implementing IERC3156FlashLender",
+        keyFunctions: [
+          "maxFlashLoan(address token) → uint256",
+          "flashFee(address token, uint256 amount) → uint256",
+          "flashLoan(IERC3156FlashBorrower receiver, address token, uint256 amount, bytes data) → bool",
+          "getFee() → uint256 (bps)",
+          "CALLBACK_SUCCESS → bytes32",
+        ],
+        implementationNotes:
+          "GhoFlashMinter (0xb639D208Bcf0589D54FaC24E655C79EC529762B8) is a facilitator with its own bucket capacity. It mints GHO to the receiver, expects CALLBACK_SUCCESS from onFlashLoan(), then transferFrom's amount + fee back and burns the principal. Fee is expressed in basis points (MAX_FEE = 10000 = 100%). Aave-approved flash borrowers (ACLManager.isFlashBorrower) pay 0 fee. Since FlashMinter is a facilitator, maxFlashLoan is limited by remaining bucket capacity, not existing liquidity. Fees accumulate in the contract and are distributed to the GHO treasury via distributeFeesToTreasury().",
+        devImpact:
+          "Standard ERC-3156 integration — implement IERC3156FlashBorrower.onFlashLoan() and return CALLBACK_SUCCESS. GHO flash minting creates new supply temporarily (unlike pool-based flash loans that use existing liquidity). Ideal for GHO peg arbitrage, liquidations, and debt refinancing.",
+        footguns:
+          "Flash mint is limited by the FlashMinter's bucket capacity, not by existing GHO supply. The fee can be updated by pool admin — check getFee() at execution time, not at integration time. The transferFrom in repayment requires the receiver contract to have approved the FlashMinter for amount + fee.",
+      },
+      {
+        eipId: "Freeze",
+        status: "not-implemented",
+        contractPattern:
+          "No freeze/blacklist capability on GhoToken",
+        keyFunctions: [],
+        implementationNotes:
+          "GHO has no freeze, blacklist, or address-blocking mechanism. The GhoToken contract has no isBlacklisted(), freeze(), or equivalent function. transfer() and transferFrom() execute unconditionally (subject only to balance checks). This is a deliberate design choice for a decentralised, governance-controlled stablecoin — there is no centralised compliance officer. AccessControl roles (FACILITATOR_MANAGER_ROLE, BUCKET_MANAGER_ROLE, DEFAULT_ADMIN_ROLE) control supply/facilitator management, not individual transfers.",
+        devImpact:
+          "GHO transfers are fully permissionless — no transfer will revert due to address restrictions. Integrators do not need to handle freeze/blacklist edge cases. However, this means GHO cannot comply with OFAC sanctions at the token level — enforcement happens at the protocol/frontend layer (Aave app geo-blocking, CEX KYC).",
+        footguns:
+          "Regulatory risk: jurisdictions requiring token-level freeze capability may not approve GHO for certain regulated use cases. The lack of freeze is a feature for DeFi composability but a limitation for institutional/regulated adoption.",
+      },
+      {
+        eipId: "Seize",
+        status: "not-implemented",
+        contractPattern: "No seizure — no freeze means no seize",
+        keyFunctions: [],
+        implementationNotes:
+          "No freeze capability means no seize capability. burn() can only be called by facilitators on their own balance — no administrative ability to destroy or reclaim tokens from arbitrary addresses.",
+        devImpact:
+          "GHO supply is deterministic from facilitator mint/burn events. No surprise supply changes from seizure. totalSupply() accurately reflects all circulating GHO.",
+      },
+      {
+        eipId: "Pause",
+        status: "not-implemented",
+        contractPattern:
+          "No global pause on GhoToken — transfers are always active",
+        keyFunctions: [],
+        implementationNotes:
+          "GHO has no pause() or unpause() function. The GhoToken contract does not inherit Pausable or include any whenNotPaused modifiers. Transfers are always active. Note: individual GSM instances CAN be frozen/unfrozen (OracleSwapFreezer), but this only affects GSM buy/sell operations — it does not pause GHO token transfers. The Aave V3 pool can be paused independently, which would prevent new GHO minting/repaying via borrow/repay, but would not freeze existing GHO transfers.",
+        devImpact:
+          "GHO is always transferable — DeFi protocols can rely on GHO transfers never being globally paused. This is advantageous for collateral and liquidation flows. However, Aave V3 pool pause would block new GHO creation.",
+        footguns:
+          "GSM freeze (OracleSwapFreezer) is sometimes confused with GHO token pause — they are different. GSM freeze blocks buy/sell swaps in the stability module only. GHO token transfers remain unaffected.",
+      },
+    ],
+  },
+
+  {
+    symbol: "RLUSD",
+    contractName: "StablecoinUpgradeableV2",
+    contractAddress: "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+    decimals: 18,
+    deployedBlock: 20492031,
+    isUpgradeable: true,
+    upgradePattern: "UUPS (EIP-1822) with ERC-1967 storage slots — upgrade logic in implementation via UPGRADER_ROLE",
+    implementations: [
+      {
+        eipId: "ERC-20",
+        status: "implemented",
+        contractPattern: "ERC20Upgradeable (OZ v5.3.0) → StablecoinUpgradeable → StablecoinUpgradeableV2",
+        keyFunctions: [
+          "transfer(address to, uint256 value) → bool",
+          "transferFrom(address from, address to, uint256 value) → bool",
+          "approve(address spender, uint256 value) → bool — overridden with pause checks",
+          "allowance(address owner, address spender) → uint256",
+          "balanceOf(address account) → uint256",
+          "totalSupply() → uint256",
+          "mint(address to, uint256 value) — MINTER_ROLE only",
+          "burn(uint256 value) — BURNER_ROLE only",
+        ],
+        implementationNotes:
+          "Fully compliant ERC-20 on OZ v5.3.0 ERC20Upgradeable. 18 decimals (unlike USDC/USDT/PYUSD which use 6). transfer() and transferFrom() return bool correctly. approve() overridden to enforce account-level and global pause checks. The _update() hook checks pause status on from, to, and msg.sender for every transfer. Separate MINTER_ROLE and BURNER_ROLE for minting and burning.",
+        devImpact:
+          "Standard ERC-20 interface works with all EVM wallets, DEXes, and DeFi protocols. The 18-decimal precision is critically different from most USD stablecoins (USDC/USDT/PYUSD all use 6 decimals) — integrators must account for this.",
+        footguns:
+          "18 decimals is the critical gotcha — most USD stablecoins use 6. Hardcoding 1e6 for 'one dollar' will produce drastically wrong results. Always read decimals() dynamically. approve() also blocked when contract or accounts are paused.",
+      },
+      {
+        eipId: "EIP-712",
+        status: "implemented",
+        contractPattern: "EIP712Upgradeable (OZ v5) via ERC20PermitUpgradeable — added in V2 upgrade",
+        keyFunctions: ["DOMAIN_SEPARATOR() → bytes32"],
+        typeHash:
+          'keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)") — name = "RLUSD", version = "1"',
+        implementationNotes:
+          'Domain separator initialized via __ERC20Permit_init("RLUSD") in V2. Uses name = "RLUSD", version = "1", chainId = 1, verifyingContract = proxy address. Added in V2 upgrade (September 2025) — V1 had no EIP-712 support. DOMAIN_SEPARATOR recalculated dynamically via _domainSeparatorV4() to handle chain forks.',
+        devImpact:
+          "Prerequisite for EIP-2612 permit. Signatures are bound to the proxy address and chain ID. Use the proxy address (0x8292Bb45...) as verifyingContract for off-chain verification.",
+      },
+      {
+        eipId: "EIP-2612",
+        status: "implemented",
+        contractPattern: "ERC20PermitUpgradeable (OZ v5.1.0) — added in V2 upgrade",
+        keyFunctions: [
+          "permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+          "nonces(address owner) → uint256",
+          "DOMAIN_SEPARATOR() → bytes32",
+        ],
+        typeHash:
+          'keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")',
+        implementationNotes:
+          "Standard OZ ERC20PermitUpgradeable with sequential nonces. V2 overrides permit() to add compliance modifiers: whenAccountNotPaused(owner), whenAccountNotPaused(spender), whenAccountNotPaused(_msgSender()), whenNotPaused. permit() reverts if ANY of the three addresses are frozen or if globally paused. Uses ECDSA.recover() — EOA signatures only, no EIP-1271.",
+        devImpact:
+          "Enables gasless approval for DeFi flows. Compliance checks on permit() mean frozen accounts cannot have approvals changed even via gasless signatures. Smart contract wallets cannot sign permits (no EIP-1271).",
+        footguns:
+          "permit() checks msg.sender pause status — a frozen relayer causes revert even if owner and spender are clean. nonces must be read from the proxy address. Pre-V2 signatures are meaningless. No EIP-1271 means Safe/AA wallets cannot use permit().",
+      },
+      {
+        eipId: "EIP-3009",
+        status: "not-implemented",
+        contractPattern: "No transferWithAuthorization in contract source",
+        keyFunctions: [],
+        implementationNotes:
+          "RLUSD does not implement EIP-3009. No transferWithAuthorization(), receiveWithAuthorization(), or cancelAuthorization(). The only gasless flow is EIP-2612 permit(). Notable omission compared to USDC which implements both.",
+        devImpact:
+          "No single-call gasless transfers. Must use permit() + transferFrom() as two separate calls. No random-nonce concurrent authorization support — permits use sequential nonces only.",
+      },
+      {
+        eipId: "EIP-1967",
+        status: "implemented",
+        contractPattern: "StablecoinProxy extends ERC1967Proxy (OZ v5.0.0)",
+        keyFunctions: [
+          "getImplementation() → address — public view on StablecoinProxy",
+          "IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+        ],
+        implementationNotes:
+          "StablecoinProxy extends OZ ERC1967Proxy and adds a public getImplementation() view. Uses standard EIP-1967 implementation and admin storage slots. Despite Etherscan labeling it 'Transparent Proxy', the upgrade mechanism is UUPS — the proxy has no admin/transparent separation. Upgraded V1 → V2 on September 6, 2025 (block 23300630).",
+        devImpact:
+          "Standard EIP-1967 slots mean block explorers and monitoring tools auto-detect the proxy. Always interact with the proxy address, never the implementation.",
+        footguns:
+          "Etherscan labels it 'Transparent Proxy' but it is UUPS. The implementation address has changed (V1 is inactive). Monitor Upgraded events.",
+      },
+      {
+        eipId: "EIP-1822",
+        status: "implemented",
+        contractPattern: "UUPSUpgradeable (OZ v5.3.0) — upgrade logic in StablecoinUpgradeable",
+        keyFunctions: [
+          "proxiableUUID() → bytes32",
+          "upgradeToAndCall(address newImplementation, bytes data)",
+          "_authorizeUpgrade(address) — onlyRole(UPGRADER_ROLE)",
+        ],
+        implementationNotes:
+          "UUPS is the actual upgrade pattern. StablecoinUpgradeable extends UUPSUpgradeable. _authorizeUpgrade() gated by UPGRADER_ROLE via AccessControl. proxiableUUID() validates implementation compatibility during upgrade. UPGRADE_INTERFACE_VERSION = '5.0.0'. Already exercised once (V1→V2) to add permit support.",
+        devImpact:
+          "UUPS is cheaper to deploy than Transparent Proxy (no separate ProxyAdmin). Upgrade authority is a dedicated UPGRADER_ROLE key. Ripple has already used this path once to add features without token migration.",
+        footguns:
+          "If an upgrade deploys an implementation without UUPSUpgradeable, the proxy is bricked permanently. UPGRADER_ROLE key is a single point of failure for upgradeability.",
+      },
+      {
+        eipId: "ERC-4626",
+        status: "not-implemented",
+        contractPattern: "Payment stablecoin only — no vault",
+        keyFunctions: [],
+        implementationNotes:
+          "RLUSD is a payment stablecoin with no yield or vault functionality. No ERC-4626 interface. Yield on RLUSD would require external DeFi protocols to create their own vault wrappers.",
+        devImpact:
+          "No native yield mechanism. External ERC-4626 vaults must be created by DeFi protocols for yield-bearing RLUSD products.",
+      },
+      {
+        eipId: "EIP-1271",
+        status: "not-implemented",
+        contractPattern: "No isValidSignature — permit uses ECDSA.recover (EOA only)",
+        keyFunctions: [],
+        implementationNotes:
+          "ERC20PermitUpgradeable uses ECDSA.recover() for permit signature verification. No isValidSignature(bytes32, bytes) callback for smart contract wallets. Safe multisigs, Argent, and ERC-4337 smart accounts cannot use permit() natively.",
+        devImpact:
+          "Smart contract wallets cannot sign RLUSD permit messages — limits gasless flows to EOAs. Institutional custody using multisigs must use on-chain approve() or Permit2.",
+      },
+      {
+        eipId: "ERC-7802",
+        status: "not-implemented",
+        contractPattern: "Separate native issuances per chain — no cross-chain interface",
+        keyFunctions: [],
+        implementationNotes:
+          "RLUSD is natively issued on Ethereum (ERC-20) and XRP Ledger (IOU) as completely separate contracts with independent supply management. No crosschainMint() or crosschainBurn(). No bridge, CCIP, OFT, or cross-chain mechanism on the Ethereum contract. Moving between chains requires Ripple-mediated mint/burn.",
+        devImpact:
+          "No permissionless cross-chain transfer capability. Third-party bridges cannot mint canonical RLUSD. Limits composability vs USDC (CCTP) or USDT (OFT).",
+      },
+      {
+        eipId: "ERC-3156",
+        status: "not-implemented",
+        contractPattern: "No flash loan capability",
+        keyFunctions: [],
+        implementationNotes:
+          "No native flash loan or flash mint functionality. Flash loans of RLUSD would only become available if external DeFi protocols list it once sufficient liquidity exists.",
+        devImpact:
+          "Cannot use RLUSD for single-transaction borrow-use-repay patterns natively. Must rely on external providers.",
+      },
+      {
+        eipId: "Freeze",
+        status: "implemented",
+        contractPattern: "AccountPausableUpgradeable — custom Ripple contract with ERC-7201 namespaced storage",
+        keyFunctions: [
+          "pauseAccounts(address[] calldata accounts) — PAUSER_ROLE, must be ascending sorted",
+          "unpauseAccount(address account) — PAUSER_ROLE",
+          "accountPaused(address account) → bool",
+        ],
+        implementationNotes:
+          "Custom AccountPausableUpgradeable uses ERC-7201 namespaced storage. Internal mapping _frozen[address] → bool. Frozen accounts cannot send, receive, approve, or have permit() called on their behalf — _update() and approve()/permit() overrides enforce whenAccountNotPaused on from, to, and msg.sender. pauseAccounts() requires ascending sorted input (gas optimization, prevents duplicates). V2 uses _tryPauseAccount() which is idempotent.",
+        devImpact:
+          "Account freezing blocks ALL value movement including incoming transfers. Check accountPaused() before building payment pipelines. Uses 'pause/accountPaused()' terminology (not 'blacklist/isBlacklisted' like USDC).",
+        footguns:
+          "pauseAccounts() requires ascending sorted addresses — unsorted arrays revert. Frozen accounts still hold balance in balanceOf() but can only have tokens removed via clawback(). A frozen msg.sender (relayer/router) blocks all submitted transactions.",
+      },
+      {
+        eipId: "Seize",
+        status: "implemented",
+        contractPattern: "clawback(address, uint256) via CLAWBACKER_ROLE — burns from any address including frozen",
+        keyFunctions: [
+          "clawback(address from, uint256 value) — CLAWBACKER_ROLE, burns tokens from target",
+        ],
+        implementationNotes:
+          "Full seizure via clawback(). CLAWBACKER_ROLE can burn from ANY address, including frozen accounts. V2's _update() override allows this bypass. More powerful than USDC (freeze-only), comparable to USDT's destroyBlackFunds(). Seized tokens are permanently destroyed, reducing totalSupply().",
+        devImpact:
+          "totalSupply() can decrease from clawback events. Protocols tracking RLUSD supply should monitor Transfer(from, address(0)) where from != msg.sender. Clawback represents counterparty risk — frozen collateral in lending protocols can be destroyed, causing bad debt.",
+        footguns:
+          "Unlike USDC where frozen funds remain in balanceOf() indefinitely, RLUSD frozen funds can be destroyed at any time. Fundamentally changes risk model for DeFi protocols holding large positions.",
+      },
+      {
+        eipId: "Pause",
+        status: "implemented",
+        contractPattern: "ERC20PausableUpgradeable (OZ v5.1.0) — global circuit-breaker",
+        keyFunctions: [
+          "pause() — PAUSER_ROLE",
+          "unpause() — PAUSER_ROLE",
+          "paused() → bool",
+        ],
+        implementationNotes:
+          "Global pause via OZ ERC20PausableUpgradeable. whenNotPaused modifier on _update() blocks ALL transfer(), transferFrom(), mint(), burn() contract-wide. approve() and permit() also explicitly blocked during global pause. PAUSER_ROLE controls both global pause and per-account freezes — single key for both capabilities.",
+        devImpact:
+          "Global pause freezes ALL RLUSD operations: transfers, DeFi swaps, lending, liquidations. approve() and permit() also revert — protocols cannot even prepare approvals during pause.",
+        footguns:
+          "During pause, approve() and permit() also revert — not just transfers. Lending protocols cannot execute liquidations, DEXes cannot process swaps. Same PAUSER key for global and per-account — single key compromise could freeze everything.",
+      },
+    ],
+  },
 ]

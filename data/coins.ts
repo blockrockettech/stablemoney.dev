@@ -1113,6 +1113,221 @@ export const coins: Coin[] = [
     technicalNotes:
       "18 decimals. Source code public at worldliberty/usd1-smart-contracts (Foundry/Solidity). TransparentUpgradeableProxy (EIP-1967) confirmed. Conforms to EIP-20, EIP-712, EIP-2612. Freeze capability. Contract address 0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d on EVM chains. Deployed across 11 networks: Ethereum, BNB, Plume, Monad, Mantle, Morph, XLayer, Solana, TRON, Aptos. Monthly AICPA attestations (2025 criteria). Notable gap: no formal smart contract security audit from a recognized firm publicly disclosed.",
   },
+  {
+    symbol: "GHO",
+    name: "GHO",
+    issuer: "Aave DAO",
+    rank: 11,
+    marketCap: "~$584M",
+    type: "crypto",
+    description:
+      "Aave-native decentralised stablecoin launched July 2023. GHO is minted by borrowers on Aave V3 against over-collateralised positions — it is never supplied, only created. Supply is governed by a facilitator model: each approved facilitator (Aave V3, FlashMinter, GSM) has a governance-set bucket capacity controlling the maximum GHO it can mint. Cross-chain via Chainlink CCIP (lock-and-mint from Ethereum, burn-and-mint between L2s). Peg stability maintained by GSM (1:1 USDC/USDT swaps), borrow rate tuning, and arbitrage incentives.",
+    networks: [
+      {
+        name: "Ethereum",
+        chain: "ethereum",
+        standard: "ERC-20",
+        contract: "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
+        isPrimary: true,
+        notes: "Non-proxied immutable contract, 18 decimals",
+      },
+      {
+        name: "Arbitrum",
+        chain: "arbitrum",
+        standard: "ERC-20",
+        contract: "0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33",
+        isPrimary: false,
+        notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+      },
+      {
+        name: "Base",
+        chain: "base",
+        standard: "ERC-20",
+        contract: "0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
+        isPrimary: false,
+        notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+      },
+      {
+        name: "Avalanche",
+        chain: "avalanche",
+        standard: "ERC-20",
+        contract: "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
+        isPrimary: false,
+        notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+      },
+      {
+        name: "Gnosis",
+        chain: "gnosis",
+        standard: "ERC-20",
+        contract: "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
+        isPrimary: false,
+        notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+      },
+      {
+        name: "Mantle",
+        chain: "mantle",
+        standard: "ERC-20",
+        contract: "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
+        isPrimary: false,
+        notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+      },
+    ],
+    features: [
+      {
+        name: "Facilitator model — mint/burn",
+        category: "governance",
+        description:
+          "GHO supply controlled by approved facilitators (Aave V3, FlashMinter, GSM) each with governance-set bucket capacities. Only facilitators can mint/burn — no centralised issuer.",
+      },
+      {
+        name: "EIP-2612 permit()",
+        category: "authorization",
+        description:
+          "Standard sequential-nonce permit for gasless approvals via off-chain EIP-712 signatures. Built into the custom Solmate-derived ERC20 base.",
+      },
+      {
+        name: "ERC-3156 FlashMint facilitator",
+        category: "authorization",
+        description:
+          "Dedicated GhoFlashMinter contract implements ERC-3156 flash loan interface — mints GHO atomically within a single transaction for arbitrage, liquidations, and debt switches.",
+      },
+      {
+        name: "GHO Stability Module (GSM)",
+        category: "stability",
+        description:
+          "Peg stability via 1:1 swaps between GHO and approved exogenous tokens (USDC, USDT). Each GSM instance is a facilitator with exposure caps, fee strategies, and oracle-driven freeze capability.",
+      },
+      {
+        name: "CCIP cross-chain bridging",
+        category: "cross-chain",
+        description:
+          "Chainlink CCIP enables lock-and-mint (Ethereum) and burn-and-mint (L2↔L2) transfers across Arbitrum, Base, Avalanche, Gnosis, and Mantle.",
+      },
+      {
+        name: "stkGHO staking",
+        category: "yield",
+        description:
+          "Staked GHO (stkGHO) earns AAVE rewards via StakeToken contract. Includes cooldown/unstake window, slashing mechanism for Aave safety module. Not ERC-4626.",
+      },
+      {
+        name: "stkAAVE discount rate",
+        category: "yield",
+        description:
+          "stkAAVE holders receive a discounted GHO borrow rate on Aave V3 — incentivises AAVE staking and GHO adoption simultaneously.",
+      },
+      {
+        name: "Governance-controlled parameters",
+        category: "governance",
+        description:
+          "Borrow rate, facilitator caps, GSM fees, and CCIP rate limits all adjustable by Aave Governance and GHO Stewards (3-of-4 multisig from Risk, Growth, and Finance service providers).",
+      },
+    ],
+    reserves:
+      "Over-collateralised via Aave V3 (ETH, WBTC, wstETH, USDC, etc.) plus GSM holdings (USDC, USDT). No off-chain reserves — fully on-chain collateral.",
+    collateralType: "On-chain crypto (Aave V3 collateral pool)",
+    pegMechanism:
+      "Borrow rate adjustment + GSM 1:1 swaps + arbitrage incentives. GHO Stewards can adjust borrow rate ±500bps per 2-day period if 30-day average price deviates from $0.995–$1.005.",
+    auditor: "SigmaPrime, OpenZeppelin (CCIP integration)",
+    defiIntegration:
+      "Deep Aave V3 integration (borrow, repay, liquidation), Curve, Balancer, Uniswap GHO pools",
+    yield: "stkGHO staking rewards (AAVE), stkAAVE discount on borrow rate",
+    risks: [
+      { label: "Smart contract risk (multi-contract architecture)", level: "medium" },
+      { label: "Collateral volatility", level: "medium" },
+      { label: "Governance attack vector", level: "medium" },
+      { label: "Peg stability (new mechanism)", level: "medium" },
+      { label: "Cross-chain bridge risk (CCIP)", level: "low" },
+    ],
+    technicalNotes:
+      "18 decimals. Ethereum mainnet GHO is a non-proxied immutable contract (Solmate-derived ERC20 + OZ AccessControl). L2 deployments use UpgradeableGhoToken (proxy-based, Initializable). Custom ERC20 base from Solmate — gas-optimised with built-in EIP-2612 permit() and EIP-712 DOMAIN_SEPARATOR. No EIP-3009 transferWithAuthorization. No freeze, seize, or pause on the GHO token itself — fully permissionless transfers. Flash mints via separate GhoFlashMinter facilitator (ERC-3156). GSM4626 variant supports ERC-4626 vault shares as exogenous token. CCIP cross-chain uses GhoCCIPTokenPoolEthereum (lock/release on L1) and GhoCCIPTokenPool (burn/mint on L2s). AccessControl roles: DEFAULT_ADMIN_ROLE (Aave Governance), FACILITATOR_MANAGER_ROLE, BUCKET_MANAGER_ROLE.",
+    docsUrl: "https://docs.gho.xyz/",
+    githubUrl: "https://github.com/aave/gho-core",
+  },
+  {
+    symbol: "RLUSD",
+    name: "Ripple USD",
+    issuer: "Standard Custody & Trust Company, LLC (Ripple subsidiary)",
+    rank: 12,
+    marketCap: "~$1.4B",
+    type: "fiat",
+    description:
+      "Ripple's USD-backed stablecoin, approved by NYDFS and DFSA (Dubai). Launched December 2024, natively issued on Ethereum and XRP Ledger. Purpose-built for cross-border payments with six-role access control (admin, minter, burner, pauser, clawbacker, upgrader), account-level freeze, clawback (seize), and UUPS upgradeability. V2 upgrade (September 2025) added EIP-2612 gasless permit.",
+    networks: [
+      {
+        name: "Ethereum",
+        chain: "ethereum",
+        standard: "ERC-20",
+        contract: "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+        isPrimary: true,
+        notes: "UUPS proxy (StablecoinUpgradeableV2), 18 decimals",
+      },
+      {
+        name: "XRP Ledger",
+        chain: "xrpl",
+        standard: "IOU (Issued Currency)",
+        contract: "Issuer: rMxWzuz9LHEFhJgjAB1mfPNHBCnrHTmDjg",
+        isPrimary: true,
+        notes: "Native issued currency, not EVM",
+      },
+    ],
+    features: [
+      {
+        name: "EIP-2612 permit()",
+        category: "authorization",
+        eip: "EIP-2612",
+        description:
+          "Gasless approval via signed message. Added in V2 upgrade (September 2025). Compliance-gated — reverts if owner, spender, or msg.sender is frozen, or if contract is globally paused.",
+      },
+      {
+        name: "Account freeze",
+        category: "compliance",
+        description:
+          "PAUSER_ROLE can freeze individual addresses via pauseAccounts(address[]). Frozen accounts cannot send, receive, or approve. Custom AccountPausableUpgradeable with ERC-7201 namespaced storage.",
+      },
+      {
+        name: "Clawback (seize)",
+        category: "compliance",
+        description:
+          "CLAWBACKER_ROLE can burn tokens from any address including frozen accounts via clawback(address, uint256). More powerful than USDC's freeze-only — tokens are permanently destroyed.",
+      },
+      {
+        name: "Global pause",
+        category: "compliance",
+        description:
+          "PAUSER_ROLE can halt ALL transfers, mints, burns, approvals, and permits contract-wide via pause()/unpause().",
+      },
+      {
+        name: "UUPS upgradeable",
+        category: "compliance",
+        description:
+          "UPGRADER_ROLE can upgrade implementation via upgradeToAndCall(). Already upgraded V1 → V2 (September 2025) to add EIP-2612 permit support.",
+      },
+      {
+        name: "Six-role access control",
+        category: "compliance",
+        description:
+          "OpenZeppelin AccessControl with DEFAULT_ADMIN, MINTER, BURNER, PAUSER, CLAWBACKER, UPGRADER roles. BURNER (self-burn for redemption) and CLAWBACKER (seize from any address) are separate capabilities.",
+      },
+    ],
+    reserves:
+      "100% backed by USD deposits, U.S. Treasury Bills, and cash equivalents held in segregated accounts. Primary custody by BNY Mellon (since July 2025). Monthly third-party attestations.",
+    collateralType: "Fiat and equivalents (off-chain)",
+    pegMechanism: "Hard 1:1 via centralized issuer redemption",
+    auditor: "Third-party monthly attestations (ripple.com/solutions/stablecoin/transparency/)",
+    defiIntegration:
+      "Early-stage — exchange listings (Binance, Bitso, LMAX), BlackRock BUIDL redemption mechanism, SBI Japan integration",
+    yield: "None native",
+    risks: [
+      { label: "Centralization (six-role admin)", level: "medium" },
+      { label: "Regulatory exposure", level: "low" },
+      { label: "Clawback — tokens can be seized and destroyed", level: "medium" },
+      { label: "18-decimal integration risk vs 6-decimal norm", level: "medium" },
+    ],
+    technicalNotes:
+      "18 decimals (unlike USDC/USDT/PYUSD which use 6 — critical integration difference). UUPS proxy (EIP-1822) with ERC-1967 storage slots. StablecoinProxy (Solidity 0.8.26, OZ v5) wraps StablecoinUpgradeableV2 (Solidity 0.8.29, OZ v5.3.0). V2 adds ERC20PermitUpgradeable. Custom AccountPausableUpgradeable uses ERC-7201 namespaced storage. V2's _update() override allows clawback from frozen accounts while blocking normal transfers. No EIP-3009, no EIP-1271, no flash loans. Role hashes: MINTER=keccak256('MINTER'), BURNER=keccak256('BURNER'), PAUSER=keccak256('PAUSER'), CLAWBACKER=keccak256('CLAWBACKER'), UPGRADER=keccak256('UPGRADER'). Security contact: security@ripple.com.",
+    docsUrl: "https://ripple.com/solutions/stablecoin/",
+    githubUrl: "https://github.com/ripple/RLUSD-Implementation",
+  },
 ]
 
 export const coinBySymbol = Object.fromEntries(

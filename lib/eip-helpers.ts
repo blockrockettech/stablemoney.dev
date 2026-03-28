@@ -9,6 +9,8 @@ export const COIN_EIP_SYMBOLS = [
   "USDe",
   "USD1",
   "DAI",
+  "RLUSD",
+  "GHO",
   "PYUSD",
   "TUSD",
   "FDUSD",

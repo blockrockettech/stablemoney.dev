@@ -21,6 +21,9 @@ const CHAIN_LABELS: Record<string, string> = {
   zksync: "ZKsync Era",
   starknet: "Starknet",
   xrp: "XRP Ledger",
+  xrpl: "XRP Ledger",
+  gnosis: "Gnosis",
+  mantle: "Mantle",
 }
 
 export function getChainDisplayName(slug: string): string {

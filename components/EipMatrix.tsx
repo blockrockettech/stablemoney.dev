@@ -109,7 +109,7 @@ export function EipMatrix() {
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full min-w-[960px] text-left text-sm">
+        <table className="w-full min-w-[1100px] text-left text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/40">
               <th className="bg-background sticky left-0 z-10 border-r border-border px-3 py-2 font-medium shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)]">

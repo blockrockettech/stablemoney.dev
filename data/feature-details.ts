@@ -672,4 +672,129 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
       links: [{ label: "EIP-20", url: ERC(20) }],
     },
   },
+  GHO: {
+    "Facilitator model — mint/burn": {
+      audience: "both",
+      standards: ["AccessControl (OZ)"],
+      rationale:
+        "Understand facilitator bucket caps before integration — available mint capacity is not unlimited. Query getFacilitatorBucket() to check remaining capacity.",
+      riskNotes:
+        "Governance can add/remove facilitators and adjust caps. A governance attack could dramatically expand supply.",
+      links: [
+        { label: "GHO docs", url: "https://docs.gho.xyz/" },
+        {
+          label: "GhoToken source (GitHub)",
+          url: "https://github.com/aave/gho-core/blob/main/src/contracts/gho/GhoToken.sol",
+        },
+        {
+          label: "Verified contract (Etherscan)",
+          url: "https://etherscan.io/address/0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f#code",
+        },
+      ],
+    },
+    "EIP-2612 permit()": {
+      audience: "user",
+      standards: ["EIP-2612", "EIP-712"],
+      rationale:
+        "Standard permit for gasless approvals. Aave V3 offers supplyWithPermit/repayWithPermit that batch permit + pool action atomically.",
+      riskNotes:
+        "permit() returns void (Solmate pattern) — callers checking for bool return will break. No EIP-1271 support — smart contract wallets need Permit2.",
+      links: [
+        { label: "EIP-2612", url: EIP(2612) },
+        {
+          label: "ERC20 source (Solmate-derived)",
+          url: "https://github.com/aave/gho-core/blob/main/src/contracts/gho/ERC20.sol",
+        },
+      ],
+    },
+    "ERC-3156 FlashMint facilitator": {
+      audience: "user",
+      standards: ["ERC-3156"],
+      rationale:
+        "Flash minting creates new GHO (not from liquidity pool) — limited by facilitator bucket capacity, not existing supply. Ideal for peg arbitrage and liquidations.",
+      riskNotes:
+        "Fee can be updated by pool admin — always check getFee() at execution time. Flash borrower must approve FlashMinter for repayment.",
+      links: [
+        { label: "ERC-3156 spec", url: ERC(3156) },
+        {
+          label: "GhoFlashMinter source",
+          url: "https://github.com/aave/gho-core/blob/main/src/contracts/facilitators/flashMinter/GhoFlashMinter.sol",
+        },
+        {
+          label: "GhoFlashMinter (Etherscan)",
+          url: "https://etherscan.io/address/0xb639D208Bcf0589D54FaC24E655C79EC529762B8#code",
+        },
+      ],
+    },
+    "GHO Stability Module (GSM)": {
+      audience: "both",
+      standards: ["Custom (Aave)"],
+      rationale:
+        "Primary peg defence mechanism. 1:1 swaps between GHO and USDC/USDT with fee strategies and exposure caps — integrators can use GSM for peg arbitrage.",
+      riskNotes:
+        "GSM can be frozen by OracleSwapFreezer if exogenous token price deviates. Last Resort Liquidation can forcibly liquidate GSM holdings. Fee strategy changes affect arbitrage profitability.",
+      links: [
+        { label: "GSM docs", url: "https://docs.gho.xyz/" },
+        {
+          label: "GSM USDC (Etherscan)",
+          url: "https://etherscan.io/address/0x3A3868898305f04beC7FEa77BecFf04C13444112",
+        },
+        {
+          label: "GSM USDT (Etherscan)",
+          url: "https://etherscan.io/address/0x882285E62656b9623AF136Ce3078c6BdCc33F5E3",
+        },
+      ],
+    },
+    "CCIP cross-chain bridging": {
+      audience: "both",
+      standards: ["Chainlink CCIP"],
+      rationale:
+        "Lock-and-mint from Ethereum, burn-and-mint between L2s. Uses Chainlink CCIP messaging — not a generic bridge interface. Rate-limited by governance-controlled CCIP parameters.",
+      riskNotes:
+        "CCIP bridge risk — Chainlink infrastructure dependency. Rate limits can cause delays during high-volume periods.",
+      links: [
+        { label: "GHO CCIP directory", url: "https://docs.chain.link/ccip/directory/mainnet/token/GHO" },
+        {
+          label: "GhoCCIPTokenPoolEthereum (Etherscan)",
+          url: "https://etherscan.io/address/0x06179f7C1be40863405f374E7f5F8806c728660A",
+        },
+      ],
+    },
+    "stkGHO staking": {
+      audience: "user",
+      standards: ["Custom StakeToken (bgd-labs)"],
+      rationale:
+        "Staking GHO earns AAVE rewards and contributes to Aave safety module. Not ERC-4626 — uses custom stake/redeem/previewStake/previewRedeem interface with cooldown/unstake window.",
+      riskNotes:
+        "Cooldown period before unstaking. Exchange rate can change from slashing events. Not compatible with ERC-4626 aggregators.",
+      links: [
+        {
+          label: "stkGHO proxy (Etherscan)",
+          url: "https://etherscan.io/address/0x1a88Df1cFe15Af22B3c4c783D4e6F7F9e0C1885d",
+        },
+        {
+          label: "StakeToken source (GitHub)",
+          url: "https://github.com/bgd-labs/stake-token/blob/main/src/contracts/StakeToken.sol",
+        },
+      ],
+    },
+    "stkAAVE discount rate": {
+      audience: "user",
+      rationale:
+        "stkAAVE holders get a discounted GHO borrow rate on Aave V3 — dual incentive for AAVE staking and GHO minting.",
+      riskNotes:
+        "Discount rate is governance-adjustable. Must be actively staking AAVE (stkAAVE) at time of borrow to receive discount.",
+    },
+    "Governance-controlled parameters": {
+      audience: "corporate",
+      standards: ["Aave Governance v3"],
+      rationale:
+        "All key parameters (borrow rate, facilitator caps, GSM fees, CCIP rate limits) are adjustable by governance. GHO Stewards (3-of-4 multisig) can make time-sensitive adjustments within pre-approved bounds.",
+      riskNotes:
+        "Governance attack vector: malicious proposals could dramatically change GHO economics. GHO Stewards add operational agility but introduce multisig trust assumptions.",
+      links: [
+        { label: "GHO Stewards source", url: "https://github.com/aave/gho-core/tree/main/src/contracts/misc" },
+      ],
+    },
+  },
 }
