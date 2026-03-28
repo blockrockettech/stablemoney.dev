@@ -4,6 +4,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDC",
     contractName: "FiatToken v2.2",
+    contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     decimals: 6,
     deployedBlock: 6082465,
     isUpgradeable: true,
@@ -194,6 +195,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDT",
     contractName: "TetherToken",
+    contractAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     decimals: 6,
     deployedBlock: 4634748,
     isUpgradeable: true,
@@ -373,6 +375,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "DAI",
     contractName: "dai.sol (MCD)",
+    contractAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     decimals: 18,
     deployedBlock: 8928158,
     isUpgradeable: false,
@@ -548,6 +551,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDS",
     contractName: "USDS + sUSDS (Sky Protocol)",
+    contractAddress: "0xdC035D45d973E3EC169d2276DDab16f1e407384F",
     decimals: 18,
     deployedBlock: 20690000,
     isUpgradeable: true,
@@ -740,6 +744,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDe",
     contractName: "USDe.sol + StakedUSDe.sol (Ethena Labs)",
+    contractAddress: "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
     decimals: 18,
     isUpgradeable: false,
     upgradePattern:
@@ -920,6 +925,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "FDUSD",
     contractName: "First Digital USD (EVM deployment)",
+    contractAddress: "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern:
@@ -1076,6 +1082,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "PYUSD",
     contractName: "PayPal USD — Paxos FiatToken derivative (Ethereum)",
+    contractAddress: "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
     decimals: 6,
     isUpgradeable: true,
     upgradePattern:
@@ -1266,6 +1273,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "frxUSD",
     contractName: "frxUSD (Frax Finance) + sfrxUSD vault",
+    contractAddress: "0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern: "Upgradeable proxy — verify pattern on official Frax docs post-December 2025 migration",
@@ -1456,6 +1464,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "TUSD",
     contractName: "TrueUSD — TokenController proxy + delegate",
+    contractAddress: "0x0000000000085d4780B73119b644AE5ecd22b376",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern: "Controller → implementation delegate (legacy TrustToken/Techteryx pattern — Archblock filed Chapter 11 bankruptcy 2025)",
@@ -1603,6 +1612,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USD1",
     contractName: "USD1 (WLFI) — Foundry/Solidity",
+    contractAddress: "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern:

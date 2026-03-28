@@ -9,7 +9,8 @@ import {
 } from "@/lib/eip-helpers"
 import { EipCard } from "@/components/EipCard"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, ExternalLink } from "lucide-react"
+import { shortAddress } from "@/lib/explorers"
 
 export function generateStaticParams() {
   return coins.map((c) => ({ symbol: c.symbol.toLowerCase() }))
@@ -114,9 +115,38 @@ export default function CoinEipsPage({ params }: { params: { symbol: string } })
         <h1 className="text-2xl font-semibold tracking-tight">Standards implementation</h1>
         <div className="bg-muted/40 rounded-lg border border-border px-4 py-3 text-sm">
           <p>
-            <span className="text-muted-foreground">Contract focus:</span>{" "}
+            <span className="text-muted-foreground">Contract assessed:</span>{" "}
             <span className="font-medium">{profile.contractName}</span>
           </p>
+          {profile.contractAddress ? (
+            <p className="mt-1">
+              <span className="text-muted-foreground">Address:</span>{" "}
+              <a
+                href={`https://etherscan.io/address/${profile.contractAddress}#code`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary inline-flex items-center gap-1 font-mono text-xs font-medium hover:underline"
+              >
+                {shortAddress(profile.contractAddress)}
+                <ExternalLink className="size-3" />
+              </a>
+              <span className="text-muted-foreground ml-2 text-xs">(Ethereum mainnet · verified source)</span>
+            </p>
+          ) : null}
+          {coin.githubUrl ? (
+            <p className="mt-1">
+              <span className="text-muted-foreground">Source repo:</span>{" "}
+              <a
+                href={coin.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
+              >
+                {coin.githubUrl.replace("https://github.com/", "")}
+                <ExternalLink className="size-3" />
+              </a>
+            </p>
+          ) : null}
           {profile.deployedBlock != null ? (
             <p className="text-muted-foreground mt-1 text-xs">
               Reference deployment block (Ethereum): {profile.deployedBlock.toLocaleString()}

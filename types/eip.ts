@@ -38,6 +38,8 @@ export interface CoinEipImpl {
 export interface CoinEipProfile {
   symbol: string
   contractName: string
+  /** Ethereum mainnet address of the contract assessed for EIP compliance */
+  contractAddress?: string
   decimals: number
   deployedBlock?: number
   isUpgradeable: boolean

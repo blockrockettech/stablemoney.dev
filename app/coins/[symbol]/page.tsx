@@ -6,7 +6,8 @@ import type { StablecoinType } from "@/types"
 import { loadCoinMdx } from "@/lib/mdx"
 import { mergeCoinFeatures } from "@/lib/merge-features"
 import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/eips"
-import { eipAnchorId, getCellStatus, getEipImplementation } from "@/lib/eip-helpers"
+import { eipAnchorId, getCellStatus, getCoinEipProfile, getEipImplementation } from "@/lib/eip-helpers"
+import { shortAddress } from "@/lib/explorers"
 import type { EipStatus } from "@/types/eip"
 import { CoinMdx } from "@/components/CoinMdx"
 import { ContractTable } from "@/components/ContractTable"
@@ -123,6 +124,36 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
         <p className="text-muted-foreground mb-4 max-w-3xl text-sm leading-relaxed">
           Standards &amp; compliance support for {coin.symbol}. Click an EIP to jump to the global deep-dive section.
         </p>
+        {(() => {
+          const eipProfile = getCoinEipProfile(coin.symbol)
+          if (!eipProfile?.contractAddress && !coin.githubUrl) return null
+          return (
+            <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              {eipProfile?.contractAddress ? (
+                <a
+                  href={`https://etherscan.io/address/${eipProfile.contractAddress}#code`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
+                >
+                  Verified contract: {shortAddress(eipProfile.contractAddress)}
+                  <ExternalLink className="size-3" />
+                </a>
+              ) : null}
+              {coin.githubUrl ? (
+                <a
+                  href={coin.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
+                >
+                  Source: {coin.githubUrl.replace("https://github.com/", "")}
+                  <ExternalLink className="size-3" />
+                </a>
+              ) : null}
+            </div>
+          )
+        })()}
         <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
