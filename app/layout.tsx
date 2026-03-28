@@ -117,13 +117,9 @@ function Footer() {
             {LAST_UPDATED}.
           </span>
           {dynamic && freshness ? (
-            <span className="font-mono text-xs">
-              Market data refreshed {freshness}
-            </span>
+            <span className="font-mono text-xs">Market data refreshed {freshness}</span>
           ) : (
-            <span className="font-mono text-xs">
-              Market data: static
-            </span>
+            <span className="font-mono text-xs">Market data: static</span>
           )}
         </div>
         <p className="text-muted-foreground/80 text-xs leading-relaxed">
@@ -136,10 +132,11 @@ function Footer() {
           >
             DefiLlama
           </a>
-          . EIP/ERC analysis, contract details, and risk assessments are manually curated.
+          . EIP/ERC analysis, contract details, and risk assessments are manually
+          curated. Always verify the deployment you integrate.
         </p>
         <p className="text-muted-foreground border-border/60 text-xs leading-relaxed sm:border-t sm:pt-4">
-          Built with love ❤️ from Manchester by{" "}
+          Built with love ❤️ from Manchester 🐝 by{" "}
           <a
             href="https://blockrocket.tech/"
             target="_blank"
@@ -147,8 +144,8 @@ function Footer() {
             className="text-primary font-medium hover:underline"
           >
             BlockRocket.tech 🚀
-          </a>
-          {" "}— follow on{" "}
+          </a>{" "}
+          — follow on{" "}
           <a
             href="https://x.com/blockrockettech"
             target="_blank"

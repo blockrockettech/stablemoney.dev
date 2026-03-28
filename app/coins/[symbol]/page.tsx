@@ -30,6 +30,8 @@ const statusBadgeClass: Record<EipStatus, string> = {
   partial: "border-amber-500/50 bg-amber-500/15 text-amber-900 dark:text-amber-200",
   "not-implemented": "border-red-500/50 bg-red-500/15 text-red-900 dark:text-red-200",
   unknown: "border-muted-foreground/40 bg-muted text-muted-foreground",
+  alternative:
+    "border-violet-500/50 bg-violet-500/15 text-violet-900 dark:text-violet-200",
 }
 
 const statusLabel: Record<EipStatus, string> = {
@@ -37,6 +39,7 @@ const statusLabel: Record<EipStatus, string> = {
   partial: "Partial",
   "not-implemented": "Not implemented",
   unknown: "Unknown",
+  alternative: "Alternative",
 }
 
 export function generateStaticParams() {

@@ -3,6 +3,7 @@ export type EipStatus =
   | "partial"
   | "not-implemented"
   | "unknown"
+  | "alternative"
 
 export type EipCategory =
   | "core"
@@ -30,6 +31,8 @@ export interface CoinEipImpl {
   implementationNotes: string
   devImpact: string
   footguns?: string
+  alternativeStandard?: string
+  alternativeNotes?: string
 }
 
 export interface CoinEipProfile {

@@ -28,6 +28,10 @@ const statusStyles: Record<
     badge: "border-muted-foreground/40 bg-muted text-muted-foreground",
     label: "Unknown",
   },
+  alternative: {
+    badge: "border-violet-500/50 bg-violet-500/15 text-violet-800 dark:text-violet-200",
+    label: "Alternative",
+  },
 }
 
 const categoryStyles: Record<EipCategory, string> = {
@@ -61,7 +65,9 @@ export function EipCard({
   const devImpactTone =
     impl.status === "not-implemented"
       ? "border-red-500/60 bg-red-500/5 text-red-950 dark:text-red-100"
-      : "border-amber-500/50 bg-amber-500/5 text-amber-950 dark:text-amber-100"
+      : impl.status === "alternative"
+        ? "border-violet-500/50 bg-violet-500/5 text-violet-950 dark:text-violet-100"
+        : "border-amber-500/50 bg-amber-500/5 text-amber-950 dark:text-amber-100"
 
   return (
     <div className="rounded-lg border border-border bg-card shadow-sm">
@@ -166,6 +172,17 @@ export function EipCard({
               <p className="text-sm leading-relaxed">
                 This deployment diverges from the canonical ABI or semantics — treat integrations as
                 coin-specific.
+              </p>
+            </div>
+          ) : null}
+
+          {impl.status === "alternative" && impl.alternativeStandard ? (
+            <div className="rounded-md border border-violet-500/40 bg-violet-500/10 px-3 py-2 text-violet-950 dark:text-violet-100">
+              <div className="mb-1 text-xs font-semibold uppercase tracking-wide">
+                Alternative: {impl.alternativeStandard}
+              </div>
+              <p className="text-sm leading-relaxed">
+                {impl.alternativeNotes ?? "Uses a non-standard mechanism that achieves a similar outcome."}
               </p>
             </div>
           ) : null}

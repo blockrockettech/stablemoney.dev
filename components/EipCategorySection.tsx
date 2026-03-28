@@ -1,15 +1,34 @@
-import type { Eip, EipCategory } from "@/types/eip"
+import type { Eip, EipCategory, EipStatus } from "@/types/eip"
 import { EIP_CATEGORY_TITLES } from "@/data/eips"
 import { COIN_EIP_SYMBOLS, eipAnchorId, getEipImplementation } from "@/lib/eip-helpers"
 import { EipCard } from "@/components/EipCard"
 
-function NotImplementedCell({ symbol, eipId }: { symbol: string; eipId: string }) {
+const placeholderLabel: Record<string, { text: string; accent: string }> = {
+  "not-implemented": {
+    text: "Not implemented",
+    accent: "text-red-400",
+  },
+  unknown: {
+    text: "Unknown / not verified",
+    accent: "text-muted-foreground",
+  },
+}
+
+function PlaceholderCell({
+  symbol,
+  eipId,
+  status,
+}: {
+  symbol: string
+  eipId: string
+  status: "not-implemented" | "unknown"
+}) {
+  const style = placeholderLabel[status]
   return (
     <div className="text-muted-foreground rounded-lg border border-dashed border-border bg-muted/20 p-4 text-sm">
       <span className="font-mono font-semibold text-foreground">{symbol}</span>
       <p className="mt-2 text-xs leading-relaxed">
-        <span className="text-foreground font-medium">Not implemented</span> for {eipId}. Same as
-        an empty profile row unless you verify this deployment on-chain.
+        <span className={`font-medium ${style.accent}`}>{style.text}</span> for {eipId}.
       </p>
     </div>
   )
@@ -59,8 +78,10 @@ export function EipCategorySection({
           <div className="grid gap-4 lg:grid-cols-2">
             {COIN_EIP_SYMBOLS.map((sym) => {
               const impl = getEipImplementation(sym, eip.id)
-              if (!impl || impl.status === "not-implemented") {
-                return <NotImplementedCell key={sym} symbol={sym} eipId={eip.id} />
+              if (!impl || impl.status === "not-implemented" || impl.status === "unknown") {
+                const status: "not-implemented" | "unknown" =
+                  impl?.status === "not-implemented" ? "not-implemented" : "unknown"
+                return <PlaceholderCell key={sym} symbol={sym} eipId={eip.id} status={status} />
               }
               return (
                 <EipCard

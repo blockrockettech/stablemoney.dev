@@ -16,14 +16,16 @@ const statusDot: Record<EipStatus, string> = {
   implemented: "bg-emerald-500",
   partial: "bg-amber-500",
   "not-implemented": "bg-red-500",
-  unknown: "bg-muted-foreground/60",
+  unknown: "bg-slate-500",
+  alternative: "bg-violet-500",
 }
 
 const statusPill: Record<EipStatus, string> = {
   implemented: "bg-emerald-500/20",
   partial: "bg-amber-500/20",
   "not-implemented": "bg-red-500/20",
-  unknown: "bg-muted",
+  unknown: "bg-slate-500/20",
+  alternative: "bg-violet-500/20",
 }
 
 function eipSortNumber(eip: Eip): number {
@@ -43,15 +45,20 @@ function scrollToEipDeepDive(eipId: string) {
 
 export function EipMatrix() {
   const [category, setCategory] = useState<EipCategory | "all">("all")
+  const [showAlternatives, setShowAlternatives] = useState(true)
 
   const rows = useMemo(() => {
     let list = category === "all" ? [...EIPS] : EIPS.filter((e) => e.category === category)
     list.sort((a, b) => eipSortNumber(a) - eipSortNumber(b))
-
     return list
   }, [category])
 
   const categories: (EipCategory | "all")[] = ["all", ...EIP_CATEGORY_ORDER]
+
+  function displayStatus(status: EipStatus): EipStatus {
+    if (!showAlternatives && status === "alternative") return "not-implemented"
+    return status
+  }
 
   return (
     <div className="space-y-4">
@@ -70,6 +77,34 @@ export function EipMatrix() {
             </Button>
           ))}
         </div>
+
+        <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground select-none">
+          <span
+            className={cn(
+              "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border transition-colors",
+              showAlternatives
+                ? "border-violet-500/50 bg-violet-500/20"
+                : "border-border bg-muted"
+            )}
+            aria-hidden="true"
+          >
+            <span
+              className={cn(
+                "inline-block size-3.5 rounded-full transition-transform",
+                showAlternatives
+                  ? "translate-x-4 bg-violet-500"
+                  : "translate-x-0.5 bg-muted-foreground/50"
+              )}
+            />
+          </span>
+          <input
+            type="checkbox"
+            className="sr-only"
+            checked={showAlternatives}
+            onChange={(e) => setShowAlternatives(e.target.checked)}
+          />
+          Show alternatives
+        </label>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border">
@@ -109,14 +144,19 @@ export function EipMatrix() {
                   <div className="text-muted-foreground text-[0.7rem] leading-snug">{eip.name}</div>
                 </td>
                 {COIN_EIP_SYMBOLS.map((sym) => {
-                  const status = getCellStatus(sym, eip.id)
+                  const rawStatus = getCellStatus(sym, eip.id)
+                  const status = displayStatus(rawStatus)
                   const impl = getEipImplementation(sym, eip.id)
-                  const title =
-                    impl?.devImpact ??
-                    "No profile row; treated as not implemented until verified on-chain."
+                  const isAlt = rawStatus === "alternative" && showAlternatives
+
+                  let title = impl?.devImpact ?? "Not yet verified."
+                  if (isAlt && impl?.alternativeStandard) {
+                    title = `Via ${impl.alternativeStandard}: ${impl.alternativeNotes ?? impl.devImpact}`
+                  }
+
                   return (
                     <td key={sym} className="px-2 py-2 text-center align-middle">
-                      <span className="inline-flex justify-center" title={title}>
+                      <span className="inline-flex flex-col items-center gap-0.5" title={title}>
                         <span
                           className={cn(
                             "inline-flex rounded-md p-1.5",
@@ -132,6 +172,11 @@ export function EipMatrix() {
                             aria-hidden
                           />
                         </span>
+                        {isAlt && impl?.alternativeStandard ? (
+                          <span className="text-[0.55rem] leading-none text-violet-400 font-medium max-w-[4.5rem] truncate">
+                            {impl.alternativeStandard}
+                          </span>
+                        ) : null}
                       </span>
                     </td>
                   )
@@ -151,6 +196,12 @@ export function EipMatrix() {
           <span className={cn("inline-block size-2.5 rounded-full", statusDot.partial)} />
           Partial
         </li>
+        {showAlternatives ? (
+          <li className="flex items-center gap-1.5">
+            <span className={cn("inline-block size-2.5 rounded-full", statusDot.alternative)} />
+            Alternative
+          </li>
+        ) : null}
         <li className="flex items-center gap-1.5">
           <span
             className={cn("inline-block size-2.5 rounded-full", statusDot["not-implemented"])}

@@ -37,9 +37,9 @@ export function getEipImplementation(
   return getCoinEipProfile(symbol)?.implementations.find((i) => i.eipId === eipId)
 }
 
-/** Matrix cell: missing profile row defaults to not-implemented */
+/** Matrix cell: missing profile row defaults to unknown (not yet verified) */
 export function getCellStatus(symbol: string, eipId: string): EipStatus {
-  return getEipImplementation(symbol, eipId)?.status ?? "not-implemented"
+  return getEipImplementation(symbol, eipId)?.status ?? "unknown"
 }
 
 export function countImplementedEips(symbol: string): number | null {
@@ -53,10 +53,12 @@ export function eipImplementationStats(profile: CoinEipProfile) {
   let partial = 0
   let notImplemented = 0
   let unknown = 0
+  let alternative = 0
   for (const i of profile.implementations) {
     if (i.status === "implemented") implemented++
     else if (i.status === "partial") partial++
     else if (i.status === "not-implemented") notImplemented++
+    else if (i.status === "alternative") alternative++
     else unknown++
   }
   return {
@@ -64,6 +66,7 @@ export function eipImplementationStats(profile: CoinEipProfile) {
     partial,
     notImplemented,
     unknown,
+    alternative,
     total: profile.implementations.length,
   }
 }

@@ -125,13 +125,16 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "ERC-7802",
-        status: "not-implemented",
+        status: "alternative",
         contractPattern: "USDC uses CCTP v2 (proprietary), not ERC-7802",
         keyFunctions: [],
         implementationNotes:
           "Circle's cross-chain model is CCTP v2 — a proprietary burn-and-mint protocol with Circle's off-chain attestation service (Iris). Unlike ERC-7802's standardised crosschainMint/crosschainBurn interface, CCTP uses TokenMessengerV2 and MessageTransmitterV2 contracts with fast finality (~20s Ethereum, ~8s L2s) and hooks for atomic post-transfer actions.",
         devImpact:
           "USDC cross-chain transfers use CCTP, not any open ERC-7802 bridge interface. Integrators must use Circle's SDK and contracts.",
+        alternativeStandard: "CCTP v2",
+        alternativeNotes:
+          "Circle Cross-Chain Transfer Protocol — proprietary burn-and-mint with off-chain attestation. Achieves the same cross-chain fungibility goal as ERC-7802 through a different mechanism.",
       },
       {
         eipId: "ERC-3156",
@@ -375,13 +378,16 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "ERC-4626",
-        status: "not-implemented",
-        contractPattern: "Not on base DAI — DSR Pot.sol predates ERC-4626",
+        status: "alternative",
+        contractPattern: "Not on base DAI — DSR Pot.sol predates ERC-4626, but sDAI wraps it",
         keyFunctions: [],
         implementationNotes:
           "The DAI ERC-20 is not a vault. The DAI Savings Rate uses Pot.sol with a non-standard interface that predates ERC-4626. sDAI — the ERC-4626 wrapper over DSR — is a separate contract deployed by Spark Protocol and is not part of the canonical DAI token.",
         devImpact:
           "For ERC-4626 yield on DAI, integrate with sDAI (Spark Protocol) or migrate to USDS/sUSDS. Do not expect deposit/withdraw/convertToAssets on the canonical DAI address.",
+        alternativeStandard: "sDAI (Spark Protocol)",
+        alternativeNotes:
+          "sDAI is an official ecosystem ERC-4626 vault wrapper over the DAI Savings Rate (DSR). Deployed by Spark Protocol — provides standard deposit/withdraw/convertToAssets on a separate contract, channelling Pot.sol yield.",
       },
       {
         eipId: "EIP-1271",
@@ -555,23 +561,29 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "ERC-7802",
-        status: "not-implemented",
+        status: "alternative",
         contractPattern: "USDS uses Wormhole NTT, not ERC-7802",
         keyFunctions: [],
         implementationNotes:
           "USDS expanded to Solana via Wormhole's Native Token Transfers (NTT) framework with burn-and-mint mechanics and built-in rate-limiting. This is a third cross-chain paradigm distinct from both CCTP (USDC) and OFT/ERC-7802 (USDT). Governance could add ERC-7802 support via proxy upgrade.",
         devImpact:
           "Multi-chain USDS uses Wormhole NTT — integrators must use the Portal bridge (portalbridge.com) and NTT SDK, not ERC-7802 interfaces.",
+        alternativeStandard: "Wormhole NTT",
+        alternativeNotes:
+          "Wormhole Native Token Transfers — burn-and-mint with built-in rate-limiting. Fulfils cross-chain fungibility without the ERC-7802 interface.",
       },
       {
         eipId: "ERC-3156",
-        status: "not-implemented",
-        contractPattern: "No flash mint on USDS — DAI's DssFlash operates on DAI only",
+        status: "alternative",
+        contractPattern: "No native flash mint — uses DAI DssFlash + DaiUsds converter",
         keyFunctions: [],
         implementationNotes:
           "The DssFlash module only mints DAI, not USDS. For flash liquidity in USDS, convert via DaiUsds.sol: flash-mint DAI → convert to USDS → use → convert back → repay DAI. This adds gas cost vs native flash mint but is technically viable.",
         devImpact:
           "No native USDS flash loans. Use the DAI flash mint + DaiUsds conversion path as a workaround.",
+        alternativeStandard: "DssFlash + DaiUsds",
+        alternativeNotes:
+          "Flash-mint DAI via DssFlash (ERC-3156) then convert to USDS via the official DaiUsds.sol converter in a single transaction. Issuer-ecosystem path — not a direct ERC-3156 interface on USDS, but achieves flash liquidity using Maker/Sky's own contracts.",
       },
     ],
   },
@@ -697,13 +709,16 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "ERC-7802",
-        status: "not-implemented",
+        status: "alternative",
         contractPattern: "USDe uses LayerZero OFT, not ERC-7802",
         keyFunctions: [],
         implementationNotes:
           "Cross-chain USDe movement uses LayerZero Omnichain Fungible Token standard. Unlike USDT0, USDe has not adopted the ERC-7802 crosschain interface on top of OFT.",
         devImpact:
           "Use LayerZero OFT SDK for cross-chain USDe transfers, not ERC-7802 interfaces.",
+        alternativeStandard: "LayerZero OFT",
+        alternativeNotes:
+          "LayerZero Omnichain Fungible Token — burn-and-mint via LayerZero endpoints. Provides cross-chain fungibility without the ERC-7802 standardised interface.",
       },
       {
         eipId: "ERC-3156",
@@ -952,12 +967,15 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "ERC-7802",
-        status: "not-implemented",
+        status: "alternative",
         contractPattern: "PYUSD uses LayerZero OFT for cross-chain, not ERC-7802",
         keyFunctions: [],
         implementationNotes:
           "Cross-chain PYUSD uses LayerZero OFT burn-and-mint mechanics. Not ERC-7802 standardised interface.",
         devImpact: "Use LayerZero SDK for cross-chain PYUSD, not ERC-7802.",
+        alternativeStandard: "LayerZero OFT",
+        alternativeNotes:
+          "LayerZero Omnichain Fungible Token — burn-and-mint via LayerZero endpoints. Achieves cross-chain transfer without the ERC-7802 interface.",
       },
       {
         eipId: "ERC-3156",
