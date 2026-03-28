@@ -6,6 +6,8 @@ export interface NetworkDeployment {
   chain: string
   standard: string
   contract: string
+  /** Canonical block explorer URL for this deployment, or null if none */
+  explorerUrl: string | null
   isPrimary: boolean
   notes?: string
 }

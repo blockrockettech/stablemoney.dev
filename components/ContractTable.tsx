@@ -3,7 +3,6 @@
 import Link from "next/link"
 import type { NetworkDeployment } from "@/types"
 import { CopyButton } from "@/components/CopyButton"
-import { getExplorerUrl } from "@/lib/explorers"
 import { ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -23,7 +22,6 @@ export function ContractTable({ networks }: { networks: NetworkDeployment[] }) {
         </thead>
         <tbody>
           {sorted.map((n) => {
-            const url = getExplorerUrl(n.chain, n.contract)
             const primary = n.isPrimary
             return (
               <tr
@@ -68,9 +66,9 @@ export function ContractTable({ networks }: { networks: NetworkDeployment[] }) {
                   ) : null}
                 </td>
                 <td className="px-3 py-2 align-top">
-                  {url ? (
+                  {n.explorerUrl ? (
                     <a
-                      href={url}
+                      href={n.explorerUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary inline-flex items-center gap-1 hover:underline"
