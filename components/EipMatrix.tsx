@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import { EIPS, EIP_CATEGORY_ORDER } from "@/data/eips"
 import type { Eip, EipCategory, EipStatus } from "@/types/eip"
 import {
@@ -116,7 +117,13 @@ export function EipMatrix() {
               </th>
               {COIN_EIP_SYMBOLS.map((sym) => (
                 <th key={sym} className="px-2 py-2 text-center font-mono text-xs font-medium">
-                  {sym}
+                  <Link
+                    href={`/coins/${sym.toLowerCase()}`}
+                    className="text-primary underline-offset-2 hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {sym}
+                  </Link>
                 </th>
               ))}
             </tr>
@@ -184,6 +191,17 @@ export function EipMatrix() {
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr className="border-t border-border bg-muted/30">
+              <td
+                colSpan={COIN_EIP_SYMBOLS.length + 1}
+                className="px-3 py-2.5 text-center text-[0.7rem] leading-relaxed text-muted-foreground"
+              >
+                Data sourced from verified Etherscan contract source code. Implementations may differ across networks
+                — always verify on the specific chain you integrate with.
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
