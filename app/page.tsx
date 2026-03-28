@@ -63,9 +63,9 @@ export default function HomePage() {
         className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card/60 px-5 py-4 transition-all hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm"
       >
         <div>
-          <div className="text-sm font-semibold">EIP/ERC Standards Matrix</div>
+          <div className="text-sm font-semibold">EIP/ERC Standards & Compliance Matrix</div>
           <div className="text-muted-foreground mt-0.5 text-xs">
-            Compare ERC-20, permit, proxy patterns, and flash loan support across
+            Compare ERC-20, permit, proxy patterns, compliance rules and flash loan support plus more across
             all {coins.length} stablecoins
           </div>
         </div>

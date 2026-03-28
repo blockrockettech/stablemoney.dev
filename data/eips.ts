@@ -108,4 +108,25 @@ export const EIPS: Eip[] = [
       "Standard interface for single-transaction borrow-use-repay flash loans — maxFlashLoan(), flashFee(), flashLoan(). Enables arbitrage, liquidation, and refinancing without upfront capital",
     eipsUrl: "https://eips.ethereum.org/EIPS/eip-3156",
   },
+  {
+    id: "Freeze",
+    name: "Address freezing / blacklisting",
+    category: "compliance",
+    summary:
+      "Issuer ability to freeze or blacklist individual addresses, preventing them from sending or receiving tokens. The most fundamental compliance capability for sanctions enforcement (OFAC/SDN) and law-enforcement cooperation.",
+  },
+  {
+    id: "Seize",
+    name: "Fund seizure / clawback",
+    category: "compliance",
+    summary:
+      "Issuer ability to destroy or reclaim tokens from frozen/blacklisted addresses. Goes beyond freeze-in-place — the issuer can permanently remove tokens from circulation or redirect them. Critical for court-ordered asset recovery.",
+  },
+  {
+    id: "Pause",
+    name: "Global transfer pause",
+    category: "compliance",
+    summary:
+      "Emergency circuit-breaker that halts ALL token transfers contract-wide. Used for critical security incidents, regulatory orders, or protocol-level emergencies. Affects every holder simultaneously.",
+  },
 ]

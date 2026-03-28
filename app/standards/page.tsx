@@ -4,7 +4,7 @@ import { EipMatrix } from "@/components/EipMatrix"
 import { EipCategorySection } from "@/components/EipCategorySection"
 
 export const metadata: Metadata = {
-  title: "ERC / EIP standards in stablecoins",
+  title: "ERC / EIP standards and compliance",
   description:
     "How USDC, USDT, DAI, USDS, and USD1 implement core token, signature, proxy, and vault standards — with on-chain notes for integrators.",
 }
@@ -13,7 +13,7 @@ export default function StandardsPage() {
   return (
     <div className="space-y-12">
       <header className="space-y-3 border-b border-border pb-8">
-        <h1 className="text-3xl font-bold tracking-tight">ERC / EIP standards in stablecoins</h1>
+        <h1 className="text-3xl font-bold tracking-tight">ERC / EIP standards and compliance</h1>
         <p className="text-muted-foreground max-w-3xl text-sm leading-relaxed">
           Deep reference for EVM deployments in scope:{" "}
           <span className="text-foreground font-medium">USDT</span>,{" "}

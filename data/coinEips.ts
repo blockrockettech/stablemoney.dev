@@ -146,6 +146,48 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         devImpact:
           "Use Aave or Balancer flash loan pools for single-transaction USDC borrowing.",
       },
+      {
+        eipId: "Freeze",
+        status: "implemented",
+        contractPattern: "FiatTokenV2_2 — blacklister role, bit-packed storage",
+        keyFunctions: [
+          "blacklist(address _account) — blacklister only",
+          "unBlacklist(address _account) — blacklister only",
+          "isBlacklisted(address _account) → bool",
+        ],
+        implementationNotes:
+          "FiatToken v2.2 bit-packs the blacklist flag into the same storage slot as the balance (bit 255 = blacklist, bits 0-254 = balance). Blacklisted addresses cannot call transfer(), transferFrom(), approve(), or be the recipient of transfers. The blacklister role is separate from the admin, owner, and pauser — five-role architecture limits blast radius of compromised keys.",
+        devImpact:
+          "Always check isBlacklisted() before building payment pipelines that depend on USDC. Blacklisting is immediate and affects both sending and receiving. Etherscan shows blacklist events — monitor for operational awareness.",
+        footguns:
+          "Blacklisted addresses still hold their balance — funds are frozen in place, not destroyed. If your protocol holds USDC in a single contract address and that address gets blacklisted, all funds in the contract are frozen.",
+      },
+      {
+        eipId: "Seize",
+        status: "not-implemented",
+        contractPattern: "Freeze only — no destruction or transfer of frozen funds",
+        keyFunctions: [],
+        implementationNotes:
+          "USDC's compliance model is freeze-in-place only. Circle cannot destroy or transfer tokens from blacklisted addresses. This is a deliberate design choice — funds remain on-chain and visible, and can potentially be unblacklisted if the legal situation resolves. Contrast with USDT's destroyBlackFunds() which permanently burns frozen balances.",
+        devImpact:
+          "Frozen USDC remains in totalSupply() and balanceOf() — supply tracking is unaffected by freezes. No surprise supply changes from seizure events.",
+      },
+      {
+        eipId: "Pause",
+        status: "implemented",
+        contractPattern: "FiatTokenV1 — pauser role, Pausable modifier",
+        keyFunctions: [
+          "pause() — pauser only",
+          "unpause() — pauser only",
+          "paused() → bool",
+        ],
+        implementationNotes:
+          "Global pause halts ALL transfer(), transferFrom(), approve(), mint(), and burn() operations. The pauser role is dedicated and separate from other admin roles. Circle has never activated a global pause on Ethereum mainnet USDC. The pause mechanism exists as a nuclear option for extreme scenarios (critical vulnerability, regulatory order).",
+        devImpact:
+          "DeFi protocols that hold USDC should account for the possibility of a global pause in their risk models. A pause would freeze all USDC-dependent operations including DEX swaps, lending, and collateral liquidations.",
+        footguns:
+          "A global pause affects EVERY holder and protocol simultaneously. During a pause, liquidation mechanisms that depend on USDC transfers would fail, potentially cascading into bad debt for lending protocols.",
+      },
     ],
   },
 
@@ -279,6 +321,51 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "No native flash loan capability. Flash loans of USDT available through external protocols (Aave, Balancer).",
         devImpact:
           "Use external flash loan providers for single-transaction USDT borrowing.",
+      },
+      {
+        eipId: "Freeze",
+        status: "implemented",
+        contractPattern: "TetherToken — owner-controlled blacklist",
+        keyFunctions: [
+          "addBlackList(address _evilUser) — owner only",
+          "removeBlackList(address _clearedUser) — owner only",
+          "getBlackListStatus(address _maker) → bool",
+          "isBlackListed(address) → bool (public mapping)",
+        ],
+        implementationNotes:
+          "Single-owner blacklist model — the contract owner can freeze any address. Blacklisted addresses cannot call transfer() or transferFrom(). Unlike USDC's dedicated blacklister role, USDT's owner has all admin powers (pause, blacklist, upgrade, fee changes) concentrated in one key.",
+        devImpact:
+          "Same integration consideration as USDC: check isBlackListed() before building payment flows. The single-owner model means blacklisting power cannot be delegated independently.",
+        footguns:
+          "The owner key controls everything: blacklist, pause, upgrade, fee activation, and destroyBlackFunds. If compromised, the attacker has full control over all compliance and supply functions.",
+      },
+      {
+        eipId: "Seize",
+        status: "implemented",
+        contractPattern: "TetherToken — destroyBlackFunds burns frozen balances",
+        keyFunctions: [
+          "destroyBlackFunds(address _blackListedUser) — owner only",
+        ],
+        implementationNotes:
+          "The most aggressive compliance mechanism among top stablecoins. destroyBlackFunds() permanently burns the entire balance of a blacklisted address, reducing totalSupply(). Emits a DestroyedBlackFunds event (not a standard Transfer or Burn event). This is a one-way, irreversible operation — the tokens are destroyed, not transferred to Tether. Used for sanctions enforcement and law-enforcement cooperation.",
+        devImpact:
+          "Supply tracking tools MUST listen for DestroyedBlackFunds events — standard ERC-20 event monitoring will miss these supply changes. totalSupply() decreases when funds are seized.",
+        footguns:
+          "destroyBlackFunds() does NOT emit a standard Transfer(from, address(0), amount) event — it uses a custom DestroyedBlackFunds(address, uint) event. Any indexer relying solely on Transfer events for supply tracking will have an incorrect total. The address must be blacklisted first — calling destroyBlackFunds on a non-blacklisted address reverts.",
+      },
+      {
+        eipId: "Pause",
+        status: "implemented",
+        contractPattern: "TetherToken — Pausable inheritance, owner-controlled",
+        keyFunctions: [
+          "pause() — owner only",
+          "unpause() — owner only",
+          "paused() → bool (public variable, named 'paused')",
+        ],
+        implementationNotes:
+          "Inherits from OpenZeppelin-style Pausable. When paused, transfer(), transferFrom(), and issue() revert. The pause power is held by the same owner key that controls blacklisting, supply, and upgrades. Tether has never activated a global pause on Ethereum mainnet.",
+        devImpact:
+          "Same risk model as USDC pause — all USDT-dependent DeFi would halt. The concentrated owner key means pause decisions are made by a single entity without multi-sig or timelock requirements.",
       },
     ],
   },
@@ -424,6 +511,36 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "DAI is an immutable contract with no proxy. ERC-7802 cross-chain mint/burn cannot be added. L2 DAI uses canonical bridges (Arbitrum/Optimism native bridges) not burn-and-mint standards.",
         devImpact:
           "Cross-chain DAI relies on canonical L2 bridges, not a standardised cross-chain token interface.",
+      },
+      {
+        eipId: "Freeze",
+        status: "not-implemented",
+        contractPattern: "Immutable contract — no freeze capability by design",
+        keyFunctions: [],
+        implementationNotes:
+          "DAI is a fully immutable contract with no admin functions for freezing or blacklisting addresses. This is a deliberate design principle — DAI was built as a censorship-resistant, permissionless stablecoin. No entity, including Sky Protocol governance, can freeze DAI addresses. This immutability is both DAI's greatest trust property and its most significant compliance limitation.",
+        devImpact:
+          "DAI cannot comply with address-level sanctions enforcement at the protocol level. Compliance must be enforced at the application layer (exchanges, front-ends) rather than the token contract. For institutional use cases requiring freeze capability, USDS was created as the upgradeable successor.",
+      },
+      {
+        eipId: "Seize",
+        status: "not-implemented",
+        contractPattern: "Immutable contract — no seizure mechanism",
+        keyFunctions: [],
+        implementationNotes:
+          "No mechanism exists to destroy or reclaim DAI from any address. The immutable contract has no admin, no owner, and no privileged roles that could enact seizure. Ward/auth system controls only mint and burn through the MCD protocol — not arbitrary balance manipulation.",
+        devImpact:
+          "DAI balances are sovereign — no external party can remove them. This is a feature for censorship resistance but a limitation for regulated institutional flows.",
+      },
+      {
+        eipId: "Pause",
+        status: "not-implemented",
+        contractPattern: "Immutable contract — no pause mechanism",
+        keyFunctions: [],
+        implementationNotes:
+          "DAI has no global pause function. Transfers cannot be halted at the token level. The MCD protocol can halt new DAI minting via emergency shutdown (End.sol), but existing DAI remains freely transferable. Emergency shutdown converts DAI claims to underlying collateral — it does not pause transfers.",
+        devImpact:
+          "DAI transfers will always work as long as the Ethereum network is operational. No single entity can halt DAI movement. MCD emergency shutdown affects minting/CDP operations, not transfer().",
       },
     ],
   },
@@ -585,6 +702,38 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         alternativeNotes:
           "Flash-mint DAI via DssFlash (ERC-3156) then convert to USDS via the official DaiUsds.sol converter in a single transaction. Issuer-ecosystem path — not a direct ERC-3156 interface on USDS, but achieves flash liquidity using Maker/Sky's own contracts.",
       },
+      {
+        eipId: "Freeze",
+        status: "partial",
+        contractPattern: "Planned via governance upgrade — not yet active",
+        keyFunctions: [],
+        implementationNotes:
+          "USDS is deployed behind an ERC1967Proxy, making it upgradeable via Sky governance spells. The governance has voted to enable an optional address-freeze capability for regulatory compliance at institutional scale, but this has NOT been activated yet. The current USDS implementation has no blacklist, no freeze, and no transfer restrictions. When implemented, it would bring USDS closer to USDC-style compliance capability.",
+        devImpact:
+          "Currently, USDS behaves like DAI — fully permissionless with no freeze. Plan for the possibility that a future governance upgrade adds freeze capability. Monitor Sky governance forums and spell proposals for timeline.",
+        footguns:
+          "The proxy upgradeability means the compliance surface can change without token migration. Protocols that depend on USDS being freeze-free should monitor governance proposals.",
+      },
+      {
+        eipId: "Seize",
+        status: "not-implemented",
+        contractPattern: "No seizure mechanism — current or planned",
+        keyFunctions: [],
+        implementationNotes:
+          "No mechanism to destroy or reclaim USDS from any address. The planned freeze capability (when activated) would freeze-in-place only, similar to USDC's model. No destroyBlackFunds-style seizure has been proposed in Sky governance.",
+        devImpact:
+          "Even after freeze is activated, USDS is expected to follow the USDC freeze-in-place model, not the USDT destroy model. Supply tracking will be unaffected.",
+      },
+      {
+        eipId: "Pause",
+        status: "not-implemented",
+        contractPattern: "No global pause — could be added via upgrade",
+        keyFunctions: [],
+        implementationNotes:
+          "USDS has no global pause function in the current implementation. Like freeze, a pause could theoretically be added via governance upgrade given the proxy pattern. No governance proposal for global pause has been published.",
+        devImpact:
+          "Currently, USDS transfers cannot be globally halted. The proxy pattern means this could change — monitor governance.",
+      },
     ],
   },
 
@@ -592,9 +741,9 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
     symbol: "USDe",
     contractName: "USDe.sol + StakedUSDe.sol (Ethena Labs)",
     decimals: 18,
-    isUpgradeable: true,
+    isUpgradeable: false,
     upgradePattern:
-      "Upgradeable proxy stack (OpenZeppelin-style) — confirm implementation + admin roles on Etherscan",
+      "None — USDe token is a plain non-upgradeable contract (sUSDe and EthenaMinting are separately upgradeable)",
     implementations: [
       {
         eipId: "ERC-20",
@@ -657,27 +806,23 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1967",
-        status: "implemented",
-        contractPattern: "Proxy + implementation split (verify slot on explorer)",
-        keyFunctions: [
-          "Admin / upgrade entrypoints on proxy — role-gated (see implementation ABI)",
-        ],
+        status: "not-implemented",
+        contractPattern: "Not a proxy — plain ERC20 contract",
+        keyFunctions: [],
         implementationNotes:
-          "Ethena deploys upgradeable infrastructure so risk parameters and logic can change via governance/ops. Standard EIP-1967 slots are typical for OpenZeppelin Transparent/UUPS variants — confirm on Etherscan “Read as Proxy”.",
+          "Verified on Etherscan: USDe at 0x4c9EDD5852cd905f086C759E8383e09bff1E68B3 is a plain, non-upgradeable ERC20 contract deployed via constructor (not initializer). Inherits Ownable2Step, ERC20Burnable, ERC20Permit — no proxy inheritance. The address IS the implementation. sUSDe and EthenaMinting are separate upgradeable contracts, but the base USDe token is immutable.",
         devImpact:
-          "Integrators must pin the proxy address and monitor implementation changes in audit releases.",
-        footguns:
-          "Calling the implementation address directly bypasses token state — same proxy footgun as USDC.",
+          "USDe token logic cannot be changed — similar trust property to DAI. The mint authority (setMinter) can be reassigned by the owner, but ERC-20 transfer logic is fixed.",
       },
       {
         eipId: "EIP-1822",
-        status: "unknown",
-        contractPattern: "May apply to some auxiliary contracts — verify per deployment",
+        status: "not-implemented",
+        contractPattern: "Not a proxy — plain ERC20 contract",
         keyFunctions: [],
         implementationNotes:
-          "If any Ethena contract uses UUPS, upgrade auth lives in implementation code. Not assumed for USDe without on-chain verification.",
+          "USDe is not a proxy contract of any type. No UUPS, no transparent proxy, no upgrade mechanism on the token itself. sUSDe and EthenaMinting have their own proxy patterns but the base USDe token is immutable.",
         devImpact:
-          "UUPS vs transparent proxy changes who can brick upgrades — verify before forking.",
+          "No upgrade considerations for the USDe token. Immutability eliminates upgrade risk on the token layer.",
       },
       {
         eipId: "ERC-4626",
@@ -729,6 +874,45 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "No native flash loan capability. Permissioned mint path via EthenaMinting prevents flash minting by design.",
         devImpact:
           "Flash loans of USDe available through external DeFi protocols that hold USDe liquidity.",
+      },
+      {
+        eipId: "Freeze",
+        status: "partial",
+        contractPattern: "sUSDe role-based restrictions — not on base USDe token",
+        keyFunctions: [
+          "SOFT_RESTRICTED_STAKER_ROLE — cannot deposit/withdraw sUSDe",
+          "FULL_RESTRICTED_STAKER_ROLE — cannot receive sUSDe at all",
+        ],
+        implementationNotes:
+          "Ethena implements a two-tier compliance system on sUSDe (the staked vault), not on the base USDe ERC-20. SOFT_RESTRICTED_STAKER_ROLE (e.g. US addresses) can hold and trade sUSDe on secondary markets but cannot deposit or withdraw from the vault. FULL_RESTRICTED_STAKER_ROLE cannot receive sUSDe transfers at all. The base USDe token has no blacklist or freeze function — it transfers freely like any standard ERC-20.",
+        devImpact:
+          "USDe itself is permissionless to transfer. Compliance restrictions apply only at the sUSDe staking layer. DEX and lending integrations with USDe face no freeze risk, but sUSDe integrations must account for restricted roles.",
+        footguns:
+          "Do not assume sUSDe restrictions apply to USDe — they are different contracts with different compliance surfaces. A FULL_RESTRICTED address can still hold and transfer USDe freely.",
+      },
+      {
+        eipId: "Seize",
+        status: "partial",
+        contractPattern: "sUSDe redistributeLockedAmount — not on base USDe",
+        keyFunctions: [
+          "redistributeLockedAmount(address from, address to) — admin only, sUSDe",
+        ],
+        implementationNotes:
+          "Ethena's admin can call redistributeLockedAmount() on sUSDe to move tokens from a FULL_RESTRICTED address to another address. This is a forced transfer, not destruction — tokens are redirected, not burned. This is unique among major stablecoins: USDT destroys seized funds, USDC freezes in place, but Ethena can actively move them. Only applies to sUSDe, not the base USDe token.",
+        devImpact:
+          "sUSDe balances of restricted addresses can change without the holder's consent via redistributeLockedAmount(). Monitor admin events on sUSDe. Base USDe balances are sovereign.",
+        footguns:
+          "redistributeLockedAmount() is a forced transfer, not a burn — totalSupply() does not change, but individual balances do. This can affect protocols that cache sUSDe balances without event monitoring.",
+      },
+      {
+        eipId: "Pause",
+        status: "not-implemented",
+        contractPattern: "No global pause on USDe or sUSDe",
+        keyFunctions: [],
+        implementationNotes:
+          "Neither the USDe token nor sUSDe has a global pause function. The EthenaMinting contract has a GATEKEEPER role that can disable minting/redeeming, but this does not affect secondary market transfers of USDe or sUSDe. The GATEKEEPER can disable operations but cannot re-enable them — only DEFAULT_ADMIN can re-enable, providing a kill-switch safety property.",
+        devImpact:
+          "USDe and sUSDe transfers are always operational. Minting/redeeming can be halted by the GATEKEEPER, which affects primary market operations but not DEX trading or lending.",
       },
     ],
   },
@@ -807,11 +991,13 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1822",
-        status: "unknown",
-        contractPattern: "Unconfirmed",
+        status: "not-implemented",
+        contractPattern: "TransparentUpgradeableProxy — not UUPS",
         keyFunctions: [],
-        implementationNotes: "Verify implementation contract inheritance on Etherscan.",
-        devImpact: "Affects how upgrade safety is reasoned about in audits.",
+        implementationNotes:
+          "Verified on Etherscan: FDUSD uses OpenZeppelin TransparentUpgradeableProxy (v4.7.0) with a separate ProxyAdmin at 0xbB812B978E41929E86Ad9eA8C1025710FeE85957. The implementation (StablecoinV2) inherits ERC20PermitUpgradeable, Ownable2StepUpgradeable, PausableUpgradeable — no UUPSUpgradeable in the chain. Upgrade functions (upgradeTo/upgradeToAndCall) live on the proxy, not the implementation.",
+        devImpact:
+          "Standard transparent proxy — upgrade authority is in the ProxyAdmin contract, not the token implementation. No risk of accidentally bricking upgrades via implementation deployment mistakes (a UUPS risk).",
       },
       {
         eipId: "ERC-4626",
@@ -845,6 +1031,44 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         keyFunctions: [],
         implementationNotes: "No native flash loan capability on FDUSD.",
         devImpact: "Use external flash loan providers.",
+      },
+      {
+        eipId: "Freeze",
+        status: "implemented",
+        contractPattern: "FDUSD — freeze/unfreeze individual accounts",
+        keyFunctions: [
+          "freeze(address account) — admin role",
+          "unfreeze(address account) — admin role",
+        ],
+        implementationNotes:
+          "Confirmed via fd-121/fd-stablecoin repository. FDUSD includes freeze/unfreeze functions for individual account compliance. Frozen accounts cannot send or receive FDUSD. Ethereum and BNB Chain deployments are independent — an address frozen on one chain is not automatically frozen on the other.",
+        devImpact:
+          "Standard freeze-check pattern applies. Cross-chain freeze status is NOT synchronized — always check on the target chain.",
+        footguns:
+          "Independent per-chain deployments mean compliance actions must be replicated manually across Ethereum and BNB Chain.",
+      },
+      {
+        eipId: "Seize",
+        status: "not-implemented",
+        contractPattern: "Freeze only — no seizure/wipe function",
+        keyFunctions: [],
+        implementationNotes:
+          "Verified on Etherscan: FDUSD has no wipeFrozenAddress, destroyBlackFunds, or equivalent. The burn(uint256) function only burns from the caller's own balance (_burn(_msgSender(), amount)) and is onlyOwner — the owner cannot burn tokens from another address. Frozen funds are locked in place but cannot be destroyed or reclaimed. Same model as USDC.",
+        devImpact:
+          "Frozen FDUSD remains in totalSupply() and balanceOf(). No surprise supply reductions from seizure events. Supply tracking is straightforward.",
+      },
+      {
+        eipId: "Pause",
+        status: "implemented",
+        contractPattern: "PausableUpgradeable — onlyOwner",
+        keyFunctions: [
+          "pause() — onlyOwner",
+          "unpause() — onlyOwner",
+        ],
+        implementationNotes:
+          "Verified on Etherscan: inherits OpenZeppelin PausableUpgradeable. Both _transfer and _approve are guarded by whenNotPaused modifier. When paused, all transfers and approvals are blocked globally. Single-owner model — same key controls freeze, pause, mint, and burn.",
+        devImpact:
+          "Standard pause risk model — all FDUSD-dependent operations halt during a pause. The single-owner key concentration means no role separation between compliance and operational functions.",
       },
     ],
   },
@@ -927,24 +1151,29 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1967",
-        status: "implemented",
-        contractPattern: "Upgradeable proxy (confirm via explorer storage)",
+        status: "partial",
+        contractPattern: "ZeppelinOS AdminUpgradeabilityProxy — pre-EIP-1967 storage slots",
         keyFunctions: [
-          "Implementation slot readable via standard tooling — upgrade gated by delayed admin",
+          "upgradeTo(address newImplementation) — admin only (on proxy)",
+          "upgradeToAndCall(address newImplementation, bytes data) — admin only (on proxy)",
+          "changeAdmin(address newAdmin) — admin only (on proxy)",
         ],
         implementationNotes:
-          "Uses OpenZeppelin AccessControl default admin delay pattern in public ABI; implementation address follows common proxy slot conventions — always read proxy storage, not guesses.",
+          "Verified on Etherscan: PYUSD uses a ZeppelinOS-era AdminUpgradeabilityProxy (Solidity 0.4.24), NOT a modern OpenZeppelin TransparentUpgradeableProxy. The storage slots are pre-EIP-1967: implementation at keccak256('org.zeppelinos.proxy.implementation'), admin at keccak256('org.zeppelinos.proxy.admin'). These differ from the EIP-1967 standard slots (keccak256('eip1967.proxy.implementation') - 1). No separate ProxyAdmin contract — the admin address is stored directly in the proxy and calls upgrade functions via the ifAdmin modifier.",
         devImpact:
-          "Explorers and Tenderly can attach the correct implementation ABI when slots are standard.",
+          "Tools that ONLY check EIP-1967 standard slots may fail to detect PYUSD as a proxy. Etherscan still recognises it, but custom monitoring tools should check both ZeppelinOS and EIP-1967 slot conventions. The lack of a ProxyAdmin means the admin EOA/multisig interacts with the proxy directly.",
+        footguns:
+          "The non-standard storage slots mean standard EIP-1967 slot-reading utilities (e.g. OpenZeppelin's getImplementationAddress) will return zero. Use ZeppelinOS slot conventions or read from the proxy's admin() and implementation() view functions directly.",
       },
       {
         eipId: "EIP-1822",
-        status: "unknown",
-        contractPattern: "May be transparent proxy rather than UUPS — verify",
+        status: "not-implemented",
+        contractPattern: "ZeppelinOS Transparent Proxy — not UUPS",
         keyFunctions: [],
         implementationNotes:
-          "Paxos historically shipped transparent-upgradeable patterns; confirm for PYUSD specifically.",
-        devImpact: "Minor gas and audit surface differences for forks.",
+          "Verified on Etherscan: PYUSD's implementation (PaxosTokenV2) does not inherit UUPSUpgradeable and has no upgradeTo() function. The upgrade mechanism is entirely in the proxy contract via the ifAdmin modifier pattern. A separate SupplyControl contract in the Paxos codebase does use UUPS, but the PYUSD token itself does not.",
+        devImpact:
+          "Standard transparent proxy considerations apply. No risk of UUPS-specific upgrade bricking on the token contract.",
       },
       {
         eipId: "ERC-4626",
@@ -987,6 +1216,50 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         devImpact:
           "Use external flash loan providers for single-transaction PYUSD borrowing.",
       },
+      {
+        eipId: "Freeze",
+        status: "implemented",
+        contractPattern: "Paxos PYUSD — assetProtectionRole freeze/unfreeze",
+        keyFunctions: [
+          "freeze(address _addr) — assetProtectionRole only",
+          "unfreeze(address _addr) — assetProtectionRole only",
+          "isFrozen(address _addr) → bool",
+        ],
+        implementationNotes:
+          "Paxos implements freeze via a dedicated assetProtectionRole (separate from owner, supplyController, and betaDelegateWhitelister). This role can freeze individual addresses, preventing them from transferring or receiving PYUSD. On Solana, Paxos holds a PermanentDelegate authority initialized at mint creation — enabling freeze and seizure at the SPL token level without additional contract calls.",
+        devImpact:
+          "Always check isFrozen() before building payout pipelines. The dedicated assetProtectionRole provides role separation — Paxos compliance team operates independently from supply management.",
+        footguns:
+          "Solana PermanentDelegate is a fundamentally different mechanism from EVM freeze — it gives Paxos direct authority over any token account, including the ability to transfer tokens without holder consent.",
+      },
+      {
+        eipId: "Seize",
+        status: "implemented",
+        contractPattern: "Paxos PYUSD — wipeFrozenAddress destroys frozen balances",
+        keyFunctions: [
+          "wipeFrozenAddress(address _addr) — assetProtectionRole only",
+        ],
+        implementationNotes:
+          "wipeFrozenAddress() destroys the entire balance of a frozen address, similar to USDT's destroyBlackFunds(). The address must be frozen first — calling wipe on a non-frozen address reverts. Emits FrozenAddressWiped event. On Solana, the PermanentDelegate can transfer tokens from any account without consent, enabling seizure by moving (not just destroying) funds.",
+        devImpact:
+          "Supply tracking must account for wipeFrozenAddress events. totalSupply() decreases when frozen funds are wiped. Paxos operates under NYDFS regulation, so seizure follows established legal processes.",
+        footguns:
+          "Like USDT's destroyBlackFunds, this may emit non-standard events. Verify event signatures against the Paxos PYUSD ABI.",
+      },
+      {
+        eipId: "Pause",
+        status: "implemented",
+        contractPattern: "Paxos PYUSD — Pausable with dedicated pauser role",
+        keyFunctions: [
+          "pause() — pauser role only",
+          "unpause() — pauser role only",
+          "paused() → bool",
+        ],
+        implementationNotes:
+          "Standard OpenZeppelin-style Pausable. When paused, all transfer(), transferFrom(), approve(), mint(), and burn() operations revert. Paxos' pauser role is separate from other admin roles. Paxos has never activated a global pause on PYUSD mainnet.",
+        devImpact:
+          "Same risk considerations as USDC pause. All PYUSD-dependent DeFi operations would halt during a pause.",
+      },
     ],
   },
 
@@ -1016,30 +1289,50 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-712",
-        status: "unknown",
-        contractPattern: "Verify on deployed frxUSD contract",
-        keyFunctions: [],
+        status: "implemented",
+        contractPattern: "OpenZeppelin EIP712 v5.3.0 via ERC20Permit",
+        keyFunctions: [
+          "DOMAIN_SEPARATOR() → bytes32",
+          "domainSeparatorV4() → bytes32 (public, added in FrxUSD3)",
+          "eip712Domain() → (bytes1, string, string, uint256, address, bytes32, uint256[]) — EIP-5267",
+          "hashTypedDataV4(bytes32 structHash) → bytes32 (public, added in FrxUSD3)",
+        ],
+        typeHash:
+          'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract) — name = "Frax USD", version = "1"',
         implementationNotes:
-          "EIP-712 support on the new frxUSD contract is not confirmed — check official Frax docs or on-chain ABI.",
-        devImpact: "Verify before building gasless or signature-based flows.",
+          "Verified on Etherscan: FrxUSD2 inherits OpenZeppelin ERC20Permit (v5.3.0) which includes EIP712. Domain initialized in constructor with name and version '1'. FrxUSD3 adds public domainSeparatorV4() and hashTypedDataV4() for easier off-chain integration. EIP-5267 eip712Domain() is supported for on-chain domain discovery.",
+        devImpact:
+          "Full EIP-712 compliance with EIP-5267 discovery. The public hashTypedDataV4() is convenient for off-chain tools constructing signed messages.",
       },
       {
         eipId: "EIP-2612",
-        status: "unknown",
-        contractPattern: "Verify on deployed frxUSD contract",
-        keyFunctions: [],
+        status: "implemented",
+        contractPattern: "OpenZeppelin ERC20Permit v5.3.0 + custom PermitModule with ERC-1271",
+        keyFunctions: [
+          "permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+          "nonces(address owner) → uint256",
+        ],
+        typeHash:
+          'keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)") — standard EIP-2612',
         implementationNotes:
-          "permit() support on frxUSD is not confirmed in public documentation as of launch.",
+          "Verified on Etherscan: FrxUSD3 overrides permit() to delegate to a custom PermitModule (based on OZ 4.9.4 ERC20Permit with namespaced storage). The PermitModule adds ERC-1271 signature validation support — smart contract wallets (Safe, AA wallets) can sign permits natively. Standard sequential per-owner nonces via OpenZeppelin Nonces.",
         devImpact:
-          "Gasless approval flows should be tested against the live contract — fall back to Permit2 if not supported.",
+          "Drop-in compatible with standard EIP-2612 tooling. The ERC-1271 support in the PermitModule means smart contract wallets work without workarounds — a feature only USDC v2.2 and USDS share among the top stablecoins.",
       },
       {
         eipId: "EIP-3009",
-        status: "not-implemented",
-        contractPattern: "No transferWithAuthorization confirmed",
-        keyFunctions: [],
-        implementationNotes: "No public indication of EIP-3009 on frxUSD at launch.",
-        devImpact: "Use standard approve/transferFrom or Permit2 for payment flows.",
+        status: "implemented",
+        contractPattern: "FrxUSD3 — EIP3009Module",
+        keyFunctions: [
+          "transferWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)",
+          "receiveWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)",
+          "cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)",
+          "authorizationState(address authorizer, bytes32 nonce) → bool",
+        ],
+        implementationNotes:
+          "Verified on Etherscan: FrxUSD3 inherits EIP3009Module which adds the full Circle-style transferWithAuthorization suite. Random bytes32 nonces, time bounds (validAfter/validBefore), and cancelAuthorization. This makes frxUSD one of only three stablecoins (alongside USDC and PYUSD) with native EIP-3009 support.",
+        devImpact:
+          "frxUSD supports atomic signed transfers — payment relayers and checkout flows get the same EIP-3009 integration as USDC. Prefer receiveWithAuthorization from contracts to mitigate front-running.",
       },
       {
         eipId: "EIP-1967",
@@ -1082,11 +1375,15 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1271",
-        status: "not-implemented",
-        contractPattern: "Not confirmed on frxUSD token",
-        keyFunctions: [],
-        implementationNotes: "No token-level isValidSignature confirmed.",
-        devImpact: "Smart wallets follow standard ERC-20 approval paths.",
+        status: "implemented",
+        contractPattern: "FrxUSD3 — PermitModule with ERC-1271 signature validation",
+        keyFunctions: [
+          "isValidSignature(bytes32 hash, bytes signature) → bytes4 (via PermitModule)",
+        ],
+        implementationNotes:
+          "Verified on Etherscan: FrxUSD3 inherits a custom PermitModule (based on OZ 4.9.4 with namespaced storage) that supports ERC-1271 signature validation. Smart contract wallets (Safe multisig, Argent, ERC-4337 accounts) can sign permits directly on the frxUSD token without EOA co-signers. The PermitModule checks isValidSignature on the signer address when the signer is a contract.",
+        devImpact:
+          "Institutional flows with Safe or AA wallets get native permit support. frxUSD joins USDC v2.2, USDS, and sUSDe (via EthenaMinting) as stablecoins with on-token EIP-1271 support.",
       },
       {
         eipId: "ERC-7802",
@@ -1105,6 +1402,53 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes:
           "No native flash loan capability. frxUSD is collateralized by BlackRock BUIDL — permissionless flash minting would conflict with the reserve-backed model.",
         devImpact: "Use external flash loan providers.",
+      },
+      {
+        eipId: "Freeze",
+        status: "implemented",
+        contractPattern: "FrxUSD2 — freeze/thaw with batch support, owner bypasses all checks",
+        keyFunctions: [
+          "freeze(address _owner) — onlyOwner",
+          "freezeMany(address[] memory _owners) — onlyOwner, batch",
+          "thaw(address _owner) — onlyOwner (unfreeze)",
+          "thawMany(address[] memory _owners) — onlyOwner, batch",
+          "isFrozen(address) → bool (public mapping)",
+        ],
+        implementationNotes:
+          "Verified on Etherscan (FrxUSD2 at 0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29). Uses 'freeze/thaw' terminology rather than 'blacklist/unblacklist'. The _update override enforces: if isFrozen[to] || isFrozen[from] || isFrozen[msg.sender], revert IsFrozen(). Critically, the owner bypasses ALL freeze and pause checks in _update — the owner can always transfer, even from/to frozen addresses.",
+        devImpact:
+          "Standard freeze-check pattern. The batch freeze/thaw functions (freezeMany/thawMany) are unique among the stablecoins tracked and enable efficient mass compliance actions. The owner bypass is a significant trust assumption.",
+        footguns:
+          "The owner bypasses freeze checks entirely — meaning the owner can transfer tokens involving frozen addresses. This is by design for compliance operations but means the owner key has more power than in USDC-style contracts where the blacklister cannot move funds.",
+      },
+      {
+        eipId: "Seize",
+        status: "implemented",
+        contractPattern: "FrxUSD2 — owner burn from ANY address (frozen or not)",
+        keyFunctions: [
+          "burn(address _owner, uint256 _amount) — onlyOwner, burns from any address; if _amount == 0 burns entire balance",
+          "burnMany(address[] memory _owners, uint256[] memory _amounts) — onlyOwner, batch burn from multiple addresses",
+        ],
+        implementationNotes:
+          "Verified on Etherscan: the MOST powerful seizure mechanism among all tracked stablecoins. burn(address, uint256) can burn tokens from ANY address — frozen or not — without the holder's consent. If _amount is 0, the ENTIRE balance is burned. burnMany enables batch seizure across multiple addresses in a single transaction. Because the owner bypasses freeze/pause checks in _update, these burns always succeed regardless of contract state. This goes beyond USDT's destroyBlackFunds (which requires the address to be blacklisted first) and PYUSD's wipeFrozenAddress (which requires the address to be frozen first).",
+        devImpact:
+          "frxUSD's owner can unilaterally destroy any holder's balance at any time, without needing to freeze the address first. This is the broadest admin power of any stablecoin in the dataset. Supply tracking must account for burn events from arbitrary addresses.",
+        footguns:
+          "Unlike USDT (requires blacklist first) or PYUSD (requires freeze first), frxUSD burn has NO precondition — the owner can burn from any address immediately. The batch burnMany function compounds this: a single transaction can wipe balances across many addresses. Any protocol holding frxUSD should understand this trust assumption.",
+      },
+      {
+        eipId: "Pause",
+        status: "implemented",
+        contractPattern: "FrxUSD2 — custom Pausable, owner bypasses",
+        keyFunctions: [
+          "pause() — onlyOwner",
+          "unpause() — onlyOwner",
+          "isPaused() → bool (public variable)",
+        ],
+        implementationNotes:
+          "Verified on Etherscan: custom pause implementation (not OpenZeppelin PausableUpgradeable). When isPaused is true, all transfers revert with IsPaused() — except transfers by the owner, who bypasses the pause check in _update. Uses Ownable2Step (two-step ownership transfer) for safety.",
+        devImpact:
+          "Standard pause risk model with the notable exception that the owner can still transfer during a pause. This means the owner can move their own tokens or execute compliance operations even while the contract is paused for everyone else.",
       },
     ],
   },
@@ -1213,6 +1557,46 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes: "No native flash loan capability on TUSD.",
         devImpact: "Use external flash loan providers.",
       },
+      {
+        eipId: "Freeze",
+        status: "implemented",
+        contractPattern: "TrueUSD — TokenController freeze",
+        keyFunctions: [
+          "freezeAccount(address _account) — controller only",
+          "unfreezeAccount(address _account) — controller only",
+        ],
+        implementationNotes:
+          "TUSD includes freezeAccount/unfreezeAccount via the TokenController proxy pattern. Frozen accounts cannot transfer or receive TUSD. Given TUSD's operational turmoil (Archblock bankruptcy, SEC fraud settlement, $456M frozen reserves), the compliance mechanism is functional but the entity exercising it is under legal stress.",
+        devImpact:
+          "Standard freeze check applies, but counterparty risk around who controls the freeze function is elevated. The controller key's current custodian (Techteryx) should be verified.",
+        footguns:
+          "TUSD's operational instability means the freeze function could be exercised unpredictably. Protocols integrating TUSD should account for heightened operational risk beyond normal compliance actions.",
+      },
+      {
+        eipId: "Seize",
+        status: "implemented",
+        contractPattern: "TrueUSD — wipeFrozenAccount",
+        keyFunctions: [
+          "wipeFrozenAccount(address _account) — controller only",
+        ],
+        implementationNotes:
+          "wipeFrozenAccount() destroys the balance of a frozen account, reducing totalSupply(). Same pattern as USDT's destroyBlackFunds and PYUSD's wipeFrozenAddress. Address must be frozen first.",
+        devImpact:
+          "Supply tracking must account for wipe events. Same operational risk caveats as the freeze function.",
+      },
+      {
+        eipId: "Pause",
+        status: "implemented",
+        contractPattern: "TrueUSD — Pausable",
+        keyFunctions: [
+          "pause() — controller only",
+          "unpause() — controller only",
+        ],
+        implementationNotes:
+          "Standard Pausable pattern. When paused, all transfers revert. Controller-gated. Given TUSD's operational challenges, the pause mechanism carries elevated counterparty risk.",
+        devImpact:
+          "Same DeFi-wide halt risk as other pausable stablecoins, compounded by TUSD's operational instability.",
+      },
     ],
   },
 
@@ -1308,13 +1692,13 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1271",
-        status: "unknown",
-        contractPattern: "Unconfirmed smart-contract signature validation",
+        status: "not-implemented",
+        contractPattern: "No isValidSignature — verified from Etherscan source",
         keyFunctions: [],
         implementationNotes:
-          "Not confirmed in public repository. The contract uses Foundry/Solidity and conforms to EIP-20, EIP-712, EIP-2612 but EIP-1271 isValidSignature is not explicitly documented. No formal smart contract security audit from a recognized firm has been publicly disclosed — a notable gap given the project's profile.",
+          "Verified on Etherscan (implementation 0x3398385c…): USD1's Stablecoin contract inherits ERC20PermitUpgradeable, Ownable2StepUpgradeable, PausableUpgradeable — no EIP-1271 implementation anywhere in the inheritance chain. No isValidSignature function exists. The 17 source files contain zero references to ERC1271, IERC1271, or isValidSignature.",
         devImpact:
-          "Institutional smart-wallet permit flows remain uncertain until this is verified.",
+          "Smart contract wallets (Safe, AA wallets) cannot natively sign USD1 permits. EOA co-signers or Permit2 are required for institutional custody workflows that depend on contract-signed permits.",
       },
       {
         eipId: "ERC-7802",
@@ -1334,6 +1718,44 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes:
           "No native flash loan capability. Fiat-backed reserve model is incompatible with permissionless flash minting.",
         devImpact: "Use external flash loan providers.",
+      },
+      {
+        eipId: "Freeze",
+        status: "implemented",
+        contractPattern: "USD1 — freeze/unfreeze (worldliberty/usd1-smart-contracts)",
+        keyFunctions: [
+          "freeze(address _account) — compliance role",
+          "unfreeze(address _account) — compliance role",
+        ],
+        implementationNotes:
+          "Confirmed via worldliberty/usd1-smart-contracts repository. USD1 includes freeze/unfreeze for individual account compliance. Frozen accounts cannot send or receive USD1. Deployed on both Ethereum and BNB Chain — freeze status per chain deployment (independent contracts at same address).",
+        devImpact:
+          "Standard freeze-check pattern. USD1 is a newer entrant — verify the operational procedures and key management around freeze authority.",
+        footguns:
+          "No formal smart contract security audit from a recognized firm has been publicly disclosed for USD1 — the freeze mechanism's implementation quality is unaudited. Verify on-chain before relying on it.",
+      },
+      {
+        eipId: "Seize",
+        status: "not-implemented",
+        contractPattern: "Freeze only — no seizure/wipe function",
+        keyFunctions: [],
+        implementationNotes:
+          "Verified on Etherscan (implementation 0x3398385c…): USD1 has no wipeFrozenAddress, destroyBlackFunds, or equivalent. The burn(uint256) function only burns from the caller's own balance (_burn(_msgSender(), amount)) and is onlyOwner. The owner cannot burn tokens from another address. Frozen funds are locked in place. Same freeze-only model as USDC and FDUSD. renounceOwnership() is explicitly disabled (reverts with 'Unsupported'), so the contract will always have an owner.",
+        devImpact:
+          "Frozen USD1 remains in totalSupply() and balanceOf(). No surprise supply changes from seizure. The permanently non-renounceable ownership is a notable design choice — the admin key can never be burned.",
+      },
+      {
+        eipId: "Pause",
+        status: "implemented",
+        contractPattern: "PausableUpgradeable — onlyOwner",
+        keyFunctions: [
+          "pause() — onlyOwner",
+          "unpause() — onlyOwner",
+        ],
+        implementationNotes:
+          "Verified on Etherscan: inherits OpenZeppelin PausableUpgradeable. Both _transfer and _approve have whenNotPaused modifier. When paused, all transfers and approvals are blocked globally. Single-owner model with renounceOwnership() disabled — the contract will always have an active owner with pause authority.",
+        devImpact:
+          "Standard pause risk model. The non-renounceable ownership combined with TransparentUpgradeableProxy means WLFI retains full admin control permanently.",
       },
     ],
   },
