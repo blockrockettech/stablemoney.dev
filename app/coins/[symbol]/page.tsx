@@ -16,7 +16,7 @@ import { RiskBadge } from "@/components/RiskBadge"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ExternalLink } from "lucide-react"
-import { getMarketCap } from "@/lib/market-data"
+import { getMarketCap, getMarketCapRank } from "@/lib/market-data"
 
 const typeLabel: Record<StablecoinType, string> = {
   fiat: "Fiat-backed",
@@ -78,6 +78,7 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
 
   const mdx = await loadCoinMdx(coin.symbol)
   const featureRows = mergeCoinFeatures(coin)
+  const mcapRank = getMarketCapRank(coin.symbol)
 
   return (
     <article className="space-y-10">
@@ -89,7 +90,9 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
           <Badge variant="outline" className="text-xs uppercase">
             {typeLabel[coin.type]}
           </Badge>
-          <span className="text-muted-foreground text-sm">Rank #{coin.rank}</span>
+          <span className="text-muted-foreground text-sm">
+            Rank #{mcapRank > 0 ? mcapRank : "—"}
+          </span>
         </div>
         <h1 className="text-2xl font-semibold">{coin.name}</h1>
         <p className="text-muted-foreground text-sm">{coin.issuer}</p>

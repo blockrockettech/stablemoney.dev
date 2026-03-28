@@ -53,7 +53,6 @@ export interface Coin {
   symbol: string
   name: string
   issuer: string
-  rank: number
   marketCap: string
   type: StablecoinType
   description: string

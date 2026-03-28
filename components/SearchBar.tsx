@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { searchCoins } from "@/lib/search"
 import type { Coin } from "@/types"
 import { CoinCard } from "@/components/CoinCard"
+import { getMarketCapRank } from "@/lib/market-data"
 import { cn } from "@/lib/utils"
 
 export function SearchBar({ className }: { className?: string }) {
@@ -68,7 +69,12 @@ export function SearchBar({ className }: { className?: string }) {
                   setQ("")
                 }}
               >
-                <CoinCard coin={c} asLink={false} className="pointer-events-none" />
+                <CoinCard
+                  coin={c}
+                  marketCapRank={getMarketCapRank(c.symbol)}
+                  asLink={false}
+                  className="pointer-events-none"
+                />
               </button>
             ))}
           </div>

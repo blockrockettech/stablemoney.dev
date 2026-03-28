@@ -1,7 +1,7 @@
 import { COIN_EIP_PROFILES } from "@/data/coinEips"
 import type { CoinEipImpl, CoinEipProfile, EipStatus } from "@/types/eip"
 
-/** Column order for matrix and deep-dive sections (market-cap rank in static data) */
+/** Fixed column order for matrix comparison (not auto-sorted by market cap) */
 export const COIN_EIP_SYMBOLS = [
   "USDT",
   "USDC",

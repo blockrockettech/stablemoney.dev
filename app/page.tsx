@@ -1,8 +1,9 @@
 import Link from "next/link"
+import Image from "next/image"
 import { coins } from "@/data/coins"
 import { HomeClient } from "@/components/HomeClient"
 import { getAllChainSlugs } from "@/lib/chains"
-import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site"
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
 import { getTotalMarketCap, getDataFreshness, isDynamic } from "@/lib/market-data"
 import { ArrowRight } from "lucide-react"
 import type { Metadata } from "next"
@@ -29,14 +30,23 @@ export default function HomePage() {
         <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-primary/[0.07] blur-2xl" />
 
         <div className="relative space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            <span className="bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
-              Stablecoins
-            </span>
-          </h1>
+          <div className="flex items-center gap-3.5">
+            <Image
+              src="/favicon.svg"
+              alt=""
+              width={44}
+              height={44}
+              className="rounded-lg"
+              aria-hidden="true"
+            />
+            <h1 className="flex items-baseline gap-2 font-mono tracking-tight">
+              <span className="text-4xl font-bold text-primary sm:text-5xl">Stable</span>
+              <span className="text-4xl font-bold text-foreground sm:text-5xl">Money</span>
+              <span className="text-2xl font-semibold text-muted-foreground sm:text-3xl">.dev</span>
+            </h1>
+          </div>
           <p className="text-muted-foreground max-w-2xl text-base leading-relaxed sm:text-lg">
-            The engineering reference for the top stablecoins by market cap —
-            networks, contracts, EIP standards, and risk factors.
+            {SITE_TAGLINE} — networks, contracts, EIP standards, compliance, and risk factors.
           </p>
         </div>
 

@@ -5,7 +5,6 @@ export const coins: Coin[] = [
     symbol: "USDT",
     name: "Tether USD",
     issuer: "Tether Limited",
-    rank: 1,
     marketCap: "~$184B",
     type: "fiat",
     description:
@@ -144,7 +143,6 @@ export const coins: Coin[] = [
     symbol: "USDC",
     name: "USD Coin",
     issuer: "Circle",
-    rank: 2,
     marketCap: "~$77B",
     type: "fiat",
     description:
@@ -332,7 +330,6 @@ export const coins: Coin[] = [
     symbol: "USDe",
     name: "Ethena USDe",
     issuer: "Ethena Labs",
-    rank: 4,
     marketCap: "~$5.9B",
     type: "synthetic",
     description:
@@ -473,7 +470,6 @@ export const coins: Coin[] = [
     symbol: "DAI",
     name: "Multi-Collateral Dai",
     issuer: "Sky Protocol (formerly MakerDAO)",
-    rank: 6,
     marketCap: "~$4.3B",
     type: "crypto",
     description:
@@ -582,7 +578,6 @@ export const coins: Coin[] = [
     symbol: "USDS",
     name: "Sky USDS",
     issuer: "Sky Protocol",
-    rank: 3,
     marketCap: "~$7.5B",
     type: "crypto",
     description:
@@ -664,7 +659,6 @@ export const coins: Coin[] = [
     symbol: "FDUSD",
     name: "First Digital USD",
     issuer: "First Digital Trust Limited",
-    rank: 9,
     marketCap: "~$450M",
     type: "fiat",
     description:
@@ -754,7 +748,6 @@ export const coins: Coin[] = [
     symbol: "PYUSD",
     name: "PayPal USD",
     issuer: "Paxos Trust Company (for PayPal)",
-    rank: 7,
     marketCap: "~$4.1B",
     type: "fiat",
     description:
@@ -870,7 +863,6 @@ export const coins: Coin[] = [
     symbol: "frxUSD",
     name: "Frax USD",
     issuer: "Frax Finance",
-    rank: 10,
     marketCap: "~$120M",
     type: "fiat",
     description:
@@ -939,7 +931,6 @@ export const coins: Coin[] = [
     symbol: "TUSD",
     name: "TrueUSD",
     issuer: "Techteryx Ltd.",
-    rank: 8,
     marketCap: "~$494M",
     type: "fiat",
     description:
@@ -1023,7 +1014,6 @@ export const coins: Coin[] = [
     symbol: "USD1",
     name: "World Liberty Financial USD1",
     issuer: "World Liberty Financial (WLFI)",
-    rank: 5,
     marketCap: "~$4.6B",
     type: "fiat",
     description:
@@ -1117,7 +1107,6 @@ export const coins: Coin[] = [
     symbol: "GHO",
     name: "GHO",
     issuer: "Aave DAO",
-    rank: 11,
     marketCap: "~$584M",
     type: "crypto",
     description:
@@ -1247,7 +1236,6 @@ export const coins: Coin[] = [
     symbol: "RLUSD",
     name: "Ripple USD",
     issuer: "Standard Custody & Trust Company, LLC (Ripple subsidiary)",
-    rank: 12,
     marketCap: "~$1.4B",
     type: "fiat",
     description:

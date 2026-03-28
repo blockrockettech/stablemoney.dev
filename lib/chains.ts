@@ -1,5 +1,6 @@
 import { coins } from "@/data/coins"
 import type { Coin } from "@/types"
+import { getMarketCapValue } from "@/lib/market-data"
 
 const CHAIN_LABELS: Record<string, string> = {
   ethereum: "Ethereum",
@@ -55,5 +56,10 @@ export function getCoinsOnChain(chainSlug: string): {
       }
     }
   }
-  return out.sort((a, b) => a.coin.rank - b.coin.rank)
+  return out.sort((a, b) => {
+    const mA = getMarketCapValue(a.coin.symbol)
+    const mB = getMarketCapValue(b.coin.symbol)
+    if (mA !== mB) return mB - mA
+    return a.coin.symbol.localeCompare(b.coin.symbol)
+  })
 }

@@ -1,4 +1,4 @@
-import { coinBySymbol } from "@/data/coins"
+import { coinBySymbol, coins as allCoins } from "@/data/coins"
 
 interface MarketDataCoin {
   marketCap: number
@@ -70,4 +70,27 @@ export function getDataFreshness(): string | null {
 export function isDynamic(): boolean {
   const data = load()
   return data !== null && Object.keys(data.coins).length > 0
+}
+
+/** Raw market cap number for sorting — falls back to 0 if unavailable */
+export function getMarketCapValue(symbol: string): number {
+  const data = load()
+  return data?.coins[symbol]?.marketCap ?? 0
+}
+
+/** Descending by live market cap; tie-breaker symbol for stable order when data is missing */
+export function sortCoinsByMarketCap<T extends { symbol: string }>(items: T[]): T[] {
+  return [...items].sort((a, b) => {
+    const mcapA = getMarketCapValue(a.symbol)
+    const mcapB = getMarketCapValue(b.symbol)
+    if (mcapA !== mcapB) return mcapB - mcapA
+    return a.symbol.localeCompare(b.symbol)
+  })
+}
+
+/** 1-based rank among all tracked coins by current market-cap data */
+export function getMarketCapRank(symbol: string): number {
+  const ordered = sortCoinsByMarketCap(allCoins)
+  const i = ordered.findIndex((c) => c.symbol === symbol)
+  return i >= 0 ? i + 1 : 0
 }

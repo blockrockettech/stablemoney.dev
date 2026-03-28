@@ -1,6 +1,7 @@
 import Fuse from "fuse.js"
 import { coins } from "@/data/coins"
 import type { Coin } from "@/types"
+import { sortCoinsByMarketCap } from "@/lib/market-data"
 
 type SearchRecord = {
   symbol: string
@@ -38,7 +39,7 @@ const fuse = new Fuse(coins.map(flattenCoin), {
 
 export function searchCoins(query: string): Coin[] {
   const q = query.trim()
-  if (!q) return [...coins].sort((a, b) => a.rank - b.rank)
+  if (!q) return sortCoinsByMarketCap([...coins])
 
   const results = fuse.search(q)
   return results

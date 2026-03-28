@@ -30,10 +30,13 @@ function rankClass(rank: number): string {
 
 export function CoinCard({
   coin,
+  marketCapRank,
   className,
   asLink = true,
 }: {
   coin: Coin
+  /** 1-based rank by live market cap (DefiLlama at build time) */
+  marketCapRank: number
   className?: string
   asLink?: boolean
 }) {
@@ -57,9 +60,9 @@ export function CoinCard({
           <div className="flex items-center gap-2">
             <Badge
               variant="outline"
-              className={cn("font-mono text-xs font-bold border", rankClass(coin.rank))}
+              className={cn("font-mono text-xs font-bold border", rankClass(marketCapRank))}
             >
-              #{coin.rank}
+              #{marketCapRank}
             </Badge>
             <span className="font-mono text-lg font-bold tracking-tight">
               {coin.symbol}
