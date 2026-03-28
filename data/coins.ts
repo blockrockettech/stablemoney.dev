@@ -5,7 +5,6 @@ export const coins: Coin[] = [
     symbol: "USDT",
     name: "Tether USD",
     issuer: "Tether Limited",
-    marketCap: "~$184B",
     type: "fiat",
     description:
       "Largest stablecoin by market cap and dominant liquidity layer across crypto exchanges. Launched 2014 on Bitcoin Omni layer, now spans 15+ blockchains. Over $1T monthly volume.",
@@ -143,7 +142,6 @@ export const coins: Coin[] = [
     symbol: "USDC",
     name: "USD Coin",
     issuer: "Circle",
-    marketCap: "~$77B",
     type: "fiat",
     description:
       "Most developer-friendly and compliance-forward stablecoin. Native on 32 blockchains as of early 2026 with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across 21 chains. Circle completed its IPO on NYSE (ticker: CRCL) in January 2026.",
@@ -330,7 +328,6 @@ export const coins: Coin[] = [
     symbol: "USDe",
     name: "Ethena USDe",
     issuer: "Ethena Labs",
-    marketCap: "~$5.9B",
     type: "synthetic",
     description:
       "Third-largest stablecoin and most technically novel. Achieves dollar peg via delta-neutral hedge — users deposit ETH/BTC collateral while the protocol opens an equal short perpetual futures position. Yield flows from funding rates and ETH staking to sUSDe holders.",
@@ -470,7 +467,6 @@ export const coins: Coin[] = [
     symbol: "DAI",
     name: "Multi-Collateral Dai",
     issuer: "Sky Protocol (formerly MakerDAO)",
-    marketCap: "~$4.3B",
     type: "crypto",
     description:
       "Original decentralized stablecoin, live since December 2017. Users open Vaults and over-collateralize crypto to mint DAI. MakerDAO rebranded to Sky Protocol in 2024 and launched USDS as a successor — DAI and USDS are freely interchangeable 1:1. Fully on-chain governance by SKY token holders.",
@@ -578,7 +574,6 @@ export const coins: Coin[] = [
     symbol: "USDS",
     name: "Sky USDS",
     issuer: "Sky Protocol",
-    marketCap: "~$7.5B",
     type: "crypto",
     description:
       "Upgraded successor to DAI, launched with the MakerDAO→Sky Protocol rebrand in 2024. Interchangeable with DAI at 1:1 via DaiUsds.sol migration contract. Key additions: upgradeable proxy, planned freeze function for regulatory compliance, Sky Savings Rate, and Solana deployment.",
@@ -659,7 +654,6 @@ export const coins: Coin[] = [
     symbol: "FDUSD",
     name: "First Digital USD",
     issuer: "First Digital Trust Limited",
-    marketCap: "~$450M",
     type: "fiat",
     description:
       "Launched June 2023 to replace Binance's BUSD after wind-down. Primarily used for trading pairs on Binance, though usage has declined sharply. In April 2025, Justin Sun publicly accused First Digital Trust of insolvency, causing a brief depeg to $0.87 before recovering. Binance subsequently delisted multiple FDUSD trading pairs in early 2026, accelerating market cap decline from a ~$2B+ peak.",
@@ -748,7 +742,6 @@ export const coins: Coin[] = [
     symbol: "PYUSD",
     name: "PayPal USD",
     issuer: "Paxos Trust Company (for PayPal)",
-    marketCap: "~$4.1B",
     type: "fiat",
     description:
       "Most UX-focused stablecoin with deep fintech integration across PayPal and Venmo (400M+ users). Issued by Paxos (NYDFS-regulated). The Solana deployment uses Token Extensions (Token-2022) enabling confidential transfers, transfer hooks, and memo fields. In March 2026, PayPal expanded PYUSD to 70 international markets across Asia-Pacific, Europe, Latin America, and North America.",
@@ -863,7 +856,6 @@ export const coins: Coin[] = [
     symbol: "frxUSD",
     name: "Frax USD",
     issuer: "Frax Finance",
-    marketCap: "~$120M",
     type: "fiat",
     description:
       "Fully collateralized stablecoin launched December 2025 as the successor to the original FRAX stablecoin. Backed 1:1 by BlackRock's BUIDL fund (USD Institutional Digital Liquidity Fund, tokenized by Securitize) — investing in US Treasury bills, cash, and repo agreements. The original FRAX fractional-algorithmic model was retired. Note: the FRAX ticker now refers to the Frax Finance governance and gas token for the Fraxtal L2 network (formerly FXS).",
@@ -931,7 +923,6 @@ export const coins: Coin[] = [
     symbol: "TUSD",
     name: "TrueUSD",
     issuer: "Techteryx Ltd.",
-    marketCap: "~$494M",
     type: "fiat",
     description:
       "One of the earliest regulated stablecoins (2018). Acquired by Techteryx Ltd. (BVI) in 2020; Archblock (formerly TrueCoin), the original operator, filed for Chapter 11 bankruptcy in 2025. TUSD is under significant legal and financial stress: $456M in reserves were locked in an illiquid offshore fund (Cayman-based Aria Commodity Finance Fund) and a Dubai court issued a global freezing order on those assets in November 2025. TrueCoin and TrustToken settled with the SEC in September 2024 for fraud charges related to falsely marketing TUSD as fully dollar-backed. Real-time attestations have been suspended/unreliable. The peg has been maintained only due to a ~$500M bailout by Justin Sun.",
@@ -1014,7 +1005,6 @@ export const coins: Coin[] = [
     symbol: "USD1",
     name: "World Liberty Financial USD1",
     issuer: "World Liberty Financial (WLFI)",
-    marketCap: "~$4.6B",
     type: "fiat",
     description:
       "Fastest-growing stablecoin of 2025 — announced March 2025 and went live around April 2025 (sources vary). Reached $4.7B by February 2026 via Binance and Abu Dhabi MGX partnerships. Backed 1:1 by USD, US Treasuries, and cash equivalents, custodied by BitGo. In February 2026, USD1 briefly de-pegged to $0.98 in what WLFI described as a coordinated attack; it recovered within hours. WLFI launched World Liberty Markets (lending platform using USD1) in January 2026 and an AI payments SDK in March 2026.",
@@ -1107,7 +1097,6 @@ export const coins: Coin[] = [
     symbol: "GHO",
     name: "GHO",
     issuer: "Aave DAO",
-    marketCap: "~$584M",
     type: "crypto",
     description:
       "Aave-native decentralised stablecoin launched July 2023. GHO is minted by borrowers on Aave V3 against over-collateralised positions — it is never supplied, only created. Supply is governed by a facilitator model: each approved facilitator (Aave V3, FlashMinter, GSM) has a governance-set bucket capacity controlling the maximum GHO it can mint. Cross-chain via Chainlink CCIP (lock-and-mint from Ethereum, burn-and-mint between L2s). Peg stability maintained by GSM (1:1 USDC/USDT swaps), borrow rate tuning, and arbitrage incentives.",
@@ -1236,7 +1225,6 @@ export const coins: Coin[] = [
     symbol: "RLUSD",
     name: "Ripple USD",
     issuer: "Standard Custody & Trust Company, LLC (Ripple subsidiary)",
-    marketCap: "~$1.4B",
     type: "fiat",
     description:
       "Ripple's USD-backed stablecoin, approved by NYDFS and DFSA (Dubai). Launched December 2024, natively issued on Ethereum and XRP Ledger. Purpose-built for cross-border payments with six-role access control (admin, minter, burner, pauser, clawbacker, upgrader), account-level freeze, clawback (seize), and UUPS upgradeability. V2 upgrade (September 2025) added EIP-2612 gasless permit.",

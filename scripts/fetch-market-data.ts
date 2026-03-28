@@ -29,7 +29,6 @@ interface DefiLlamaAsset {
 
 interface MarketDataCoin {
   marketCap: number
-  chainCount: number
   price: number
 }
 
@@ -68,10 +67,9 @@ async function fetchMarketData(): Promise<MarketDataFile> {
       continue
     }
     const mcap = asset.circulating?.peggedUSD ?? 0
-    const chainCount = asset.chains?.length ?? 0
     const price = asset.price ?? 1
 
-    coins[symbol] = { marketCap: mcap, chainCount, price }
+    coins[symbol] = { marketCap: mcap, price }
     totalMarketCap += mcap
   }
 

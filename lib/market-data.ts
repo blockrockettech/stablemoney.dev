@@ -1,8 +1,9 @@
-import { coinBySymbol, coins as allCoins } from "@/data/coins"
+import { coins as allCoins } from "@/data/coins"
+
+const NO_MCAP_LABEL = "N/A"
 
 interface MarketDataCoin {
   marketCap: number
-  chainCount: number
   price: number
 }
 
@@ -24,7 +25,7 @@ function load(): MarketDataFile | null {
       return _cache
     }
   } catch {
-    // generated file not present — fall back to static data
+    // generated file not present (run prebuild / fetch-market-data)
   }
   return null
 }
@@ -41,20 +42,13 @@ export function getMarketCap(symbol: string): string {
   const data = load()
   const entry = data?.coins[symbol]
   if (entry && entry.marketCap > 0) return formatUsd(entry.marketCap)
-  return coinBySymbol[symbol.toUpperCase()]?.marketCap ?? "N/A"
-}
-
-export function getChainCount(symbol: string): number {
-  const data = load()
-  const entry = data?.coins[symbol]
-  if (entry && entry.chainCount > 0) return entry.chainCount
-  return coinBySymbol[symbol.toUpperCase()]?.networks.length ?? 0
+  return NO_MCAP_LABEL
 }
 
 export function getTotalMarketCap(): string {
   const data = load()
   if (data && data.totalMarketCap > 0) return formatUsd(data.totalMarketCap)
-  return "~$314B"
+  return NO_MCAP_LABEL
 }
 
 export function getDataFreshness(): string | null {

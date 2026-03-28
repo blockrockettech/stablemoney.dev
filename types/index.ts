@@ -53,7 +53,6 @@ export interface Coin {
   symbol: string
   name: string
   issuer: string
-  marketCap: string
   type: StablecoinType
   description: string
   networks: NetworkDeployment[]

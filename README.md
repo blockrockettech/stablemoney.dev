@@ -1,6 +1,6 @@
 # StableMoney.Dev
 
-Technical reference site for engineers and DeFi developers: the top stablecoins by market cap, with networks, contracts, features, and risk notes. Market cap and chain counts are refreshed daily from [DefiLlama](https://defillama.com/); all other data is manually curated. Live at [stablemoney.dev](https://stablemoney.dev).
+Technical reference site for engineers and DeFi developers: the top stablecoins by market cap, with networks, contracts, features, and risk notes. **Market cap** (and total tracked cap) is refreshed at build time from [DefiLlama](https://defillama.com/). **Per-coin chain lists and counts** come from manually curated deployments in `data/coins.ts` (official / documented networks only — not every DefiLlama-indexed bridge variant). Live at [stablemoney.dev](https://stablemoney.dev).
 
 ## Stack
 
