@@ -29,6 +29,35 @@ export async function generateMetadata({
   }
 }
 
+const placeholderAccent: Record<string, string> = {
+  "not-implemented": "text-red-400",
+  unknown: "text-muted-foreground",
+}
+
+function PlaceholderCard({
+  eipId,
+  eipName,
+  status,
+}: {
+  eipId: string
+  eipName: string
+  status: "not-implemented" | "unknown"
+}) {
+  return (
+    <div className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-3 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-mono font-semibold">{eipId}</span>
+        <span className="text-muted-foreground">— {eipName}</span>
+      </div>
+      <p className="mt-1.5 text-xs">
+        <span className={`font-medium ${placeholderAccent[status]}`}>
+          {status === "not-implemented" ? "Not implemented" : "Unknown / not verified"}
+        </span>
+      </p>
+    </div>
+  )
+}
+
 export default function CoinEipsPage({ params }: { params: { symbol: string } }) {
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   if (!coin) notFound()
@@ -108,53 +137,69 @@ export default function CoinEipsPage({ params }: { params: { symbol: string } })
       </header>
 
       <section
-        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
         aria-label="Implementation counts"
       >
         <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
           <div className="text-muted-foreground text-xs font-medium uppercase">Implemented</div>
-          <div className="font-mono text-2xl font-semibold text-emerald-800 dark:text-emerald-200">
+          <div className="font-mono text-2xl font-semibold text-emerald-200">
             {stats.implemented}
           </div>
         </div>
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
           <div className="text-muted-foreground text-xs font-medium uppercase">Partial</div>
-          <div className="font-mono text-2xl font-semibold text-amber-900 dark:text-amber-200">
+          <div className="font-mono text-2xl font-semibold text-amber-200">
             {stats.partial}
           </div>
         </div>
+        {stats.alternative > 0 && (
+          <div className="rounded-lg border border-violet-500/30 bg-violet-500/5 px-4 py-3">
+            <div className="text-muted-foreground text-xs font-medium uppercase">Alternative</div>
+            <div className="font-mono text-2xl font-semibold text-violet-200">
+              {stats.alternative}
+            </div>
+          </div>
+        )}
         <div className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3">
           <div className="text-muted-foreground text-xs font-medium uppercase">Not implemented</div>
-          <div className="font-mono text-2xl font-semibold text-red-900 dark:text-red-200">
+          <div className="font-mono text-2xl font-semibold text-red-200">
             {stats.notImplemented}
           </div>
         </div>
-        <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
-          <div className="text-muted-foreground text-xs font-medium uppercase">Unknown</div>
-          <div className="font-mono text-2xl font-semibold">{stats.unknown}</div>
-        </div>
+        {stats.unknown > 0 && (
+          <div className="rounded-lg border border-slate-500/30 bg-slate-500/5 px-4 py-3">
+            <div className="text-muted-foreground text-xs font-medium uppercase">Unknown</div>
+            <div className="font-mono text-2xl font-semibold">{stats.unknown}</div>
+          </div>
+        )}
       </section>
 
       {EIP_CATEGORY_ORDER.map((category) => {
         const eipsInCat = EIPS.filter((e) => e.category === category)
-        const withImpl = eipsInCat.filter((e) =>
-          profile.implementations.some((i) => i.eipId === e.id),
-        )
-        if (!withImpl.length) return null
+        if (!eipsInCat.length) return null
 
         return (
           <section key={category} className="space-y-4">
             <h2 className="text-lg font-semibold tracking-tight">{EIP_CATEGORY_TITLES[category]}</h2>
             <div className="space-y-3">
-              {withImpl.map((eip) => {
+              {eipsInCat.map((eip) => {
                 const impl = profile.implementations.find((i) => i.eipId === eip.id)
-                if (!impl) return null
-                return <EipCard key={eip.id} eip={eip} impl={impl} defaultOpen={false} />
+                if (impl) {
+                  return <EipCard key={eip.id} eip={eip} impl={impl} defaultOpen={false} />
+                }
+                return (
+                  <PlaceholderCard key={eip.id} eipId={eip.id} eipName={eip.name} status="unknown" />
+                )
               })}
             </div>
           </section>
         )
       })}
+
+      <div className="rounded-lg border border-border bg-muted/20 px-4 py-3 text-center text-[0.7rem] leading-relaxed text-muted-foreground">
+        Data sourced from verified Etherscan contract source code. Implementations may differ across
+        networks — always verify on the specific chain you integrate with.
+      </div>
 
       <p className="text-muted-foreground text-sm">
         Cross-coin comparison:{" "}

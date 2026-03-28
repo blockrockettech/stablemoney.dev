@@ -5,7 +5,7 @@ import { coinBySymbol, coins } from "@/data/coins"
 import type { StablecoinType } from "@/types"
 import { loadCoinMdx } from "@/lib/mdx"
 import { mergeCoinFeatures } from "@/lib/merge-features"
-import { EIPS } from "@/data/eips"
+import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/eips"
 import { eipAnchorId, getCellStatus, getEipImplementation } from "@/lib/eip-helpers"
 import type { EipStatus } from "@/types/eip"
 import { CoinMdx } from "@/components/CoinMdx"
@@ -121,7 +121,7 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
       <section>
         <h2 className="mb-4 text-lg font-semibold">EIP / ERC support matrix</h2>
         <p className="text-muted-foreground mb-4 max-w-3xl text-sm leading-relaxed">
-          Standards support for {coin.symbol}. Click an EIP to jump to the global deep-dive section.
+          Standards &amp; compliance support for {coin.symbol}. Click an EIP to jump to the global deep-dive section.
         </p>
         <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full min-w-[720px] text-left text-sm">
@@ -133,32 +133,62 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
               </tr>
             </thead>
             <tbody>
-              {EIPS.map((eip) => {
-                const status = getCellStatus(coin.symbol, eip.id)
-                const impl = getEipImplementation(coin.symbol, eip.id)
+              {EIP_CATEGORY_ORDER.map((category) => {
+                const eipsInCat = EIPS.filter((e) => e.category === category)
+                if (!eipsInCat.length) return null
                 return (
-                  <tr key={eip.id} className="border-b border-border/70 align-top last:border-0">
-                    <td className="px-3 py-3">
-                      <Link
-                        href={`/standards#${eipAnchorId(eip.id)}`}
-                        className="text-primary inline-flex items-center gap-2 font-mono text-xs font-semibold hover:underline"
+                  <>
+                    <tr key={`cat-${category}`} className="bg-muted/30">
+                      <td
+                        colSpan={3}
+                        className="px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground"
                       >
-                        {eip.id}
-                      </Link>
-                      <div className="text-muted-foreground mt-1 text-xs">{eip.name}</div>
-                    </td>
-                    <td className="px-3 py-3">
-                      <Badge variant="outline" className={statusBadgeClass[status]}>
-                        {statusLabel[status]}
-                      </Badge>
-                    </td>
-                    <td className="text-muted-foreground px-3 py-3 text-xs leading-relaxed">
-                      {impl?.devImpact ?? "No profile row for this standard; treated as not implemented."}
-                    </td>
-                  </tr>
+                        {EIP_CATEGORY_TITLES[category]}
+                      </td>
+                    </tr>
+                    {eipsInCat.map((eip) => {
+                      const status = getCellStatus(coin.symbol, eip.id)
+                      const impl = getEipImplementation(coin.symbol, eip.id)
+                      const notes = impl?.status === "alternative" && impl.alternativeStandard
+                        ? `Via ${impl.alternativeStandard}: ${impl.alternativeNotes ?? impl.devImpact}`
+                        : (impl?.devImpact ?? "—")
+                      return (
+                        <tr key={eip.id} className="border-b border-border/70 align-top last:border-0">
+                          <td className="px-3 py-3">
+                            <Link
+                              href={`/standards#${eipAnchorId(eip.id)}`}
+                              className="text-primary inline-flex items-center gap-2 font-mono text-xs font-semibold hover:underline"
+                            >
+                              {eip.id}
+                            </Link>
+                            <div className="text-muted-foreground mt-1 text-xs">{eip.name}</div>
+                          </td>
+                          <td className="px-3 py-3">
+                            <Badge variant="outline" className={statusBadgeClass[status]}>
+                              {statusLabel[status]}
+                            </Badge>
+                          </td>
+                          <td className="text-muted-foreground px-3 py-3 text-xs leading-relaxed">
+                            {notes}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </>
                 )
               })}
             </tbody>
+            <tfoot>
+              <tr className="border-t border-border bg-muted/30">
+                <td
+                  colSpan={3}
+                  className="px-3 py-2.5 text-center text-[0.7rem] leading-relaxed text-muted-foreground"
+                >
+                  Data sourced from verified Etherscan contract source code. Implementations may differ across
+                  networks — always verify on the specific chain you integrate with.
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </section>
