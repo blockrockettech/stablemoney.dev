@@ -165,9 +165,23 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">Technical notes</h2>
-        <pre className="font-mono text-muted-foreground overflow-x-auto rounded-lg border border-border bg-muted/30 p-4 text-xs leading-relaxed whitespace-pre-wrap">
-          {coin.technicalNotes}
-        </pre>
+        <ul className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
+          {coin.technicalNotes
+            .split(/\.\s+/)
+            .filter((s) => s.trim().length > 0)
+            .map((sentence, i) => {
+              const text = sentence.replace(/\.?$/, ".")
+              return (
+                <li
+                  key={i}
+                  className="text-muted-foreground flex items-start gap-2 text-sm leading-relaxed"
+                >
+                  <span className="mt-1.5 inline-block size-1.5 shrink-0 rounded-full bg-primary/50" aria-hidden />
+                  <span className="font-mono text-xs">{text}</span>
+                </li>
+              )
+            })}
+        </ul>
       </section>
 
       <section className="grid gap-8 md:grid-cols-2">
