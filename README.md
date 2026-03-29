@@ -2,6 +2,8 @@
 
 Technical reference site for engineers and DeFi developers: the top stablecoins by market cap, with networks, contracts, features, and risk notes. **Market cap** (and total tracked cap) is refreshed at build time from [DefiLlama](https://defillama.com/). **Per-coin chain lists and counts** come from manually curated deployments in `data/coins.ts` (official / documented networks only — not every DefiLlama-indexed bridge variant). Live at [stablemoney.dev](https://stablemoney.dev).
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/94202cb9-c3cf-49f5-9331-daeba79d3574/deploy-status)](https://app.netlify.com/projects/stablemoneydev/deploys)
+
 ## Stack
 
 - [Next.js 14](https://nextjs.org/) (App Router)

@@ -14,7 +14,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-        explorerUrl: "https://etherscan.io/token/0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        explorerUrl:
+          "https://etherscan.io/token/0xdAC17F958D2ee523a2206206994597C13D831ec7",
         isPrimary: true,
         notes: "~103B supply, 13M+ holders",
       },
@@ -23,7 +24,8 @@ export const coins: Coin[] = [
         chain: "tron",
         standard: "TRC-20",
         contract: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-        explorerUrl: "https://tronscan.org/#/token20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+        explorerUrl:
+          "https://tronscan.org/#/token20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
         isPrimary: true,
         notes: "Highest tx volume, cheapest fees",
       },
@@ -32,7 +34,8 @@ export const coins: Coin[] = [
         chain: "bnb",
         standard: "BEP-20",
         contract: "0x55d398326f99059fF775485246999027B3197955",
-        explorerUrl: "https://bscscan.com/token/0x55d398326f99059fF775485246999027B3197955",
+        explorerUrl:
+          "https://bscscan.com/token/0x55d398326f99059fF775485246999027B3197955",
         isPrimary: true,
       },
       {
@@ -40,7 +43,8 @@ export const coins: Coin[] = [
         chain: "solana",
         standard: "SPL",
         contract: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-        explorerUrl: "https://solscan.io/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        explorerUrl:
+          "https://solscan.io/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
         isPrimary: true,
       },
       {
@@ -48,7 +52,8 @@ export const coins: Coin[] = [
         chain: "arbitrum",
         standard: "ERC-20",
         contract: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-        explorerUrl: "https://arbiscan.io/token/0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        explorerUrl:
+          "https://arbiscan.io/token/0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
         isPrimary: false,
         notes: "USDT0 native L2 via LayerZero OFT",
       },
@@ -57,7 +62,8 @@ export const coins: Coin[] = [
         chain: "polygon",
         standard: "ERC-20",
         contract: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-        explorerUrl: "https://polygonscan.com/token/0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        explorerUrl:
+          "https://polygonscan.com/token/0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
         isPrimary: false,
       },
       {
@@ -65,7 +71,8 @@ export const coins: Coin[] = [
         chain: "avalanche",
         standard: "ERC-20",
         contract: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
-        explorerUrl: "https://snowtrace.io/token/0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+        explorerUrl:
+          "https://snowtrace.io/token/0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
         isPrimary: false,
       },
       {
@@ -73,7 +80,8 @@ export const coins: Coin[] = [
         chain: "optimism",
         standard: "ERC-20",
         contract: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-        explorerUrl: "https://optimistic.etherscan.io/token/0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+        explorerUrl:
+          "https://optimistic.etherscan.io/token/0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
         isPrimary: false,
       },
       {
@@ -90,7 +98,8 @@ export const coins: Coin[] = [
         chain: "ton",
         standard: "Jetton",
         contract: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
-        explorerUrl: "https://tonviewer.com/EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+        explorerUrl:
+          "https://tonviewer.com/EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
         isPrimary: false,
       },
     ],
@@ -161,7 +170,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        explorerUrl: "https://etherscan.io/token/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        explorerUrl:
+          "https://etherscan.io/token/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         isPrimary: true,
         notes: "FiatToken v2.2",
       },
@@ -170,7 +180,8 @@ export const coins: Coin[] = [
         chain: "solana",
         standard: "SPL",
         contract: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        explorerUrl: "https://solscan.io/token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        explorerUrl:
+          "https://solscan.io/token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         isPrimary: true,
       },
       {
@@ -178,7 +189,8 @@ export const coins: Coin[] = [
         chain: "base",
         standard: "ERC-20",
         contract: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        explorerUrl: "https://basescan.org/token/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        explorerUrl:
+          "https://basescan.org/token/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         isPrimary: true,
         notes: "Native, not bridged",
       },
@@ -187,7 +199,8 @@ export const coins: Coin[] = [
         chain: "arbitrum",
         standard: "ERC-20",
         contract: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-        explorerUrl: "https://arbiscan.io/token/0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        explorerUrl:
+          "https://arbiscan.io/token/0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
         isPrimary: true,
         notes: "Native USDC, not USDC.e",
       },
@@ -196,7 +209,8 @@ export const coins: Coin[] = [
         chain: "polygon",
         standard: "ERC-20",
         contract: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-        explorerUrl: "https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        explorerUrl:
+          "https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
         isPrimary: true,
         notes: "Native (0x2791 is bridged)",
       },
@@ -205,7 +219,8 @@ export const coins: Coin[] = [
         chain: "avalanche",
         standard: "ERC-20",
         contract: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
-        explorerUrl: "https://snowtrace.io/token/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+        explorerUrl:
+          "https://snowtrace.io/token/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
         isPrimary: true,
       },
       {
@@ -213,7 +228,8 @@ export const coins: Coin[] = [
         chain: "optimism",
         standard: "ERC-20",
         contract: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
-        explorerUrl: "https://optimistic.etherscan.io/token/0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+        explorerUrl:
+          "https://optimistic.etherscan.io/token/0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
         isPrimary: true,
       },
       {
@@ -222,7 +238,8 @@ export const coins: Coin[] = [
         standard: "RegulatedCoin",
         contract:
           "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
-        explorerUrl: "https://suiscan.xyz/mainnet/coin/0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+        explorerUrl:
+          "https://suiscan.xyz/mainnet/coin/0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
         isPrimary: false,
         notes: "Circle mainnet coin type (suiscan)",
       },
@@ -231,7 +248,8 @@ export const coins: Coin[] = [
         chain: "stellar",
         standard: "Stellar asset",
         contract: "USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
-        explorerUrl: "https://stellar.expert/explorer/public/asset/USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+        explorerUrl:
+          "https://stellar.expert/explorer/public/asset/USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
         isPrimary: false,
         notes: "Circle-issued USDC on Stellar (stellar.expert)",
       },
@@ -240,7 +258,8 @@ export const coins: Coin[] = [
         chain: "aptos",
         standard: "Fungible asset",
         contract: "0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b",
-        explorerUrl: "https://explorer.aptoslabs.com/fungible_asset/0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b?network=mainnet",
+        explorerUrl:
+          "https://explorer.aptoslabs.com/fungible_asset/0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b?network=mainnet",
         isPrimary: false,
         notes: "Circle mainnet fungible asset (explorer.aptoslabs.com)",
       },
@@ -249,7 +268,8 @@ export const coins: Coin[] = [
         chain: "near",
         standard: "NEP-141",
         contract: "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
-        explorerUrl: "https://nearblocks.io/token/17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+        explorerUrl:
+          "https://nearblocks.io/token/17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
         isPrimary: false,
         notes: "Native USDC token ID on NEAR (nearblocks.io)",
       },
@@ -266,16 +286,17 @@ export const coins: Coin[] = [
         chain: "zksync",
         standard: "ERC-20",
         contract: "0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4",
-        explorerUrl: "https://explorer.zksync.io/token/0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4",
+        explorerUrl:
+          "https://era.zksync.network/token/0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4",
         isPrimary: false,
       },
       {
         name: "Starknet",
         chain: "starknet",
         standard: "ERC-20",
-        contract:
-          "0x033068F6539f8e6e6b131e6B2B814e6c34A5224bC66947c47DaB9dFeE93b35fb",
-        explorerUrl: "https://voyager.online/token/0x033068F6539f8e6e6b131e6B2B814e6c34A5224bC66947c47DaB9dFeE93b35fb",
+        contract: "0x033068F6539f8e6e6b131e6B2B814e6c34A5224bC66947c47DaB9dFeE93b35fb",
+        explorerUrl:
+          "https://voyager.online/token/0x033068F6539f8e6e6b131e6B2B814e6c34A5224bC66947c47DaB9dFeE93b35fb",
         isPrimary: false,
         notes: "Circle mainnet deployment (Voyager)",
       },
@@ -285,7 +306,8 @@ export const coins: Coin[] = [
         standard: "IOU",
         contract:
           "5553444300000000000000000000000000000000.rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
-        explorerUrl: "https://livenet.xrpl.org/token/5553444300000000000000000000000000000000.rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
+        explorerUrl:
+          "https://livenet.xrpl.org/token/5553444300000000000000000000000000000000.rGm7WCVp9gb4jZHWTEtGUr4dd74z2XuWhE",
         isPrimary: false,
         notes: "Circle native USDC on XRPL (livenet.xrpl.org)",
       },
@@ -370,7 +392,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
-        explorerUrl: "https://etherscan.io/token/0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
+        explorerUrl:
+          "https://etherscan.io/token/0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
         isPrimary: true,
         notes:
           "Canonical USDe token. OFT deployments on other chains exist — omitted until each address is verified on-chain.",
@@ -464,7 +487,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-        explorerUrl: "https://etherscan.io/token/0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        explorerUrl:
+          "https://etherscan.io/token/0x6B175474E89094C44Da98b954EedeAC495271d0F",
         isPrimary: true,
         notes: "DAI — immutable contract",
       },
@@ -473,7 +497,8 @@ export const coins: Coin[] = [
         chain: "arbitrum",
         standard: "ERC-20",
         contract: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-        explorerUrl: "https://arbiscan.io/token/0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        explorerUrl:
+          "https://arbiscan.io/token/0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
         isPrimary: false,
       },
       {
@@ -481,7 +506,8 @@ export const coins: Coin[] = [
         chain: "optimism",
         standard: "ERC-20",
         contract: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-        explorerUrl: "https://optimistic.etherscan.io/token/0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        explorerUrl:
+          "https://optimistic.etherscan.io/token/0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
         isPrimary: false,
       },
       {
@@ -489,7 +515,8 @@ export const coins: Coin[] = [
         chain: "polygon",
         standard: "ERC-20",
         contract: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-        explorerUrl: "https://polygonscan.com/token/0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+        explorerUrl:
+          "https://polygonscan.com/token/0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
         isPrimary: false,
       },
       {
@@ -497,7 +524,8 @@ export const coins: Coin[] = [
         chain: "base",
         standard: "ERC-20",
         contract: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
-        explorerUrl: "https://basescan.org/token/0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+        explorerUrl:
+          "https://basescan.org/token/0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
         isPrimary: false,
       },
     ],
@@ -545,7 +573,8 @@ export const coins: Coin[] = [
           "Median of whitelist oracle feeds used for collateral price — resistant to single oracle manipulation.",
       },
     ],
-    reserves: "ETH (~40%), stETH, WBTC, RWAs (~$2.68B+ mid‑2025), USDC via PSM (varies over time)",
+    reserves:
+      "ETH (~40%), stETH, WBTC, RWAs (~$2.68B+ mid‑2025), USDC via PSM (varies over time)",
     collateralType: "On-chain crypto and RWAs",
     pegMechanism: "Algorithmic via DSR, PSM arbitrage, and liquidation mechanisms",
     auditor: "Trail of Bits, PwC (periodic), community-audited",
@@ -576,7 +605,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0xdC035D45d973E3EC169d2276DDab16f1e407384F",
-        explorerUrl: "https://etherscan.io/token/0xdC035D45d973E3EC169d2276DDab16f1e407384F",
+        explorerUrl:
+          "https://etherscan.io/token/0xdC035D45d973E3EC169d2276DDab16f1e407384F",
         isPrimary: true,
         notes: "ERC1967Proxy upgradeable",
       },
@@ -649,7 +679,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
-        explorerUrl: "https://etherscan.io/token/0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
+        explorerUrl:
+          "https://etherscan.io/token/0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
         isPrimary: true,
       },
       {
@@ -657,7 +688,8 @@ export const coins: Coin[] = [
         chain: "bnb",
         standard: "BEP-20",
         contract: "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
-        explorerUrl: "https://bscscan.com/token/0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
+        explorerUrl:
+          "https://bscscan.com/token/0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
         isPrimary: true,
         notes: "Same address, different chain",
       },
@@ -703,7 +735,10 @@ export const coins: Coin[] = [
     yield: "None",
     risks: [
       { label: "April 2025 Justin Sun insolvency accusation and depeg", level: "high" },
-      { label: "Binance pair delistings — declining usage and market cap", level: "high" },
+      {
+        label: "Binance pair delistings — declining usage and market cap",
+        level: "high",
+      },
       { label: "Binance concentration", level: "medium" },
     ],
     technicalNotes:
@@ -722,7 +757,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
-        explorerUrl: "https://etherscan.io/token/0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
+        explorerUrl:
+          "https://etherscan.io/token/0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
         isPrimary: true,
         notes: "Paxos FiatToken v1",
       },
@@ -731,7 +767,8 @@ export const coins: Coin[] = [
         chain: "solana",
         standard: "Token-2022",
         contract: "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
-        explorerUrl: "https://solscan.io/token/2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
+        explorerUrl:
+          "https://solscan.io/token/2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
         isPrimary: true,
         notes: "SPL Token Extensions program (Paxos lists Ethereum + Solana only)",
       },
@@ -814,7 +851,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
-        explorerUrl: "https://etherscan.io/token/0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
+        explorerUrl:
+          "https://etherscan.io/token/0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
         isPrimary: true,
         notes: "FrxUSD2 — verified on Etherscan (matches EIP profile)",
       },
@@ -846,16 +884,21 @@ export const coins: Coin[] = [
           "Built-in AMM with Time-Weighted Average Market Maker — executes large orders gradually over time to minimise price impact.",
       },
     ],
-    reserves: "BlackRock BUIDL fund (US Treasuries, cash, repo agreements) via Securitize tokenization",
+    reserves:
+      "BlackRock BUIDL fund (US Treasuries, cash, repo agreements) via Securitize tokenization",
     collateralType: "RWA — tokenized US Treasuries",
     pegMechanism: "Hard 1:1 via BUIDL fund redemption",
     auditor: "BlackRock/Securitize transparency reporting on BUIDL fund",
-    defiIntegration: "Fraxswap, Fraxlend (native); early-stage external DeFi integrations",
+    defiIntegration:
+      "Fraxswap, Fraxlend (native); early-stage external DeFi integrations",
     yield: "sfrxUSD variable — BUIDL fund US Treasury yield",
     risks: [
       { label: "Very small market cap — low liquidity", level: "high" },
       { label: "BUIDL fund custodial and redemption risk", level: "low" },
-      { label: "Migration still in progress — verify contract addresses", level: "medium" },
+      {
+        label: "Migration still in progress — verify contract addresses",
+        level: "medium",
+      },
     ],
     technicalNotes:
       "18 decimals. frxUSD can be minted 1:1 by depositing BlackRock BUIDL directly into mint contract (0xe827abf9f462ac4f147753d86bc5f91e186e4e9c) — first direct DeFi↔BlackRock tokenized asset integration. sfrxUSD (StakedFrxUSD) extends LinearRewardsErc4626: non-rebasing, share price increases. Benchmark Yield Strategy (BYS) dynamically allocates across carry-trade (Ethena/Superstate), DeFi AMOs (Aave/Curve/Convex/Euler/Fraxlend), and IORB/T-Bill RWA strategies. Redemption via FraxtalERC4626MintRedeemer: zero fees, zero price impact. Original FRAX fractional-algorithmic model retired.",
@@ -875,7 +918,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0x0000000000085d4780B73119b644AE5ecd22b376",
-        explorerUrl: "https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376",
+        explorerUrl:
+          "https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376",
         isPrimary: true,
       },
       {
@@ -883,7 +927,8 @@ export const coins: Coin[] = [
         chain: "bnb",
         standard: "BEP-20",
         contract: "0x14016E85a25aeb13065688cAFB43044C2ef86784",
-        explorerUrl: "https://bscscan.com/token/0x14016E85a25aeb13065688cAFB43044C2ef86784",
+        explorerUrl:
+          "https://bscscan.com/token/0x14016E85a25aeb13065688cAFB43044C2ef86784",
         isPrimary: false,
         notes: "Highest volume",
       },
@@ -892,7 +937,8 @@ export const coins: Coin[] = [
         chain: "tron",
         standard: "TRC-20",
         contract: "TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4",
-        explorerUrl: "https://tronscan.org/#/token20/TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4",
+        explorerUrl:
+          "https://tronscan.org/#/token20/TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4",
         isPrimary: false,
       },
       {
@@ -900,7 +946,8 @@ export const coins: Coin[] = [
         chain: "avalanche",
         standard: "ERC-20",
         contract: "0x1C20E891Bab6b1727d14Da358FAe2984Ed9B59EB",
-        explorerUrl: "https://snowtrace.io/token/0x1C20E891Bab6b1727d14Da358FAe2984Ed9B59EB",
+        explorerUrl:
+          "https://snowtrace.io/token/0x1C20E891Bab6b1727d14Da358FAe2984Ed9B59EB",
         isPrimary: false,
       },
     ],
@@ -933,15 +980,22 @@ export const coins: Coin[] = [
     reserves: "USD held in trust across multiple banking partners",
     collateralType: "Fiat (off-chain)",
     pegMechanism: "Hard 1:1 via trust company redemption",
-    auditor: "The Network Firm (real-time attestations suspended — unreliable as of 2025)",
+    auditor:
+      "The Network Firm (real-time attestations suspended — unreliable as of 2025)",
     defiIntegration: "Limited — PancakeSwap (BNB), select DEXes",
     yield: "None",
     risks: [
       { label: "$456M reserves frozen by Dubai court — Nov 2025", level: "high" },
       { label: "SEC fraud settlement — TrueCoin/TrustToken Sept 2024", level: "high" },
       { label: "Archblock (operator) Chapter 11 bankruptcy 2025", level: "high" },
-      { label: "Attestations suspended — reserve transparency unreliable", level: "high" },
-      { label: "Peg depends on Justin Sun bailout, not reserve backing", level: "high" },
+      {
+        label: "Attestations suspended — reserve transparency unreliable",
+        level: "high",
+      },
+      {
+        label: "Peg depends on Justin Sun bailout, not reserve backing",
+        level: "high",
+      },
       { label: "Declining exchange support and MiCA delisting", level: "medium" },
     ],
     technicalNotes:
@@ -961,7 +1015,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
-        explorerUrl: "https://etherscan.io/token/0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
+        explorerUrl:
+          "https://etherscan.io/token/0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
         isPrimary: true,
         notes: "TransparentUpgradeableProxy (EIP-1967)",
       },
@@ -970,7 +1025,8 @@ export const coins: Coin[] = [
         chain: "bnb",
         standard: "BEP-20",
         contract: "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
-        explorerUrl: "https://bscscan.com/token/0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
+        explorerUrl:
+          "https://bscscan.com/token/0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
         isPrimary: true,
         notes: "Same address as Ethereum",
       },
@@ -1041,7 +1097,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
-        explorerUrl: "https://etherscan.io/token/0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
+        explorerUrl:
+          "https://etherscan.io/token/0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
         isPrimary: true,
         notes: "Non-proxied immutable contract, 18 decimals",
       },
@@ -1050,7 +1107,8 @@ export const coins: Coin[] = [
         chain: "arbitrum",
         standard: "ERC-20",
         contract: "0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33",
-        explorerUrl: "https://arbiscan.io/token/0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33",
+        explorerUrl:
+          "https://arbiscan.io/token/0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
       },
@@ -1059,7 +1117,8 @@ export const coins: Coin[] = [
         chain: "base",
         standard: "ERC-20",
         contract: "0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
-        explorerUrl: "https://basescan.org/token/0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
+        explorerUrl:
+          "https://basescan.org/token/0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
       },
@@ -1068,7 +1127,8 @@ export const coins: Coin[] = [
         chain: "avalanche",
         standard: "ERC-20",
         contract: "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
-        explorerUrl: "https://snowtrace.io/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
+        explorerUrl:
+          "https://snowtrace.io/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
       },
@@ -1077,7 +1137,8 @@ export const coins: Coin[] = [
         chain: "gnosis",
         standard: "ERC-20",
         contract: "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
-        explorerUrl: "https://gnosisscan.io/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
+        explorerUrl:
+          "https://gnosisscan.io/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
       },
@@ -1086,7 +1147,8 @@ export const coins: Coin[] = [
         chain: "mantle",
         standard: "ERC-20",
         contract: "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
-        explorerUrl: "https://mantlescan.xyz/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
+        explorerUrl:
+          "https://mantlescan.xyz/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
       },
@@ -1175,7 +1237,8 @@ export const coins: Coin[] = [
         chain: "ethereum",
         standard: "ERC-20",
         contract: "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
-        explorerUrl: "https://etherscan.io/token/0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+        explorerUrl:
+          "https://etherscan.io/token/0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
         isPrimary: true,
         notes: "UUPS proxy (StablecoinUpgradeableV2), 18 decimals",
       },
@@ -1184,8 +1247,9 @@ export const coins: Coin[] = [
         chain: "xrpl",
         standard: "IOU (Issued Currency)",
         contract:
-          "524C555344000000000000000000000000000000.rMxWzuz9LHEFhJgjAB1mfPNHBCnrHTmDjg",
-        explorerUrl: "https://livenet.xrpl.org/token/524C555344000000000000000000000000000000.rMxWzuz9LHEFhJgjAB1mfPNHBCnrHTmDjg",
+          "524C555344000000000000000000000000000000.rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        explorerUrl:
+          "https://livenet.xrpl.org/token/524C555344000000000000000000000000000000.rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
         isPrimary: true,
         notes: "RLUSD currency code + issuer (livenet.xrpl.org)",
       },
@@ -1233,7 +1297,8 @@ export const coins: Coin[] = [
       "100% backed by USD deposits, U.S. Treasury Bills, and cash equivalents held in segregated accounts. Primary custody by BNY Mellon (since July 2025). Monthly third-party attestations.",
     collateralType: "Fiat and equivalents (off-chain)",
     pegMechanism: "Hard 1:1 via centralized issuer redemption",
-    auditor: "Third-party monthly attestations (ripple.com/solutions/stablecoin/transparency/)",
+    auditor:
+      "Third-party monthly attestations (ripple.com/solutions/stablecoin/transparency/)",
     defiIntegration:
       "Early-stage — exchange listings (Binance, Bitso, LMAX), BlackRock BUIDL redemption mechanism, SBI Japan integration",
     yield: "None native",
