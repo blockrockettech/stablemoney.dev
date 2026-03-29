@@ -75,4 +75,4 @@ Each triggered rebuild runs `prebuild`, pulling the latest data from DefiLlama b
 
 ## License
 
-Private / your terms — adjust as needed.
+[MIT](LICENSE). Copyright (c) 2026 BlockRocket.
