@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { EIPS, EIP_CATEGORY_ORDER } from "@/data/eips"
@@ -12,6 +13,12 @@ import {
 } from "@/lib/eip-helpers"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const statusDot: Record<EipStatus, string> = {
   implemented: "bg-emerald-500",
@@ -27,6 +34,71 @@ const statusPill: Record<EipStatus, string> = {
   "not-implemented": "bg-red-500/20",
   unknown: "bg-slate-500/20",
   alternative: "bg-violet-500/20",
+}
+
+const statusLabel: Record<EipStatus, string> = {
+  implemented: "Implemented",
+  partial: "Partial",
+  "not-implemented": "Not implemented",
+  unknown: "Unknown",
+  alternative: "Alternative",
+}
+
+const statusTooltipBadge: Record<EipStatus, string> = {
+  implemented:
+    "bg-emerald-500/15 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
+  partial: "bg-amber-500/15 text-amber-900 dark:bg-amber-500/20 dark:text-amber-200",
+  "not-implemented": "bg-red-500/15 text-red-900 dark:bg-red-500/20 dark:text-red-300",
+  unknown: "bg-slate-500/15 text-slate-800 dark:bg-slate-500/20 dark:text-slate-200",
+  alternative: "bg-violet-500/15 text-violet-900 dark:bg-violet-500/20 dark:text-violet-200",
+}
+
+function MatrixCellTooltip({
+  sym,
+  eip,
+  status,
+  description,
+  children,
+}: {
+  sym: string
+  eip: Eip
+  status: EipStatus
+  description: string
+  children: ReactNode
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        delay={180}
+        closeDelay={80}
+        closeOnClick={false}
+        className="inline-flex cursor-default flex-col items-center gap-0.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring/70"
+        render={(props) => <span {...props} />}
+      >
+        {children}
+      </TooltipTrigger>
+      <TooltipContent side="top" sideOffset={8} align="center" className="max-w-[min(22rem,calc(100vw-1.5rem))]">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-border/80 pb-2">
+            <span className="font-mono text-xs font-semibold tracking-tight">{sym}</span>
+            <span className="text-muted-foreground" aria-hidden>
+              ·
+            </span>
+            <span className="font-mono text-xs font-medium text-primary">{eip.id}</span>
+            <span
+              className={cn(
+                "rounded-md px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide",
+                statusTooltipBadge[status],
+              )}
+            >
+              {statusLabel[status]}
+            </span>
+          </div>
+          <p className="text-foreground/90 text-xs leading-relaxed">{description}</p>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  )
 }
 
 function eipSortNumber(eip: Eip): number {
@@ -62,6 +134,7 @@ export function EipMatrix() {
   }
 
   return (
+    <TooltipProvider delay={200} closeDelay={100}>
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1">
@@ -156,14 +229,19 @@ export function EipMatrix() {
                   const impl = getEipImplementation(sym, eip.id)
                   const isAlt = rawStatus === "alternative" && showAlternatives
 
-                  let title = impl?.devImpact ?? "Not yet verified."
+                  let description = impl?.devImpact ?? "Not yet verified."
                   if (isAlt && impl?.alternativeStandard) {
-                    title = `Via ${impl.alternativeStandard}: ${impl.alternativeNotes ?? impl.devImpact}`
+                    description = `Via ${impl.alternativeStandard}: ${impl.alternativeNotes ?? impl.devImpact}`
                   }
 
                   return (
                     <td key={sym} className="px-2 py-2 text-center align-middle">
-                      <span className="inline-flex flex-col items-center gap-0.5" title={title}>
+                      <MatrixCellTooltip
+                        sym={sym}
+                        eip={eip}
+                        status={status}
+                        description={description}
+                      >
                         <span
                           className={cn(
                             "inline-flex rounded-md p-1.5",
@@ -184,7 +262,7 @@ export function EipMatrix() {
                             {impl.alternativeStandard}
                           </span>
                         ) : null}
-                      </span>
+                      </MatrixCellTooltip>
                     </td>
                   )
                 })}
@@ -232,5 +310,6 @@ export function EipMatrix() {
         </li>
       </ul>
     </div>
+    </TooltipProvider>
   )
 }
