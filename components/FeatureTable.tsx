@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { primaryEthereumContract } from "@/lib/merge-features"
+import { primaryEthereumContract } from "@/site/merge-features"
 
 function standardSpecHref(label: string): string | null {
   const eip = /^EIP-(\d+)$/i.exec(label.trim())

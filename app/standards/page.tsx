@@ -3,10 +3,22 @@ import { EIPS, EIP_CATEGORY_ORDER } from "@/data/eips"
 import { EipMatrix } from "@/components/EipMatrix"
 import { EipCategorySection } from "@/components/EipCategorySection"
 
+const title = "ERC / EIP Standards & Compliance Matrix"
+const description =
+  "How the top stablecoins by market cap implement core token, signature, proxy, vault, and compliance patterns — with on-chain notes for integrators."
+
 export const metadata: Metadata = {
-  title: "ERC / EIP standards and compliance",
-  description:
-    "How the top stablecoins by market cap implement core token, signature, proxy, vault, and compliance patterns — with on-chain notes for integrators.",
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    type: "article",
+  },
+  twitter: {
+    title,
+    description,
+  },
 }
 
 export default function StandardsPage() {

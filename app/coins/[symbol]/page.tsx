@@ -4,11 +4,11 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { coinBySymbol, coins } from "@/data/coins"
 import type { StablecoinType } from "@/types"
-import { loadCoinMdx } from "@/lib/mdx"
-import { mergeCoinFeatures } from "@/lib/merge-features"
+import { loadCoinMdx } from "@/site/mdx"
+import { mergeCoinFeatures } from "@/site/merge-features"
 import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/eips"
-import { eipAnchorId, getCellStatus, getCoinEipProfile, getEipImplementation } from "@/lib/eip-helpers"
-import { shortAddress } from "@/lib/explorers"
+import { eipAnchorId, getCellStatus, getCoinEipProfile, getEipImplementation } from "@/lib/crypto/eip-helpers"
+import { shortAddress } from "@/lib/crypto/address-utils"
 import type { EipStatus } from "@/types/eip"
 import { CoinMdx } from "@/components/CoinMdx"
 import { ContractTable } from "@/components/ContractTable"
@@ -17,7 +17,7 @@ import { RiskBadge } from "@/components/RiskBadge"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ArrowRight, ExternalLink } from "lucide-react"
-import { getMarketCap, getMarketCapRank } from "@/lib/market-data"
+import { getMarketCap, getMarketCapRank } from "@/lib/market-data/market-data"
 
 const typeLabel: Record<StablecoinType, string> = {
   fiat: "Fiat-backed",
@@ -57,16 +57,21 @@ export async function generateMetadata({
   if (!coin) return {}
   const title = `${coin.symbol} — ${coin.name}`
   const description = coin.description.slice(0, 155)
+  const canonicalUrl = `https://stablemoney.dev/coins/${params.symbol.toLowerCase()}`
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title,
       description: coin.description.slice(0, 200),
       type: "article",
+      url: canonicalUrl,
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
     },
@@ -81,8 +86,26 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
   const featureRows = mergeCoinFeatures(coin)
   const mcapRank = getMarketCapRank(coin.symbol)
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://stablemoney.dev" },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: coin.symbol,
+        item: `https://stablemoney.dev/coins/${params.symbol.toLowerCase()}`,
+      },
+    ],
+  }
+
   return (
     <article className="space-y-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <header className="space-y-3 border-b border-border pb-8">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-mono text-3xl font-bold tracking-tight">

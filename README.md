@@ -38,8 +38,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - `app/` — Routes: home, `/coins/[symbol]`, `/onchain-wallet-check`, `/compare`, `sitemap.ts`, `robots.ts`
 - `components/` — UI: cards, filters, search, compare matrix, tables
 - `data/coins.ts` — Typed coin dataset
-- `content/coins/*.mdx` — Optional MDX sections on coin pages
-- `lib/` — Search (Fuse), explorers, unique-chain slug helper for stats
+- `site/` — Site config, coin search (Fuse), feature merge helpers, MDX loader, and `site/content/coins/*.mdx` for optional coin page sections
+- `lib/` — Market data, crypto RPC helpers, EIP utilities, etc.
 
 ## Environment
 

@@ -2,17 +2,23 @@ import Link from "next/link"
 import Image from "next/image"
 import { coins } from "@/data/coins"
 import { HomeClient } from "@/components/HomeClient"
-import { getAllChainSlugs } from "@/lib/chains"
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/site"
-import { getTotalMarketCap, getDataFreshness, isDynamic } from "@/lib/market-data"
+import { getAllChainSlugs } from "@/lib/crypto/chains"
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/site/config"
+import { getTotalMarketCap, getDataFreshness, isDynamic } from "@/lib/market-data/market-data"
 import { ArrowRight } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: {
+    absolute: `${SITE_NAME} — Stablecoin Technical Reference for Engineers`,
+  },
   description: SITE_DESCRIPTION,
   openGraph: {
-    title: SITE_NAME,
+    title: `${SITE_NAME} — Stablecoin Technical Reference`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    title: `${SITE_NAME} — Stablecoin Technical Reference`,
     description: SITE_DESCRIPTION,
   },
 }

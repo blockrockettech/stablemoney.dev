@@ -1,6 +1,6 @@
 import type { Coin } from "@/types"
 import { CoinCard } from "@/components/CoinCard"
-import { getMarketCapRank, sortCoinsByMarketCap } from "@/lib/market-data"
+import { getMarketCapRank, sortCoinsByMarketCap } from "@/lib/market-data/market-data"
 import { cn } from "@/lib/utils"
 
 export function CoinGrid({ coins, className }: { coins: Coin[]; className?: string }) {

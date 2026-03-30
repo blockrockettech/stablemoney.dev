@@ -9,8 +9,8 @@ import {
   SITE_NAME,
   SITE_TAGLINE,
   LAST_UPDATED,
-} from "@/lib/site"
-import { getDataFreshness, isDynamic } from "@/lib/market-data"
+} from "@/site/config"
+import { getDataFreshness, isDynamic } from "@/lib/market-data/market-data"
 import { cn } from "@/lib/utils"
 
 const geistSans = localFont({
@@ -40,6 +40,15 @@ export const metadata: Metadata = {
     type: "website",
     url: siteUrl,
   },
+  twitter: {
+    card: "summary_large_image",
+    site: "@BlockRocketTech",
+    creator: "@BlockRocketTech",
+  },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 }
 
 export default function RootLayout({
@@ -47,6 +56,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_CANONICAL_URL}/#organization`,
+        name: SITE_NAME,
+        url: SITE_CANONICAL_URL,
+        logo: `${SITE_CANONICAL_URL}/favicon.svg`,
+        sameAs: ["https://x.com/blockrockettech", "https://blockrocket.tech"],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_CANONICAL_URL}/#website`,
+        url: SITE_CANONICAL_URL,
+        name: SITE_NAME,
+        description: SITE_DESCRIPTION,
+        publisher: { "@id": `${SITE_CANONICAL_URL}/#organization` },
+      },
+    ],
+  }
+
   return (
     <html lang="en" className="dark">
       <body
@@ -56,6 +87,10 @@ export default function RootLayout({
           "min-h-screen bg-background font-sans antialiased"
         )}
       >
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
           <div className="flex min-h-screen flex-col">
             <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-lg">
               <div className="mx-auto flex w-full max-w-6xl items-center gap-6 px-4 py-3">

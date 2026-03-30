@@ -3,7 +3,7 @@
 import Link from "next/link"
 import * as React from "react"
 import type { Coin, Feature } from "@/types"
-import { mergeCoinFeatures } from "@/lib/merge-features"
+import { mergeCoinFeatures } from "@/site/merge-features"
 import { cn } from "@/lib/utils"
 
 type MatrixStatus = "implemented" | "partial" | "not-implemented"

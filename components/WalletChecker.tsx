@@ -34,16 +34,16 @@ import {
   decodeUint256,
   encodeCall,
   jsonRpcEthCall,
-} from "@/lib/evm-json-rpc"
+} from "@/lib/crypto/evm-json-rpc"
 import {
   evmToTronHex,
   encodeTronAddressParam,
   tronTriggerConstantContract,
-} from "@/lib/tron-rpc"
-import { getSolanaTokenFreezeStatus, isValidSolanaAddress } from "@/lib/solana-rpc"
-import { getXrplTrustlineFreezeStatus, isValidXrplAddress } from "@/lib/xrpl-rpc"
-import { resolveEnsName, isEnsName } from "@/lib/ens-resolve"
-import { getWalletCheckSummary } from "@/lib/wallet-check-summary"
+} from "@/lib/crypto/tron-rpc"
+import { getSolanaTokenFreezeStatus, isValidSolanaAddress } from "@/lib/crypto/solana-rpc"
+import { getXrplTrustlineFreezeStatus, isValidXrplAddress } from "@/lib/crypto/xrpl-rpc"
+import { resolveEnsName, isEnsName } from "@/lib/crypto/ens-resolve"
+import { getWalletCheckSummary } from "@/lib/crypto/wallet-check-summary"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -98,7 +98,6 @@ const INVALID_XRPL_MESSAGE =
 const RPC_UNEXPECTED_RESPONSE =
   "RPC call returned null or unexpected response. CORS or rate-limit issue."
 
-const WALLET_INPUT_PLACEHOLDER = "0x… EVM wallet address"
 const SOLANA_INPUT_PLACEHOLDER = "Base58 Solana address (optional)"
 const XRPL_INPUT_PLACEHOLDER = "r… XRP Ledger address (optional)"
 

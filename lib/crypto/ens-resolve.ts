@@ -11,7 +11,7 @@
  */
 
 import { keccak_256 } from "@noble/hashes/sha3.js"
-import { jsonRpcEthCall } from "@/lib/evm-json-rpc"
+import { jsonRpcEthCall } from "@/lib/crypto/evm-json-rpc"
 
 // ── EIP-137 namehash ─────────────────────────────────────────────────────────
 

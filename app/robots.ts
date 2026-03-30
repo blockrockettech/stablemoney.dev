@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next"
-import { SITE_CANONICAL_URL } from "@/lib/site"
+import { SITE_CANONICAL_URL } from "@/site/config"
 
 export default function robots(): MetadataRoute.Robots {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_CANONICAL_URL
