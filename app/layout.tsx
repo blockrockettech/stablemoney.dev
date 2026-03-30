@@ -91,6 +91,9 @@ export default function RootLayout({
                   <Link href="/standards" className="text-muted-foreground transition-colors hover:text-primary">
                     Standards
                   </Link>
+                  <Link href="/onchain-wallet-check" className="text-muted-foreground transition-colors hover:text-primary">
+                    Wallet check
+                  </Link>
                 </nav>
               </div>
             </header>

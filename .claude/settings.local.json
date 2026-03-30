@@ -8,7 +8,17 @@
       "Bash(git rm:*)",
       "Bash(git commit:*)",
       "Bash(node -e \":*)",
-      "Bash(npx tsx -e \":*)"
+      "Bash(npx tsx -e \":*)",
+      "WebFetch(domain:api.etherscan.io)",
+      "WebFetch(domain:etherscan.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:polygonscan.com)",
+      "WebFetch(domain:arbiscan.io)",
+      "WebFetch(domain:snowscan.xyz)",
+      "WebFetch(domain:optimistic.etherscan.io)",
+      "Bash(curl:*)",
+      "WebFetch(domain:api.bscscan.com)",
+      "WebFetch(domain:bscscan.com)"
     ]
   }
 }
