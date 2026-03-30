@@ -21,6 +21,7 @@ import { CopyButton } from "@/components/CopyButton"
 import { cn } from "@/lib/utils"
 import {
   COMPLIANCE_CONFIG,
+  EVM_RPC_URLS,
   SELECTORS,
   type CoinComplianceConfig,
   type EvmChainConfig,
@@ -41,6 +42,7 @@ import {
 } from "@/lib/tron-rpc"
 import { getSolanaTokenFreezeStatus, isValidSolanaAddress } from "@/lib/solana-rpc"
 import { getXrplTrustlineFreezeStatus, isValidXrplAddress } from "@/lib/xrpl-rpc"
+import { resolveEnsName, isEnsName } from "@/lib/ens-resolve"
 import { getWalletCheckSummary } from "@/lib/wallet-check-summary"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -1004,6 +1006,7 @@ export function WalletChecker() {
   const [input, setInput] = React.useState("")
   const [solanaInput, setSolanaInput] = React.useState("")
   const [xrplInput, setXrplInput] = React.useState("")
+  const [showNonEvm, setShowNonEvm] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [progress, setProgress] = React.useState<{ done: number; total: number } | null>(null)
   const [results, setResults] = React.useState<ChainResult[] | null>(null)
@@ -1012,6 +1015,40 @@ export function WalletChecker() {
   const [inputError, setInputError] = React.useState("")
   const [solanaInputError, setSolanaInputError] = React.useState("")
   const [xrplInputError, setXrplInputError] = React.useState("")
+
+  // ENS resolution state
+  const [ensResolved, setEnsResolved] = React.useState<string | null>(null)
+  const [ensResolving, setEnsResolving] = React.useState(false)
+  const [ensError, setEnsError] = React.useState<string | null>(null)
+
+  // Debounced ENS resolution — fires 500ms after the user stops typing
+  React.useEffect(() => {
+    const trimmed = input.trim()
+    if (!isEnsName(trimmed)) {
+      setEnsResolved(null)
+      setEnsError(null)
+      setEnsResolving(false)
+      return
+    }
+    setEnsResolving(true)
+    setEnsResolved(null)
+    setEnsError(null)
+    const timer = setTimeout(async () => {
+      const { address, error } = await resolveEnsName(trimmed, EVM_RPC_URLS.ethereum_b)
+      setEnsResolving(false)
+      if (address) {
+        setEnsResolved(address)
+        if (inputError) setInputError("")
+      } else {
+        setEnsError(error ?? "Could not resolve ENS name")
+      }
+    }, 500)
+    return () => {
+      clearTimeout(timer)
+      setEnsResolving(false)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [input])
 
   const ariaDescribedBy = inputError ? `${errorId} ${hintId}` : hintId
   const liveStatusMessage = loading
@@ -1027,15 +1064,32 @@ export function WalletChecker() {
 
   async function handleCheck(e: React.FormEvent) {
     e.preventDefault()
-    const addr = input.trim() || null
+    const rawInput = input.trim()
     const solana = solanaInput.trim() || null
     const xrpl = xrplInput.trim() || null
 
+    // Resolve the effective EVM address — ENS name or raw 0x address
+    let addr: string | null = null
     let hasError = false
-    // EVM address is optional — only validate if provided
-    if (addr && !isValidEthAddress(addr)) {
-      setInputError(INVALID_WALLET_MESSAGE)
-      hasError = true
+
+    if (rawInput) {
+      if (isEnsName(rawInput)) {
+        if (ensResolved) {
+          addr = ensResolved
+        } else if (ensResolving) {
+          setInputError("ENS name is still resolving — please wait a moment.")
+          return
+        } else {
+          setInputError(ensError ?? "ENS name could not be resolved. Check the name and try again.")
+          hasError = true
+        }
+      } else if (!isValidEthAddress(rawInput)) {
+        setInputError(INVALID_WALLET_MESSAGE)
+        hasError = true
+      } else {
+        addr = rawInput
+        setInputError("")
+      }
     } else {
       setInputError("")
     }
@@ -1076,52 +1130,135 @@ export function WalletChecker() {
         {liveStatusMessage}
       </div>
       {/* Input form */}
-      <form
-        onSubmit={handleCheck}
-        className="space-y-4"
-        aria-busy={loading}
-      >
-        {/* EVM address row */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-          <div className="flex-1 space-y-1.5">
-            <Input
-              id={inputId}
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value)
-                if (inputError) setInputError("")
-              }}
-              placeholder={WALLET_INPUT_PLACEHOLDER}
-              className="font-mono"
-              aria-label="EVM wallet address"
-              aria-invalid={!!inputError}
-              aria-describedby={ariaDescribedBy}
+      <form onSubmit={handleCheck} aria-busy={loading}>
+        <div className="flex items-start gap-3">
+
+          {/* ── Left: stacked address inputs ── */}
+          <div className="flex-1 space-y-2">
+
+            {/* EVM / ENS */}
+            <div className="space-y-1">
+              <Input
+                id={inputId}
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value)
+                  if (inputError) setInputError("")
+                }}
+                placeholder="0x… address or ENS name (e.g. vitalik.eth)"
+                className="font-mono"
+                aria-label="EVM wallet address or ENS name"
+                aria-invalid={!!inputError}
+                aria-describedby={ariaDescribedBy}
+                disabled={loading}
+                spellCheck={false}
+                autoComplete="off"
+              />
+              {/* ENS resolution feedback */}
+              {ensResolving && (
+                <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Loader2 className="size-3 animate-spin" /> Resolving ENS name…
+                </p>
+              )}
+              {ensResolved && !ensResolving && (
+                <p className="flex items-center gap-1.5 font-mono text-xs text-green-400">
+                  <CheckCircle2 className="size-3 shrink-0" />
+                  {ensResolved}
+                  <CopyButton text={ensResolved} label="Copy resolved address" />
+                </p>
+              )}
+              {ensError && !ensResolving && (
+                <p className="text-xs text-yellow-500">{ensError}</p>
+              )}
+              {inputError && (
+                <p id={errorId} className="text-destructive text-xs" role="alert">{inputError}</p>
+              )}
+            </div>
+
+            {/* Toggle for Solana / XRPL */}
+            <button
+              type="button"
+              onClick={() => setShowNonEvm((v) => !v)}
               disabled={loading}
-              spellCheck={false}
-              autoComplete="off"
-            />
-            {inputError ? (
-              <p id={errorId} className="text-destructive text-xs" role="alert">
-                {inputError}
-              </p>
-            ) : null}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:pointer-events-none"
+              aria-expanded={showNonEvm}
+            >
+              {showNonEvm
+                ? <ChevronDown className="size-3.5" />
+                : <ChevronRight className="size-3.5" />}
+              {showNonEvm ? "Hide" : "Also check"} Solana &amp; XRP Ledger
+              <span className="text-muted-foreground/50">(different address formats)</span>
+            </button>
+
+            {/* Solana + XRPL inputs (shown when toggled) */}
+            {showNonEvm && (
+              <div className="space-y-2 pl-4 border-l border-border/60">
+                <div className="space-y-1">
+                  <label htmlFor={`${formUid}-solana`} className="text-xs text-muted-foreground">
+                    Solana address
+                  </label>
+                  <Input
+                    id={`${formUid}-solana`}
+                    value={solanaInput}
+                    onChange={(e) => {
+                      setSolanaInput(e.target.value)
+                      if (solanaInputError) setSolanaInputError("")
+                    }}
+                    placeholder={SOLANA_INPUT_PLACEHOLDER}
+                    className="font-mono"
+                    aria-label="Solana wallet address (optional)"
+                    aria-invalid={!!solanaInputError}
+                    disabled={loading}
+                    spellCheck={false}
+                    autoComplete="off"
+                  />
+                  {solanaInputError && (
+                    <p className="text-destructive text-xs" role="alert">{solanaInputError}</p>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor={`${formUid}-xrpl`} className="text-xs text-muted-foreground">
+                    XRP Ledger address
+                  </label>
+                  <Input
+                    id={`${formUid}-xrpl`}
+                    value={xrplInput}
+                    onChange={(e) => {
+                      setXrplInput(e.target.value)
+                      if (xrplInputError) setXrplInputError("")
+                    }}
+                    placeholder={XRPL_INPUT_PLACEHOLDER}
+                    className="font-mono"
+                    aria-label="XRP Ledger address (optional)"
+                    aria-invalid={!!xrplInputError}
+                    disabled={loading}
+                    spellCheck={false}
+                    autoComplete="off"
+                  />
+                  {xrplInputError && (
+                    <p className="text-destructive text-xs" role="alert">{xrplInputError}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Hint */}
             <p id={hintId} className="text-muted-foreground text-xs">
-              EVM address also checks TRON automatically — same 20-byte key derivation. Read-only{" "}
-              <code className="font-mono">eth_call</code> / TronGrid — no transaction sent.
-              Your address is sent to each public RPC you query (third-party visibility).
+              Read-only — no transaction sent. EVM address also checks TRON.
+              Your address is sent to each public RPC you query.
             </p>
           </div>
+
+          {/* ── Right: submit button, pinned to top ── */}
           <Button
-          type="submit"
-          disabled={loading || (!input.trim() && !solanaInput.trim() && !xrplInput.trim())}
-          className="shrink-0"
-        >
+            type="submit"
+            disabled={loading || (!input.trim() && !solanaInput.trim() && !xrplInput.trim())}
+            className="shrink-0 self-start"
+          >
             {loading ? (
               <>
                 <Loader2 className="mr-2 size-4 animate-spin" />
-                {progress
-                  ? `${progress.done} / ${progress.total}`
-                  : "Starting…"}
+                {progress ? `${progress.done} / ${progress.total}` : "Starting…"}
               </>
             ) : (
               <>
@@ -1130,61 +1267,6 @@ export function WalletChecker() {
               </>
             )}
           </Button>
-        </div>
-
-        {/* Optional Solana + XRPL addresses */}
-        <div className="rounded-md border border-border/60 bg-muted/10 px-3 py-3 space-y-3">
-          <p className="text-xs text-muted-foreground font-medium">
-            Solana &amp; XRP Ledger addresses use different address formats
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1">
-              <label htmlFor={`${formUid}-solana`} className="text-xs text-muted-foreground">
-                Solana address
-              </label>
-              <Input
-                id={`${formUid}-solana`}
-                value={solanaInput}
-                onChange={(e) => {
-                  setSolanaInput(e.target.value)
-                  if (solanaInputError) setSolanaInputError("")
-                }}
-                placeholder={SOLANA_INPUT_PLACEHOLDER}
-                className="font-mono text-sm h-8"
-                aria-label="Solana wallet address (optional)"
-                aria-invalid={!!solanaInputError}
-                disabled={loading}
-                spellCheck={false}
-                autoComplete="off"
-              />
-              {solanaInputError && (
-                <p className="text-destructive text-xs" role="alert">{solanaInputError}</p>
-              )}
-            </div>
-            <div className="space-y-1">
-              <label htmlFor={`${formUid}-xrpl`} className="text-xs text-muted-foreground">
-                XRP Ledger address
-              </label>
-              <Input
-                id={`${formUid}-xrpl`}
-                value={xrplInput}
-                onChange={(e) => {
-                  setXrplInput(e.target.value)
-                  if (xrplInputError) setXrplInputError("")
-                }}
-                placeholder={XRPL_INPUT_PLACEHOLDER}
-                className="font-mono text-sm h-8"
-                aria-label="XRP Ledger address (optional)"
-                aria-invalid={!!xrplInputError}
-                disabled={loading}
-                spellCheck={false}
-                autoComplete="off"
-              />
-              {xrplInputError && (
-                <p className="text-destructive text-xs" role="alert">{xrplInputError}</p>
-              )}
-            </div>
-          </div>
         </div>
       </form>
 
