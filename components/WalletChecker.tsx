@@ -111,6 +111,69 @@ const RPC_STAGGER_MS = 2000
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
+/** Table / summary placeholder for N/A cells */
+const UI_EM_DASH = "—"
+
+const INVALID_WALLET_MESSAGE =
+  "Enter a valid EVM address (0x followed by 40 hex characters)."
+
+const RPC_UNEXPECTED_RESPONSE =
+  "RPC call returned null or unexpected response. CORS or rate-limit issue."
+
+const WALLET_INPUT_PLACEHOLDER = "0x… wallet address"
+
+const explorerIconLinkProps = {
+  target: "_blank" as const,
+  rel: "noopener noreferrer" as const,
+  className: "text-primary shrink-0",
+  title: "View on explorer",
+}
+
+const STATUS_LEGEND: ReadonlyArray<{ status: CheckStatus; description: string }> = [
+  {
+    status: "blacklisted",
+    description: "Address is on the issuer blacklist — all transfers revert.",
+  },
+  {
+    status: "frozen",
+    description: "Address is frozen — sends blocked, may still receive.",
+  },
+  {
+    status: "flagged-with-balance",
+    description:
+      "Flagged AND non-zero balance — issuer may be able to seize or destroy funds.",
+  },
+  {
+    status: "pending-abi",
+    description:
+      "EVM contract exists but the exact compliance function needs ABI verification before going live.",
+  },
+  {
+    status: "coming-soon",
+    description:
+      "Non-EVM chain (TRON, Solana, XRPL) — architecture slot ready, network support pending.",
+  },
+  {
+    status: "no-controls",
+    description:
+      "No freeze or blacklist capability on this token contract — transfers are fully permissionless.",
+  },
+]
+
+const devDetailsPanelClass =
+  "border-t border-border/60 bg-muted/20 px-3 py-3 text-xs"
+
+const summaryBannerTone = {
+  clear: "border-green-800/60 bg-green-950/30",
+  flagged: "border-red-800/60 bg-red-950/30",
+} as const
+
+const resultsRowTone = {
+  flagged: "bg-red-950/30",
+  clearLive: "bg-green-950/10",
+  expanded: "bg-muted/20",
+} as const
+
 // ── ERC-55 checksum (basic) ────────────────────────────────────────────────────
 
 function isValidEthAddress(addr: string): boolean {
@@ -148,7 +211,7 @@ async function runEvmCheck(
 
         fnName: check.fnName,
         selector: check.selector,
-        errorMessage: "RPC call returned null or unexpected response. CORS or rate-limit issue.",
+        errorMessage: RPC_UNEXPECTED_RESPONSE,
       }
     }
 
@@ -255,7 +318,7 @@ async function checkAllCoins(
         coinSymbol: coin.symbol,
         coinName: coin.name,
         issuer: coin.issuer,
-        chainName: "—",
+        chainName: UI_EM_DASH,
         chain: "",
         contract: "",
         explorerUrl: null,
@@ -349,7 +412,7 @@ function truncate(addr: string, chars = 8): string {
 
 function DevDetails({ result }: { result: ChainResult }) {
   return (
-    <div className="border-t border-border/60 bg-muted/20 px-3 py-3 text-xs">
+    <div className={devDetailsPanelClass}>
       <p className="text-muted-foreground mb-2 font-medium uppercase tracking-wide">Dev details</p>
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
         {result.contract && (
@@ -359,13 +422,7 @@ function DevDetails({ result }: { result: ChainResult }) {
               <span className="break-all">{result.contract}</span>
               <CopyButton text={result.contract} label="Copy contract address" />
               {result.explorerUrl && (
-                <a
-                  href={result.explorerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary shrink-0"
-                  title="View on explorer"
-                >
+                <a href={result.explorerUrl} {...explorerIconLinkProps}>
                   <ExternalLink className="size-3" />
                 </a>
               )}
@@ -477,9 +534,9 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                   <tr
                     className={cn(
                       "border-b border-border/60 last:border-0 transition-colors",
-                      flagged && "bg-red-950/30",
-                      !flagged && isLive && result.status === "clear" && "bg-green-950/10",
-                      expanded && "bg-muted/20",
+                      flagged && resultsRowTone.flagged,
+                      !flagged && isLive && result.status === "clear" && resultsRowTone.clearLive,
+                      expanded && resultsRowTone.expanded,
                     )}
                   >
                     {/* Coin */}
@@ -492,7 +549,12 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
 
                     {/* Chain */}
                     <td className="px-3 py-2.5 align-middle">
-                      <span className={cn("text-sm", result.chainName === "—" && "text-muted-foreground")}>
+                      <span
+                        className={cn(
+                          "text-sm",
+                          result.chainName === UI_EM_DASH && "text-muted-foreground",
+                        )}
+                      >
                         {result.chainName}
                       </span>
                     </td>
@@ -517,19 +579,13 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                             {truncate(result.contract)}
                           </code>
                           {result.explorerUrl && (
-                            <a
-                              href={result.explorerUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary shrink-0"
-                              title="View on explorer"
-                            >
+                            <a href={result.explorerUrl} {...explorerIconLinkProps}>
                               <ExternalLink className="size-3.5" />
                             </a>
                           )}
                         </div>
                       ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
+                        <span className="text-muted-foreground text-xs">{UI_EM_DASH}</span>
                       )}
                     </td>
 
@@ -588,9 +644,7 @@ function SummaryBanner({
     <div
       className={cn(
         "rounded-lg border px-4 py-3",
-        allClear
-          ? "border-green-800/60 bg-green-950/30"
-          : "border-red-800/60 bg-red-950/30",
+        allClear ? summaryBannerTone.clear : summaryBannerTone.flagged,
       )}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -637,7 +691,7 @@ export function WalletChecker() {
     const addr = input.trim()
 
     if (!isValidEthAddress(addr)) {
-      setInputError("Enter a valid EVM address (0x followed by 40 hex characters).")
+      setInputError(INVALID_WALLET_MESSAGE)
       return
     }
 
@@ -674,7 +728,7 @@ export function WalletChecker() {
               setInput(e.target.value)
               if (inputError) setInputError("")
             }}
-            placeholder="0x… wallet address"
+            placeholder={WALLET_INPUT_PLACEHOLDER}
             className="font-mono"
             aria-label="Wallet address"
             disabled={loading}
@@ -728,19 +782,10 @@ export function WalletChecker() {
 
           {/* Legend */}
           <div className="grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-3">
-            {(
-              [
-                ["blacklisted", "Address is on the issuer blacklist — all transfers revert."],
-                ["frozen", "Address is frozen — sends blocked, may still receive."],
-                ["flagged-with-balance", "Flagged AND non-zero balance — issuer may be able to seize or destroy funds."],
-                ["pending-abi", "EVM contract exists but the exact compliance function needs ABI verification before going live."],
-                ["coming-soon", "Non-EVM chain (TRON, Solana, XRPL) — architecture slot ready, network support pending."],
-                ["no-controls", "No freeze or blacklist capability on this token contract — transfers are fully permissionless."],
-              ] as const
-            ).map(([status, desc]) => (
+            {STATUS_LEGEND.map(({ status, description }) => (
               <div key={status} className="flex gap-2">
-                <StatusBadge status={status as CheckStatus} />
-                <span className="text-muted-foreground">{desc}</span>
+                <StatusBadge status={status} />
+                <span className="text-muted-foreground">{description}</span>
               </div>
             ))}
           </div>
