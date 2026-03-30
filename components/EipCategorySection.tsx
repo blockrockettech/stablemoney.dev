@@ -1,5 +1,5 @@
 import type { Eip, EipCategory } from "@/types/eip"
-import { EIP_CATEGORY_TITLES } from "@/data/eips"
+import { EIP_CATEGORY_TITLES } from "@/data/coinEips"
 import { COIN_EIP_SYMBOLS, eipAnchorId, getEipImplementation } from "@/lib/crypto/eip-helpers"
 import { EipCard } from "@/components/EipCard"
 

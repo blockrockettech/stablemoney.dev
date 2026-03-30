@@ -9,7 +9,12 @@
  *   "pending-abi"  — EVM contract exists but function sig needs on-chain ABI verification
  *   "coming-soon"  — non-EVM network (TRON, Solana, XRPL, …) — architecture slot ready
  *   "no-controls"  — token contract has no freeze/blacklist capability
+ *
+ * Contract addresses and explorer URLs are pulled from `data/coins.ts` via
+ * `chainEndpoints` / `xrplComplianceEndpoints` — do not duplicate them here.
  */
+
+import { chainEndpoints, xrplComplianceEndpoints } from "./coins"
 
 // ── RPC endpoints ─────────────────────────────────────────────────────────────
 // All CORS-friendly public endpoints safe for browser fetch().
@@ -192,8 +197,6 @@ export type ChainConfig =
 
 export interface CoinComplianceConfig {
   symbol: string
-  name: string
-  issuer: string
   /** False for immutable / decentralised tokens with no issuer freeze capability */
   hasComplianceControls: boolean
   noControlsReason?: string
@@ -213,8 +216,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── USDT ──────────────────────────────────────────────────────────────────
   {
     symbol: "USDT",
-    name: "Tether USD",
-    issuer: "Tether Limited",
     hasComplianceControls: true,
     complianceDocsUrl: "https://tether.to/en/transparency/",
     seizureNote:
@@ -222,10 +223,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
     chains: [
       {
         support: "evm",
-        chainName: "Ethereum",
-        chain: "ethereum",
-        contract: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-        explorerUrl: "https://etherscan.io/token/0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        ...chainEndpoints("USDT", "ethereum"),
         rpcUrl: EVM_RPC_URLS.ethereum_a,
         checks: [
           {
@@ -247,10 +245,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       // },
       {
         support: "evm",
-        chainName: "Polygon",
-        chain: "polygon",
-        contract: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-        explorerUrl: "https://polygonscan.com/token/0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        ...chainEndpoints("USDT", "polygon"),
         rpcUrl: EVM_RPC_URLS.polygon,
         checks: [
           {
@@ -264,10 +259,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "evm",
-        chainName: "Arbitrum",
-        chain: "arbitrum",
-        contract: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-        explorerUrl: "https://arbiscan.io/token/0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        ...chainEndpoints("USDT", "arbitrum"),
         rpcUrl: EVM_RPC_URLS.arbitrum,
         checks: [
           {
@@ -289,10 +281,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       // },
       {
         support: "evm",
-        chainName: "Avalanche",
-        chain: "avalanche",
-        contract: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
-        explorerUrl: "https://snowtrace.io/token/0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+        ...chainEndpoints("USDT", "avalanche"),
         rpcUrl: EVM_RPC_URLS.avalanche,
         checks: [
           {
@@ -306,10 +295,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "tron",
-        chainName: "TRON",
-        chain: "tron",
-        contract: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-        explorerUrl: "https://tronscan.org/#/token20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+        ...chainEndpoints("USDT", "tron"),
         apiUrl: TRON_API_URLS.trongrid,
         fnName: "isBlackListed",
         fnSelector: "isBlackListed(address)",
@@ -319,10 +305,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "solana",
-        chainName: "Solana",
-        chain: "solana",
-        contract: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-        explorerUrl: "https://solscan.io/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        ...chainEndpoints("USDT", "solana"),
         rpcUrl: SOLANA_RPC_URLS.mainnet,
         notes: "SPL Token. Checks token account freeze state via getTokenAccountsByOwner.",
       },
@@ -332,8 +315,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── USDC ──────────────────────────────────────────────────────────────────
   {
     symbol: "USDC",
-    name: "USD Coin",
-    issuer: "Circle",
     hasComplianceControls: true,
     complianceDocsUrl: "https://www.circle.com/en/legal/usdc-terms",
     seizureNote:
@@ -341,10 +322,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
     chains: [
       {
         support: "evm",
-        chainName: "Ethereum",
-        chain: "ethereum",
-        contract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        explorerUrl: "https://etherscan.io/token/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        ...chainEndpoints("USDC", "ethereum"),
         rpcUrl: EVM_RPC_URLS.ethereum_a,
         checks: [
           {
@@ -358,10 +336,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "evm",
-        chainName: "Base",
-        chain: "base",
-        contract: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        explorerUrl: "https://basescan.org/token/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        ...chainEndpoints("USDC", "base"),
         rpcUrl: EVM_RPC_URLS.base,
         checks: [
           {
@@ -375,10 +350,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "evm",
-        chainName: "Arbitrum",
-        chain: "arbitrum",
-        contract: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-        explorerUrl: "https://arbiscan.io/token/0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        ...chainEndpoints("USDC", "arbitrum"),
         rpcUrl: EVM_RPC_URLS.arbitrum,
         checks: [
           {
@@ -392,10 +364,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "evm",
-        chainName: "Polygon",
-        chain: "polygon",
-        contract: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-        explorerUrl: "https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        ...chainEndpoints("USDC", "polygon"),
         rpcUrl: EVM_RPC_URLS.polygon,
         checks: [
           {
@@ -409,10 +378,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "evm",
-        chainName: "Avalanche",
-        chain: "avalanche",
-        contract: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
-        explorerUrl: "https://snowtrace.io/token/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+        ...chainEndpoints("USDC", "avalanche"),
         rpcUrl: EVM_RPC_URLS.avalanche,
         checks: [
           {
@@ -425,10 +391,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "evm",
-        chainName: "Optimism",
-        chain: "optimism",
-        contract: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
-        explorerUrl: "https://optimistic.etherscan.io/token/0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+        ...chainEndpoints("USDC", "optimism"),
         rpcUrl: EVM_RPC_URLS.optimism,
         checks: [
           {
@@ -442,10 +405,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "solana",
-        chainName: "Solana",
-        chain: "solana",
-        contract: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        explorerUrl: "https://solscan.io/token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        ...chainEndpoints("USDC", "solana"),
         rpcUrl: SOLANA_RPC_URLS.mainnet,
         notes: "SPL Token. Circle holds the freeze authority — token accounts can be frozen per address.",
       },
@@ -455,8 +415,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── PYUSD ─────────────────────────────────────────────────────────────────
   {
     symbol: "PYUSD",
-    name: "PayPal USD",
-    issuer: "Paxos Trust Company",
     hasComplianceControls: true,
     complianceDocsUrl: "https://www.paypal.com/us/digital-wallet/pyusd",
     seizureNote:
@@ -464,10 +422,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
     chains: [
       {
         support: "evm",
-        chainName: "Ethereum",
-        chain: "ethereum",
-        contract: "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
-        explorerUrl: "https://etherscan.io/token/0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
+        ...chainEndpoints("PYUSD", "ethereum"),
         rpcUrl: EVM_RPC_URLS.ethereum_b,
         checks: [
           {
@@ -481,10 +436,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "solana",
-        chainName: "Solana",
-        chain: "solana",
-        contract: "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
-        explorerUrl: "https://solscan.io/token/2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
+        ...chainEndpoints("PYUSD", "solana"),
         rpcUrl: SOLANA_RPC_URLS.mainnet,
         programId: SOLANA_TOKEN_PROGRAMS.token2022,
         notes: "Token-2022. Paxos holds a permanent delegate that can freeze or seize token accounts.",
@@ -495,8 +447,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── RLUSD ─────────────────────────────────────────────────────────────────
   {
     symbol: "RLUSD",
-    name: "Ripple USD",
-    issuer: "Standard Custody & Trust Company (Ripple)",
     hasComplianceControls: true,
     complianceDocsUrl: "https://ripple.com/solutions/stablecoin/",
     seizureNote:
@@ -504,10 +454,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
     chains: [
       {
         support: "evm",
-        chainName: "Ethereum",
-        chain: "ethereum",
-        contract: "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
-        explorerUrl: "https://etherscan.io/token/0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+        ...chainEndpoints("RLUSD", "ethereum"),
         rpcUrl: EVM_RPC_URLS.ethereum_b,
         checks: [
           {
@@ -521,13 +468,8 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "xrpl",
-        chainName: "XRP Ledger",
-        chain: "xrpl",
-        contract: "524C555344000000000000000000000000000000.rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
-        explorerUrl: "https://livenet.xrpl.org/token/524C555344000000000000000000000000000000.rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        ...xrplComplianceEndpoints("RLUSD"),
         apiUrl: XRPL_API_URLS.cluster,
-        currency: "524C555344000000000000000000000000000000",
-        issuer: "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
         notes: "XRPL IOU. Ripple can set freeze_peer on any trustline via the issuer account freeze authority. clawback() can permanently destroy tokens.",
       },
     ],
@@ -536,18 +478,13 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── USD1 ──────────────────────────────────────────────────────────────────
   {
     symbol: "USD1",
-    name: "World Liberty Financial USD1",
-    issuer: "World Liberty Financial (WLFI)",
     hasComplianceControls: true,
     seizureNote:
       "Freeze capability present per contract source. No public documentation of an explicit seize/destroy mechanism — frozen balance status unclear.",
     chains: [
       {
         support: "evm",
-        chainName: "Ethereum",
-        chain: "ethereum",
-        contract: "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
-        explorerUrl: "https://etherscan.io/token/0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
+        ...chainEndpoints("USD1", "ethereum"),
         rpcUrl: EVM_RPC_URLS.ethereum_c,
         checks: [
           {
@@ -561,10 +498,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "evm",
-        chainName: "BNB Chain",
-        chain: "bnb",
-        contract: "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
-        explorerUrl: "https://bscscan.com/token/0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
+        ...chainEndpoints("USD1", "bnb"),
         rpcUrl: EVM_RPC_URLS.bnb,
         checks: [
           {
@@ -582,18 +516,13 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── FDUSD ─────────────────────────────────────────────────────────────────
   {
     symbol: "FDUSD",
-    name: "First Digital USD",
-    issuer: "First Digital Trust Limited",
     hasComplianceControls: true,
     seizureNote:
       "freeze/unfreeze functions present. No evidence of a balance-destruction mechanism — frozen balance status unclear.",
     chains: [
       {
         support: "evm",
-        chainName: "Ethereum",
-        chain: "ethereum",
-        contract: "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
-        explorerUrl: "https://etherscan.io/token/0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
+        ...chainEndpoints("FDUSD", "ethereum"),
         rpcUrl: EVM_RPC_URLS.ethereum_c,
         checks: [
           {
@@ -607,10 +536,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
       },
       {
         support: "evm",
-        chainName: "BNB Chain",
-        chain: "bnb",
-        contract: "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
-        explorerUrl: "https://bscscan.com/token/0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
+        ...chainEndpoints("FDUSD", "bnb"),
         rpcUrl: EVM_RPC_URLS.bnb,
         checks: [
           {
@@ -628,8 +554,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── TUSD ──────────────────────────────────────────────────────────────────
   {
     symbol: "TUSD",
-    name: "TrueUSD",
-    issuer: "Techteryx Ltd.",
     hasComplianceControls: true,
     seizureNote:
       "Asset-protection freeze exists. $456M in reserves frozen by Dubai court order (Nov 2025).",
@@ -672,8 +596,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── USDS ──────────────────────────────────────────────────────────────────
   {
     symbol: "USDS",
-    name: "Sky USDS",
-    issuer: "Sky Protocol",
     hasComplianceControls: false,
     noControlsReason:
       "Freeze function voted in by governance but NOT yet deployed on-chain as of this check. Will be added once active.",
@@ -683,8 +605,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── DAI ───────────────────────────────────────────────────────────────────
   {
     symbol: "DAI",
-    name: "Multi-Collateral Dai",
-    issuer: "Sky Protocol (MakerDAO)",
     hasComplianceControls: false,
     noControlsReason:
       "Immutable contract — no admin freeze, blacklist, or seize capability. Fully permissionless transfers.",
@@ -694,8 +614,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── USDe ──────────────────────────────────────────────────────────────────
   {
     symbol: "USDe",
-    name: "Ethena USDe",
-    issuer: "Ethena Labs",
     hasComplianceControls: false,
     noControlsReason:
       "No blacklist or freeze on the USDe token contract. Ethena uses permissioned minting (KYC/KYB for direct mint/redeem) but token transfers are permissionless.",
@@ -705,8 +623,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── GHO ───────────────────────────────────────────────────────────────────
   {
     symbol: "GHO",
-    name: "GHO",
-    issuer: "Aave DAO",
     hasComplianceControls: false,
     noControlsReason:
       "Fully permissionless token transfers — no freeze, seize, or pause on the GHO token itself. Compliance handled at the Aave V3 market level, not the token.",
@@ -716,8 +632,6 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── frxUSD ────────────────────────────────────────────────────────────────
   {
     symbol: "frxUSD",
-    name: "Frax USD",
-    issuer: "Frax Finance",
     hasComplianceControls: false,
     noControlsReason:
       "No blacklist or freeze function present in the frxUSD contract. Permissionless transfers.",

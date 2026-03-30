@@ -3,7 +3,7 @@
 import type { ReactNode } from "react"
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { EIPS, EIP_CATEGORY_ORDER } from "@/data/eips"
+import { EIPS, EIP_CATEGORY_ORDER } from "@/data/coinEips"
 import type { Eip, EipCategory, EipStatus } from "@/types/eip"
 import {
   COIN_EIP_SYMBOLS,

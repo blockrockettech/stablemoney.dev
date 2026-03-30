@@ -29,6 +29,7 @@ import {
   type SolanaChainConfig,
   type XrplChainConfig,
 } from "@/data/compliance"
+import { coinBySymbol } from "@/data/coins"
 import {
   decodeBool,
   decodeUint256,
@@ -164,6 +165,11 @@ function isValidEthAddress(addr: string): boolean {
   return /^0x[0-9a-fA-F]{40}$/.test(addr)
 }
 
+function complianceLabels(c: CoinComplianceConfig) {
+  const row = coinBySymbol[c.symbol.toUpperCase()]
+  return { coinName: row?.name ?? c.symbol, issuer: row?.issuer ?? "" }
+}
+
 // ── Core check runner ─────────────────────────────────────────────────────────
 
 async function runEvmCheck(
@@ -171,10 +177,11 @@ async function runEvmCheck(
   chain: EvmChainConfig,
   walletAddress: string,
 ): Promise<ChainResult> {
+  const { coinName, issuer } = complianceLabels(coin)
   const base: Omit<ChainResult, "status" | "fnName" | "selector" | "balance" | "errorMessage"> = {
     coinSymbol: coin.symbol,
-    coinName: coin.name,
-    issuer: coin.issuer,
+    coinName,
+    issuer,
     chainName: chain.chainName,
     chain: chain.chain,
     contract: chain.contract,
@@ -245,10 +252,11 @@ async function runTronCheck(
   chain: TronChainConfig,
   evmAddress: string,
 ): Promise<ChainResult> {
+  const { coinName, issuer } = complianceLabels(coin)
   const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
     coinSymbol: coin.symbol,
-    coinName: coin.name,
-    issuer: coin.issuer,
+    coinName,
+    issuer,
     chainName: chain.chainName,
     chain: chain.chain,
     contract: chain.contract,
@@ -313,10 +321,11 @@ async function runSolanaCheck(
   chain: SolanaChainConfig,
   solanaAddress: string,
 ): Promise<ChainResult> {
+  const { coinName, issuer } = complianceLabels(coin)
   const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
     coinSymbol: coin.symbol,
-    coinName: coin.name,
-    issuer: coin.issuer,
+    coinName,
+    issuer,
     chainName: chain.chainName,
     chain: chain.chain,
     contract: chain.contract,
@@ -357,10 +366,11 @@ async function runXrplCheck(
   chain: XrplChainConfig,
   xrplAddress: string,
 ): Promise<ChainResult> {
+  const { coinName, issuer } = complianceLabels(coin)
   const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
     coinSymbol: coin.symbol,
-    coinName: coin.name,
-    issuer: coin.issuer,
+    coinName,
+    issuer,
     chainName: chain.chainName,
     chain: chain.chain,
     contract: chain.contract,
@@ -413,10 +423,11 @@ async function runEvmGroup(
       results.push(await runEvmCheck(tasks[i].coin, tasks[i].chain, walletAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
+      const { coinName, issuer } = complianceLabels(coin)
       results.push({
         coinSymbol: coin.symbol,
-        coinName: coin.name,
-        issuer: coin.issuer,
+        coinName,
+        issuer,
         chainName: chain.chainName,
         chain: chain.chain,
         contract: chain.contract,
@@ -443,8 +454,9 @@ async function runTronGroup(
       results.push(await runTronCheck(tasks[i].coin, tasks[i].chain, evmAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
+      const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+        coinSymbol: coin.symbol, coinName, issuer,
         chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
         explorerUrl: chain.explorerUrl, rpcUrl: chain.apiUrl,
         status: "error", errorMessage: String(err),
@@ -467,8 +479,9 @@ async function runSolanaGroup(
       results.push(await runSolanaCheck(tasks[i].coin, tasks[i].chain, solanaAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
+      const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+        coinSymbol: coin.symbol, coinName, issuer,
         chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
         explorerUrl: chain.explorerUrl, rpcUrl: chain.rpcUrl,
         status: "error", errorMessage: String(err),
@@ -491,8 +504,9 @@ async function runXrplGroup(
       results.push(await runXrplCheck(tasks[i].coin, tasks[i].chain, xrplAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
+      const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+        coinSymbol: coin.symbol, coinName, issuer,
         chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
         explorerUrl: chain.explorerUrl, rpcUrl: chain.apiUrl,
         status: "error", errorMessage: String(err),
@@ -574,11 +588,12 @@ async function checkAllCoins(
 
   // ── Static rows: no-controls, pending-abi, coming-soon ────────────────────
   for (const coin of COMPLIANCE_CONFIG) {
+    const { coinName, issuer } = complianceLabels(coin)
     if (!coin.hasComplianceControls) {
       results.push({
         coinSymbol: coin.symbol,
-        coinName: coin.name,
-        issuer: coin.issuer,
+        coinName,
+        issuer,
         chainName: UI_EM_DASH,
         chain: "",
         contract: "",
@@ -593,8 +608,8 @@ async function checkAllCoins(
       if (chain.support === "pending-abi") {
         results.push({
           coinSymbol: coin.symbol,
-          coinName: coin.name,
-          issuer: coin.issuer,
+          coinName,
+          issuer,
           chainName: chain.chainName,
           chain: chain.chain,
           contract: chain.contract,
@@ -606,8 +621,8 @@ async function checkAllCoins(
       } else if (chain.support === "coming-soon") {
         results.push({
           coinSymbol: coin.symbol,
-          coinName: coin.name,
-          issuer: coin.issuer,
+          coinName,
+          issuer,
           chainName: chain.chainName,
           chain: chain.chain,
           contract: chain.contract,
@@ -617,25 +632,25 @@ async function checkAllCoins(
         })
       } else if (chain.support === "evm" && !walletAddress) {
         results.push({
-          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+          coinSymbol: coin.symbol, coinName, issuer,
           chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
           explorerUrl: chain.explorerUrl, status: "not-checked",
         })
       } else if (chain.support === "tron" && !walletAddress) {
         results.push({
-          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+          coinSymbol: coin.symbol, coinName, issuer,
           chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
           explorerUrl: chain.explorerUrl, status: "not-checked",
         })
       } else if (chain.support === "solana" && !solanaAddress) {
         results.push({
-          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+          coinSymbol: coin.symbol, coinName, issuer,
           chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
           explorerUrl: chain.explorerUrl, status: "not-checked",
         })
       } else if (chain.support === "xrpl" && !xrplAddress) {
         results.push({
-          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+          coinSymbol: coin.symbol, coinName, issuer,
           chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
           explorerUrl: chain.explorerUrl, status: "not-checked",
         })

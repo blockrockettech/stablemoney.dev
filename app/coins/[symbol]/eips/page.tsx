@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { coinBySymbol, coins } from "@/data/coins"
-import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/eips"
+import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/coinEips"
 import {
   eipImplementationStats,
   getCoinEipProfile,
