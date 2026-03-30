@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next"
 import { coins } from "@/data/coins"
-import { getAllChainSlugs } from "@/lib/chains"
 import { LAST_UPDATED, SITE_CANONICAL_URL } from "@/lib/site"
 
 /** Bump `LAST_UPDATED` in `@/lib/site` when curated data changes meaningfully */
@@ -28,10 +27,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.85,
     },
     {
-      url: url("/compare", root),
+      url: url("/onchain-wallet-check", root),
       lastModified,
-      changeFrequency: "weekly",
-      priority: 0.8,
+      changeFrequency: "monthly",
+      priority: 0.75,
     },
   ]
 
@@ -49,12 +48,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.75,
   }))
 
-  const chainRoutes: MetadataRoute.Sitemap = getAllChainSlugs().map((chain) => ({
-    url: url(`/chains/${chain}`, root),
-    lastModified,
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }))
-
-  return [...staticRoutes, ...coinRoutes, ...coinEipRoutes, ...chainRoutes]
+  return [...staticRoutes, ...coinRoutes, ...coinEipRoutes]
 }

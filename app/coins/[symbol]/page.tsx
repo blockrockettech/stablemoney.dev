@@ -1,3 +1,4 @@
+import { Fragment } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
@@ -161,9 +162,15 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40">
-                <th className="px-3 py-2 font-medium">Standard</th>
-                <th className="px-3 py-2 font-medium">Status</th>
-                <th className="min-w-[300px] px-3 py-2 font-medium">Notes</th>
+                <th scope="col" className="px-3 py-2 font-medium">
+                  Standard
+                </th>
+                <th scope="col" className="px-3 py-2 font-medium">
+                  Status
+                </th>
+                <th scope="col" className="min-w-[300px] px-3 py-2 font-medium">
+                  Notes
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -171,8 +178,8 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                 const eipsInCat = EIPS.filter((e) => e.category === category)
                 if (!eipsInCat.length) return null
                 return (
-                  <>
-                    <tr key={`cat-${category}`} className="bg-muted/30">
+                  <Fragment key={category}>
+                    <tr className="bg-muted/30">
                       <td
                         colSpan={3}
                         className="px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground"
@@ -208,7 +215,7 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                         </tr>
                       )
                     })}
-                  </>
+                  </Fragment>
                 )
               })}
             </tbody>

@@ -22,10 +22,30 @@ export default function WalletCheckPage() {
           sending or processing a payment.
         </p>
         <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-          <span>All checks are read-only <code className="font-mono">eth_call</code> — no transaction is broadcast</span>
-          <span>Results reflect on-chain state at query time — always re-check before acting</span>
-          <span>Non-EVM chains (TRON, Solana, XRPL) shown with coming-soon status</span>
+          <span>All checks are read-only <code className="font-mono">eth_call</code> — no transaction is broadcast.</span>
+          <span>Results reflect on-chain state at query time — always re-check before acting.</span>
         </div>
+        <p className="text-muted-foreground max-w-3xl text-xs leading-relaxed">
+          This tool is not a substitute for official sanctions screening. For U.S. Treasury listings, use{" "}
+          <a
+            href="https://sanctionssearch.ofac.treas.gov/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary font-medium hover:underline"
+          >
+            OFAC Sanctions List Search
+          </a>
+          . SDN entries can include digital-currency addresses —{" "}
+          <a
+            href="https://sanctionssearch.ofac.treas.gov/Details.aspx?id=33151"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary font-medium hover:underline"
+          >
+            example record (SUEX OTC)
+          </a>
+          .
+        </p>
       </header>
 
       <WalletChecker />

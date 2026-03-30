@@ -20,13 +20,15 @@
 // calls instead of 6, avoiding free-tier rate limits.
 //
 // https://ethereumnodes.com/
-// 
-// Avoided:
-//   bsc-dataseed.binance.org  — no CORS headers, browser fetch always blocked
-//   cloudflare-eth.com        — rate-limits under parallel load
-//   eth.llamarpc.com          — aggressive rate-limiting on free tier
+//
+// ethereum_a uses LlamaRPC (eth.llamarpc.com); public docs cite ~30 req/s on the free tier.
+// Wallet checks stagger calls (see WalletChecker) to reduce 429s — swap for Alchemy/Infura if needed.
+//
+// Avoid for browser fetch:
+//   bsc-dataseed.binance.org — no CORS headers
+//   cloudflare-eth.com       — rate-limits under parallel load
 export const EVM_RPC_URLS: Record<string, string> = {
-  ethereum_a: "https://eth.llamarpc.com", // LlamaRPC - Free tier, 30 req/s
+  ethereum_a: "https://eth.llamarpc.com", // LlamaRPC
   ethereum_b: "https://ethereum-rpc.publicnode.com", // PublicNode - CORS enabled
   ethereum_c: "https://1rpc.io/eth", // 1RPC by Automata — privacy-focused, CORS enabled
   bnb: "https://bsc.publicnode.com", // PublicNode — CORS enabled

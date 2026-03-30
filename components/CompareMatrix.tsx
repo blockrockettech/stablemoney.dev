@@ -86,7 +86,6 @@ type Row = {
 export function CompareMatrix({ coins }: { coins: Coin[] }) {
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({})
   const active = coins.filter(Boolean)
-  if (active.length === 0) return null
 
   const featuresByCoin = React.useMemo(
     () => Object.fromEntries(active.map((c) => [c.symbol, mergeCoinFeatures(c)])),
@@ -94,6 +93,7 @@ export function CompareMatrix({ coins }: { coins: Coin[] }) {
   )
 
   const rows = React.useMemo(() => {
+    if (active.length === 0) return []
     const rowMap = new Map<string, Row>()
     for (const coin of active) {
       const merged = featuresByCoin[coin.symbol] ?? []
@@ -128,6 +128,8 @@ export function CompareMatrix({ coins }: { coins: Coin[] }) {
     }
     return grouped
   }, [rows])
+
+  if (active.length === 0) return null
 
   const statusFor = (coinSymbol: string, row: Row): MatrixStatus => {
     if (row.presentByCoin[coinSymbol]) return "implemented"

@@ -35,11 +35,11 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Project layout
 
-- `app/` — Routes: home, `/coins/[symbol]`, `/chains/[chain]`, `/compare`, `sitemap.ts`, `robots.ts`
+- `app/` — Routes: home, `/coins/[symbol]`, `/onchain-wallet-check`, `/compare`, `sitemap.ts`, `robots.ts`
 - `components/` — UI: cards, filters, search, compare matrix, tables
 - `data/coins.ts` — Typed coin dataset
 - `content/coins/*.mdx` — Optional MDX sections on coin pages
-- `lib/` — Search (Fuse), explorers, chains helpers
+- `lib/` — Search (Fuse), explorers, unique-chain slug helper for stats
 
 ## Environment
 

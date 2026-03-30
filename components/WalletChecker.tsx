@@ -24,6 +24,13 @@ import {
   type CoinComplianceConfig,
   type EvmChainConfig,
 } from "@/data/compliance"
+import {
+  decodeBool,
+  decodeUint256,
+  encodeCall,
+  jsonRpcEthCall,
+} from "@/lib/evm-json-rpc"
+import { getWalletCheckSummary } from "@/lib/wallet-check-summary"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -37,7 +44,7 @@ export type CheckStatus =
   | "no-controls"
   | "error"
 
-interface ChainResult {
+export interface ChainResult {
   coinSymbol: string
   coinName: string
   issuer: string
@@ -55,53 +62,6 @@ interface ChainResult {
   errorMessage?: string
   notes?: string
   seizureNote?: string
-}
-
-// ── EVM helpers ───────────────────────────────────────────────────────────────
-
-function encodeCall(selector: string, address: string): string {
-  const addr = address.replace(/^0x/i, "").toLowerCase().padStart(40, "0")
-  return `${selector}000000000000000000000000${addr}`
-}
-
-async function ethCall(
-  rpcUrl: string,
-  contract: string,
-  data: string,
-): Promise<string | null> {
-  try {
-    const res = await fetch(rpcUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        method: "eth_call",
-        params: [{ to: contract, data }, "latest"],
-        id: 1,
-      }),
-    })
-    if (!res.ok) return null
-    const json = await res.json()
-    return typeof json.result === "string" ? json.result : null
-  } catch {
-    return null
-  }
-}
-
-
-function decodeBool(result: string | null): boolean | null {
-  if (!result || result === "0x" || result.length < 3) return null
-  // 32-byte result — last byte is 0x01 (true) or 0x00 (false)
-  return result.slice(-1) === "1"
-}
-
-function decodeUint256(result: string | null): bigint | null {
-  if (!result || result === "0x") return null
-  try {
-    return BigInt(result)
-  } catch {
-    return null
-  }
 }
 
 // ── Rate-limit config ─────────────────────────────────────────────────────────
@@ -174,6 +134,10 @@ const resultsRowTone = {
   expanded: "bg-muted/20",
 } as const
 
+function devDetailsPanelDomId(rowKey: string): string {
+  return `wallet-dev-${rowKey.replace(/[^a-zA-Z0-9_-]+/g, "-")}`
+}
+
 // ── ERC-55 checksum (basic) ────────────────────────────────────────────────────
 
 function isValidEthAddress(addr: string): boolean {
@@ -201,7 +165,11 @@ async function runEvmCheck(
   }
 
   for (const check of chain.checks) {
-    const raw = await ethCall(chain.rpcUrl, chain.contract, encodeCall(check.selector, walletAddress))
+    const { result: raw, errorMessage: rpcErr } = await jsonRpcEthCall(
+      chain.rpcUrl,
+      chain.contract,
+      encodeCall(check.selector, walletAddress),
+    )
     const flagged = decodeBool(raw)
 
     if (flagged === null) {
@@ -211,25 +179,30 @@ async function runEvmCheck(
 
         fnName: check.fnName,
         selector: check.selector,
-        errorMessage: RPC_UNEXPECTED_RESPONSE,
+        errorMessage: rpcErr ? `${rpcErr} — ${RPC_UNEXPECTED_RESPONSE}` : RPC_UNEXPECTED_RESPONSE,
       }
     }
 
     if (flagged) {
       // balanceOf counts as an extra call — no stagger needed here as it's only
       // triggered on a positive flag (rare path) and follows naturally.
-      const balRaw = await ethCall(
+      const balCall = await jsonRpcEthCall(
         chain.rpcUrl,
         chain.contract,
         encodeCall(SELECTORS.balanceOf, walletAddress),
       )
-      const balance = decodeUint256(balRaw) ?? undefined
+      const balance = decodeUint256(balCall.result) ?? undefined
       const hasBalance = balance !== undefined && balance > BigInt(0)
+      const balanceNote =
+        balCall.errorMessage && !hasBalance
+          ? `Balance check inconclusive: ${balCall.errorMessage}`
+          : undefined
 
       return {
         ...base,
         status: hasBalance ? "flagged-with-balance" : check.type === "blacklist" ? "blacklisted" : "frozen",
         balance,
+        notes: balanceNote ? [base.notes, balanceNote].filter(Boolean).join(" · ") : base.notes,
 
         fnName: check.fnName,
         selector: check.selector,
@@ -307,9 +280,15 @@ async function checkAllCoins(
     Array.from(byRpc.values()).map((tasks) => runRpcGroup(tasks, walletAddress, tick)),
   )
 
-  const results: ChainResult[] = settled.flatMap((s) =>
-    s.status === "fulfilled" ? s.value : [],
-  )
+  const results: ChainResult[] = []
+  for (const s of settled) {
+    if (s.status === "fulfilled") {
+      results.push(...s.value)
+    } else if (process.env.NODE_ENV === "development") {
+      // runRpcGroup should not reject (errors become per-row status) — log if it does
+      console.error("Wallet check: RPC group promise rejected", s.reason)
+    }
+  }
 
   // Static rows for non-EVM / pending / no-controls
   for (const coin of COMPLIANCE_CONFIG) {
@@ -386,19 +365,6 @@ function StatusBadge({ status }: { status: CheckStatus }) {
       {meta.label}
     </span>
   )
-}
-
-// ── Summary counts ────────────────────────────────────────────────────────────
-
-function getSummary(results: ChainResult[]) {
-  const flags = results.filter(
-    (r) => r.status === "blacklisted" || r.status === "frozen" || r.status === "flagged-with-balance",
-  )
-  const live = results.filter(
-    (r) => r.status !== "coming-soon" && r.status !== "no-controls" && r.status !== "pending-abi",
-  )
-  const errors = results.filter((r) => r.status === "error")
-  return { flags, live, errors }
 }
 
 // ── Truncate address ──────────────────────────────────────────────────────────
@@ -514,17 +480,28 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
       <table className="w-full min-w-[720px] text-left text-sm">
         <thead>
           <tr className="border-b border-border bg-muted/40">
-            <th className="px-3 py-2 font-medium">Coin</th>
-            <th className="px-3 py-2 font-medium">Chain</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Contract</th>
-            <th className="w-8 px-3 py-2" />
+            <th scope="col" className="px-3 py-2 font-medium">
+              Coin
+            </th>
+            <th scope="col" className="px-3 py-2 font-medium">
+              Chain
+            </th>
+            <th scope="col" className="px-3 py-2 font-medium">
+              Status
+            </th>
+            <th scope="col" className="px-3 py-2 font-medium">
+              Contract
+            </th>
+            <th scope="col" className="w-8 px-3 py-2">
+              <span className="sr-only">Details</span>
+            </th>
           </tr>
         </thead>
         <tbody>
           {Array.from(grouped.entries()).flatMap(([, rows]) =>
             rows.map((result, rowIdx) => {
               const key = `${result.coinSymbol}-${result.chainName}-${rowIdx}`
+              const panelId = devDetailsPanelDomId(key)
               const expanded = expandedRows.has(key)
               const flagged = isFlagged(result)
               const isLive = result.status !== "coming-soon" && result.status !== "no-controls" && result.status !== "pending-abi"
@@ -592,12 +569,19 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                     {/* Expand toggle */}
                     <td className="px-3 py-2.5 align-middle">
                       <Button
+                        type="button"
                         variant="ghost"
                         size="icon"
                         className="size-7 shrink-0"
                         onClick={() => toggleRow(key)}
                         title={expanded ? "Hide details" : "Show dev details"}
-                        aria-label={expanded ? "Collapse row" : "Expand row"}
+                        aria-expanded={expanded}
+                        aria-controls={panelId}
+                        aria-label={
+                          expanded
+                            ? `Collapse dev details for ${result.coinSymbol} on ${result.chainName}`
+                            : `Expand dev details for ${result.coinSymbol} on ${result.chainName}`
+                        }
                       >
                         {expanded ? (
                           <ChevronDown className="size-4" />
@@ -611,7 +595,7 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                   {/* Expanded dev details */}
                   {expanded && (
                     <tr className="border-b border-border/60 last:border-0">
-                      <td colSpan={5} className="p-0">
+                      <td id={panelId} colSpan={5} className="p-0">
                         <DevDetails result={result} />
                       </td>
                     </tr>
@@ -637,7 +621,7 @@ function SummaryBanner({
   results: ChainResult[]
   checkedAt: string
 }) {
-  const { flags, live, errors } = getSummary(results)
+  const { flags, live, errors } = getWalletCheckSummary(results)
   const allClear = flags.length === 0
 
   return (
@@ -678,6 +662,11 @@ function SummaryBanner({
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function WalletChecker() {
+  const formUid = React.useId()
+  const inputId = `${formUid}-address`
+  const hintId = `${formUid}-hint`
+  const errorId = `${formUid}-error`
+
   const [input, setInput] = React.useState("")
   const [loading, setLoading] = React.useState(false)
   const [progress, setProgress] = React.useState<{ done: number; total: number } | null>(null)
@@ -685,6 +674,18 @@ export function WalletChecker() {
   const [checkedWallet, setCheckedWallet] = React.useState("")
   const [checkedAt, setCheckedAt] = React.useState("")
   const [inputError, setInputError] = React.useState("")
+
+  const ariaDescribedBy = inputError ? `${errorId} ${hintId}` : hintId
+  const liveStatusMessage = loading
+    ? progress
+      ? `Checking contracts: ${progress.done} of ${progress.total} completed.`
+      : "Starting wallet check."
+    : results
+      ? (() => {
+          const { flags, errors } = getWalletCheckSummary(results)
+          return `Check complete. ${flags.length} compliance flag${flags.length === 1 ? "" : "s"}.${errors.length > 0 ? ` ${errors.length} RPC error${errors.length === 1 ? "" : "s"}.` : ""}`
+        })()
+      : ""
 
   async function handleCheck(e: React.FormEvent) {
     e.preventDefault()
@@ -719,10 +720,18 @@ export function WalletChecker() {
 
   return (
     <div className="space-y-6">
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {liveStatusMessage}
+      </div>
       {/* Input form */}
-      <form onSubmit={handleCheck} className="flex flex-col gap-3 sm:flex-row sm:items-start">
+      <form
+        onSubmit={handleCheck}
+        className="flex flex-col gap-3 sm:flex-row sm:items-start"
+        aria-busy={loading}
+      >
         <div className="flex-1 space-y-1.5">
           <Input
+            id={inputId}
             value={input}
             onChange={(e) => {
               setInput(e.target.value)
@@ -731,16 +740,21 @@ export function WalletChecker() {
             placeholder={WALLET_INPUT_PLACEHOLDER}
             className="font-mono"
             aria-label="Wallet address"
+            aria-invalid={!!inputError}
+            aria-describedby={ariaDescribedBy}
             disabled={loading}
             spellCheck={false}
             autoComplete="off"
           />
-          {inputError && (
-            <p className="text-destructive text-xs">{inputError}</p>
-          )}
-          <p className="text-muted-foreground text-xs">
-            Read-only <code className="font-mono">eth_call</code> — no transaction is sent.
-            Checks {totalEvmChecks} live EVM contracts.
+          {inputError ? (
+            <p id={errorId} className="text-destructive text-xs" role="alert">
+              {inputError}
+            </p>
+          ) : null}
+          <p id={hintId} className="text-muted-foreground text-xs">
+            Read-only <code className="font-mono">eth_call</code> — no transaction is sent. Checks{" "}
+            {totalEvmChecks} live EVM contracts. Your address is sent to each public RPC you query
+            (third-party visibility).
           </p>
         </div>
         <Button type="submit" disabled={loading || !input.trim()} className="shrink-0">

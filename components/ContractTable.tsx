@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import type { NetworkDeployment } from "@/types"
 import { CopyButton } from "@/components/CopyButton"
 import { ExternalLink } from "lucide-react"
@@ -33,12 +32,7 @@ export function ContractTable({ networks }: { networks: NetworkDeployment[] }) {
               >
                 <td className="px-3 py-2 align-top">
                   <div className="flex flex-col gap-0.5">
-                    <Link
-                      href={`/chains/${encodeURIComponent(n.chain.toLowerCase())}`}
-                      className="hover:text-primary font-medium hover:underline"
-                    >
-                      {n.name}
-                    </Link>
+                    <span className="font-medium">{n.name}</span>
                     <span
                       className={cn(
                         "w-fit rounded px-1.5 py-0.5 text-[0.65rem] uppercase",

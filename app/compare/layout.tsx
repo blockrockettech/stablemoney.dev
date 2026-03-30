@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "Compare",
   description:
     "Side-by-side feature matrix for top stablecoins — static reference for engineering comparison.",
+  robots: { index: false, follow: true },
   openGraph: {
     title: "Compare stablecoins",
     description: "Feature matrix across selected stablecoins.",

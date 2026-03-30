@@ -18,7 +18,8 @@ let _cache: MarketDataFile | null = null
 function load(): MarketDataFile | null {
   if (_cache) return _cache
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    /* Build-time JSON — require keeps resolution stable in Next server bundle */
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- generated file, no ESM path at runtime
     const raw = require("@/data/generated/market-data.json") as MarketDataFile
     if (raw && raw.coins && Object.keys(raw.coins).length > 0) {
       _cache = raw
@@ -30,7 +31,7 @@ function load(): MarketDataFile | null {
   return null
 }
 
-function formatUsd(value: number): string {
+export function formatUsd(value: number): string {
   if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`
   if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`
   if (value >= 1e6) return `$${(value / 1e6).toFixed(0)}M`
