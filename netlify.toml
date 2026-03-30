@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npm run lint && npm run build"
 
 [build.environment]
   NEXT_PUBLIC_SITE_URL = "https://stablemoney.dev"

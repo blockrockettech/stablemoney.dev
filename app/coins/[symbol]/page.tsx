@@ -1,3 +1,4 @@
+import { Fragment } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
@@ -15,7 +16,7 @@ import { FeatureTable } from "@/components/FeatureTable"
 import { RiskBadge } from "@/components/RiskBadge"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ExternalLink } from "lucide-react"
+import { ArrowRight, ExternalLink } from "lucide-react"
 import { getMarketCap, getMarketCapRank } from "@/lib/market-data"
 
 const typeLabel: Record<StablecoinType, string> = {
@@ -100,14 +101,19 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
           Market cap:{" "}
           <span className="text-foreground font-medium">{getMarketCap(coin.symbol)}</span>
         </p>
-        <p className="pt-1">
-          <Link
-            href={`/coins/${coin.symbol.toLowerCase()}/eips`}
-            className="text-primary text-sm font-medium hover:underline"
-          >
-            EIP standards (ERC-20, permit, proxies…)
-          </Link>
-        </p>
+        <Link
+          href={`/coins/${coin.symbol.toLowerCase()}/eips`}
+          className="group mt-2 flex items-center justify-between gap-4 rounded-xl border border-border bg-card/60 px-5 py-4 transition-all hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm"
+        >
+          <div>
+            <div className="text-sm font-semibold">EIP/ERC standards &amp; compliance</div>
+            <div className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
+              Full {coin.symbol} profile: ERC-20, permit, proxy patterns, cross-chain, flash loans, and
+              compliance EIPs — with implementation notes and verified contract context.
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+        </Link>
       </header>
 
       <section>
@@ -161,9 +167,15 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40">
-                <th className="px-3 py-2 font-medium">Standard</th>
-                <th className="px-3 py-2 font-medium">Status</th>
-                <th className="min-w-[300px] px-3 py-2 font-medium">Notes</th>
+                <th scope="col" className="px-3 py-2 font-medium">
+                  Standard
+                </th>
+                <th scope="col" className="px-3 py-2 font-medium">
+                  Status
+                </th>
+                <th scope="col" className="min-w-[300px] px-3 py-2 font-medium">
+                  Notes
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -171,8 +183,8 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                 const eipsInCat = EIPS.filter((e) => e.category === category)
                 if (!eipsInCat.length) return null
                 return (
-                  <>
-                    <tr key={`cat-${category}`} className="bg-muted/30">
+                  <Fragment key={category}>
+                    <tr className="bg-muted/30">
                       <td
                         colSpan={3}
                         className="px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground"
@@ -208,7 +220,7 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                         </tr>
                       )
                     })}
-                  </>
+                  </Fragment>
                 )
               })}
             </tbody>

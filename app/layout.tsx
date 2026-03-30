@@ -91,6 +91,9 @@ export default function RootLayout({
                   <Link href="/standards" className="text-muted-foreground transition-colors hover:text-primary">
                     Standards
                   </Link>
+                  <Link href="/onchain-wallet-check" className="text-muted-foreground transition-colors hover:text-primary">
+                    Wallet check
+                  </Link>
                 </nav>
               </div>
             </header>
@@ -136,7 +139,7 @@ function Footer() {
           curated. Always verify the deployment you integrate.
         </p>
         <p className="text-muted-foreground border-border/60 text-xs leading-relaxed sm:border-t sm:pt-4">
-          Built with love ❤️ from Manchester 🐝 by{" "}
+          From Manchester 🐝 by{" "}
           <a
             href="https://blockrocket.tech/"
             target="_blank"
@@ -152,7 +155,7 @@ function Footer() {
             rel="noopener noreferrer"
             className="text-primary font-medium hover:underline"
           >
-            X
+            @BlockRocketTech (x.com)
           </a>
           .
         </p>

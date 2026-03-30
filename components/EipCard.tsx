@@ -46,6 +46,19 @@ const categoryStyles: Record<EipCategory, string> = {
   flash: "border-amber-500/40 bg-amber-500/10 text-amber-900 dark:text-amber-200",
 }
 
+const devImpactPanelClass: Record<EipStatus, string> = {
+  implemented:
+    "border-amber-500/50 bg-amber-500/5 text-amber-950 dark:text-amber-100",
+  partial:
+    "border-amber-500/50 bg-amber-500/5 text-amber-950 dark:text-amber-100",
+  "not-implemented":
+    "border-red-500/60 bg-red-500/5 text-red-950 dark:text-red-100",
+  unknown:
+    "border-amber-500/50 bg-amber-500/5 text-amber-950 dark:text-amber-100",
+  alternative:
+    "border-violet-500/50 bg-violet-500/5 text-violet-950 dark:text-violet-100",
+}
+
 export function EipCard({
   eip,
   impl,
@@ -62,12 +75,7 @@ export function EipCard({
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const st = statusStyles[impl.status]
-  const devImpactTone =
-    impl.status === "not-implemented"
-      ? "border-red-500/60 bg-red-500/5 text-red-950 dark:text-red-100"
-      : impl.status === "alternative"
-        ? "border-violet-500/50 bg-violet-500/5 text-violet-950 dark:text-violet-100"
-        : "border-amber-500/50 bg-amber-500/5 text-amber-950 dark:text-amber-100"
+  const devImpactTone = devImpactPanelClass[impl.status]
 
   return (
     <div className="rounded-lg border border-border bg-card shadow-sm">

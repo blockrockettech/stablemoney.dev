@@ -1,6 +1,4 @@
 import { coins } from "@/data/coins"
-import type { Coin } from "@/types"
-import { getMarketCapValue } from "@/lib/market-data"
 
 const CHAIN_LABELS: Record<string, string> = {
   ethereum: "Ethereum",
@@ -27,10 +25,11 @@ const CHAIN_LABELS: Record<string, string> = {
   mantle: "Mantle",
 }
 
-export function getChainDisplayName(slug: string): string {
+function chainDisplayName(slug: string): string {
   return CHAIN_LABELS[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1)
 }
 
+/** Unique `chain` slugs across all coin deployments (sorted by display name). */
 export function getAllChainSlugs(): string[] {
   const set = new Set<string>()
   for (const c of coins) {
@@ -39,27 +38,6 @@ export function getAllChainSlugs(): string[] {
     }
   }
   return Array.from(set).sort((a, b) =>
-    getChainDisplayName(a).localeCompare(getChainDisplayName(b))
+    chainDisplayName(a).localeCompare(chainDisplayName(b)),
   )
-}
-
-export function getCoinsOnChain(chainSlug: string): {
-  coin: Coin
-  deployment: Coin["networks"][number]
-}[] {
-  const slug = chainSlug.toLowerCase()
-  const out: { coin: Coin; deployment: Coin["networks"][number] }[] = []
-  for (const coin of coins) {
-    for (const deployment of coin.networks) {
-      if (deployment.chain.toLowerCase() === slug) {
-        out.push({ coin, deployment })
-      }
-    }
-  }
-  return out.sort((a, b) => {
-    const mA = getMarketCapValue(a.coin.symbol)
-    const mB = getMarketCapValue(b.coin.symbol)
-    if (mA !== mB) return mB - mA
-    return a.coin.symbol.localeCompare(b.coin.symbol)
-  })
 }

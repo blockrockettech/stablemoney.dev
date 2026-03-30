@@ -121,7 +121,7 @@ export function EipMatrix() {
   const [showAlternatives, setShowAlternatives] = useState(true)
 
   const rows = useMemo(() => {
-    let list = category === "all" ? [...EIPS] : EIPS.filter((e) => e.category === category)
+    const list = category === "all" ? [...EIPS] : EIPS.filter((e) => e.category === category)
     list.sort((a, b) => eipSortNumber(a) - eipSortNumber(b))
     return list
   }, [category])
