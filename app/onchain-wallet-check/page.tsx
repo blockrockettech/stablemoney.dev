@@ -1,10 +1,22 @@
 import type { Metadata } from "next"
 import { WalletChecker } from "@/components/WalletChecker"
 
+const title = "Onchain Wallet Compliance Check"
+const description =
+  "Check if a wallet address is blacklisted, frozen, or at risk of fund seizure across the top stablecoins and EVM chains. Live eth_call — no transaction sent."
+
 export const metadata: Metadata = {
-  title: "Onchain wallet compliance check",
-  description:
-    "Check if a wallet address is blacklisted, frozen, or at risk of fund seizure across the top stablecoins and EVM chains. Live eth_call — no transaction sent.",
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    type: "website",
+  },
+  twitter: {
+    title,
+    description,
+  },
 }
 
 export default function WalletCheckPage() {

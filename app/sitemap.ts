@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next"
 import { coins } from "@/data/coins"
-import { LAST_UPDATED, SITE_CANONICAL_URL } from "@/lib/site"
+import { LAST_UPDATED, SITE_CANONICAL_URL } from "@/site/config"
 
-/** Bump `LAST_UPDATED` in `@/lib/site` when curated data changes meaningfully */
+/** Bump `LAST_UPDATED` in `@/site/config` when curated data changes meaningfully */
 const lastModified = new Date(LAST_UPDATED)
 
 function url(path: string, root: URL): string {

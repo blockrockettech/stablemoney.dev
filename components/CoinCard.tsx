@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { NetworkChip } from "@/components/NetworkChip"
 import { cn } from "@/lib/utils"
-import { countImplementedEips } from "@/lib/eip-helpers"
-import { getMarketCap } from "@/lib/market-data"
+import { countImplementedEips } from "@/lib/crypto/eip-helpers"
+import { getMarketCap } from "@/lib/market-data/market-data"
 
 const typeLabel: Record<StablecoinType, string> = {
   fiat: "Fiat-backed",

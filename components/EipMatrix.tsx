@@ -10,7 +10,7 @@ import {
   eipAnchorId,
   getCellStatus,
   getEipImplementation,
-} from "@/lib/eip-helpers"
+} from "@/lib/crypto/eip-helpers"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {

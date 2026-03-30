@@ -6,11 +6,11 @@ import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/eips"
 import {
   eipImplementationStats,
   getCoinEipProfile,
-} from "@/lib/eip-helpers"
+} from "@/lib/crypto/eip-helpers"
 import { EipCard } from "@/components/EipCard"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, ExternalLink } from "lucide-react"
-import { shortAddress } from "@/lib/explorers"
+import { shortAddress } from "@/lib/crypto/address-utils"
 
 export function generateStaticParams() {
   return coins.map((c) => ({ symbol: c.symbol.toLowerCase() }))
@@ -23,10 +23,26 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   if (!coin) return {}
-  const title = `${coin.symbol} — EIP / ERC standards`
+  const title = `${coin.symbol} — EIP / ERC Standards`
+  const description = `ERC-20, EIP-712, EIP-2612, proxy, compliance, and flash loan implementation notes for ${coin.name} (${coin.symbol}).`
+  const canonicalUrl = `https://stablemoney.dev/coins/${params.symbol.toLowerCase()}/eips`
   return {
     title,
-    description: `Technical ERC and EIP implementation notes for ${coin.name} (${coin.symbol}).`,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: canonicalUrl,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   }
 }
 
@@ -95,8 +111,32 @@ export default function CoinEipsPage({ params }: { params: { symbol: string } })
 
   const stats = eipImplementationStats(profile)
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://stablemoney.dev" },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: coin.symbol,
+        item: `https://stablemoney.dev/coins/${symLower}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "EIP / ERC Standards",
+        item: `https://stablemoney.dev/coins/${symLower}/eips`,
+      },
+    ],
+  }
+
   return (
     <div className="space-y-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="flex flex-wrap items-center gap-3">
         <Link
           href={`/coins/${symLower}`}

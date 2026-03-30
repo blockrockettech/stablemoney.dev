@@ -4,10 +4,10 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { searchCoins } from "@/lib/search"
+import { searchCoins } from "@/site/search"
 import type { Coin } from "@/types"
 import { CoinCard } from "@/components/CoinCard"
-import { getMarketCapRank } from "@/lib/market-data"
+import { getMarketCapRank } from "@/lib/market-data/market-data"
 import { cn } from "@/lib/utils"
 
 export function SearchBar({ className }: { className?: string }) {

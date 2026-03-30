@@ -1,6 +1,6 @@
 import type { Eip, EipCategory } from "@/types/eip"
 import { EIP_CATEGORY_TITLES } from "@/data/eips"
-import { COIN_EIP_SYMBOLS, eipAnchorId, getEipImplementation } from "@/lib/eip-helpers"
+import { COIN_EIP_SYMBOLS, eipAnchorId, getEipImplementation } from "@/lib/crypto/eip-helpers"
 import { EipCard } from "@/components/EipCard"
 
 const placeholderLabel: Record<string, { text: string; accent: string }> = {
