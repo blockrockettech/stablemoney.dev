@@ -9,6 +9,7 @@ import {
   Clock,
   ExternalLink,
   Loader2,
+  Minus,
   Search,
   ShieldAlert,
   ShieldOff,
@@ -23,6 +24,9 @@ import {
   SELECTORS,
   type CoinComplianceConfig,
   type EvmChainConfig,
+  type TronChainConfig,
+  type SolanaChainConfig,
+  type XrplChainConfig,
 } from "@/data/compliance"
 import {
   decodeBool,
@@ -30,6 +34,13 @@ import {
   encodeCall,
   jsonRpcEthCall,
 } from "@/lib/evm-json-rpc"
+import {
+  evmToTronHex,
+  encodeTronAddressParam,
+  tronTriggerConstantContract,
+} from "@/lib/tron-rpc"
+import { getSolanaTokenFreezeStatus, isValidSolanaAddress } from "@/lib/solana-rpc"
+import { getXrplTrustlineFreezeStatus, isValidXrplAddress } from "@/lib/xrpl-rpc"
 import { getWalletCheckSummary } from "@/lib/wallet-check-summary"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -42,6 +53,7 @@ export type CheckStatus =
   | "pending-abi"
   | "coming-soon"
   | "no-controls"
+  | "not-checked"            // address for this network was not provided in the current run
   | "error"
 
 export interface ChainResult {
@@ -76,11 +88,17 @@ const UI_EM_DASH = "—"
 
 const INVALID_WALLET_MESSAGE =
   "Enter a valid EVM address (0x followed by 40 hex characters)."
+const INVALID_SOLANA_MESSAGE =
+  "Enter a valid Solana address (base58, 32–44 characters) or leave blank."
+const INVALID_XRPL_MESSAGE =
+  "Enter a valid XRPL address (starts with r, 25–35 characters) or leave blank."
 
 const RPC_UNEXPECTED_RESPONSE =
   "RPC call returned null or unexpected response. CORS or rate-limit issue."
 
-const WALLET_INPUT_PLACEHOLDER = "0x… wallet address"
+const WALLET_INPUT_PLACEHOLDER = "0x… EVM wallet address"
+const SOLANA_INPUT_PLACEHOLDER = "Base58 Solana address (optional)"
+const XRPL_INPUT_PLACEHOLDER = "r… XRP Ledger address (optional)"
 
 const explorerIconLinkProps = {
   target: "_blank" as const,
@@ -111,7 +129,7 @@ const STATUS_LEGEND: ReadonlyArray<{ status: CheckStatus; description: string }>
   {
     status: "coming-soon",
     description:
-      "Non-EVM chain (TRON, Solana, XRPL) — architecture slot ready, network support pending.",
+      "Check not yet live for this chain. For Solana or XRPL rows, provide the optional address above to enable the check.",
   },
   {
     status: "no-controls",
@@ -124,8 +142,9 @@ const devDetailsPanelClass =
   "border-t border-border/60 bg-muted/20 px-3 py-3 text-xs"
 
 const summaryBannerTone = {
-  clear: "border-green-800/60 bg-green-950/30",
-  flagged: "border-red-800/60 bg-red-950/30",
+  clear:      "border-green-800/60 bg-green-950/30",
+  flagged:    "border-red-800/60 bg-red-950/30",
+  incomplete: "border-yellow-800/60 bg-yellow-950/20",
 } as const
 
 const resultsRowTone = {
@@ -218,22 +237,179 @@ async function runEvmCheck(
   }
 }
 
-// ── Staggered RPC group runner ────────────────────────────────────────────────
-// Groups all checks by RPC URL so each endpoint is only queried at most once
-// every RPC_STAGGER_MS. Different endpoints run fully in parallel.
+// ── TRON check runner ─────────────────────────────────────────────────────────
 
-async function runRpcGroup(
+async function runTronCheck(
+  coin: CoinComplianceConfig,
+  chain: TronChainConfig,
+  evmAddress: string,
+): Promise<ChainResult> {
+  const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
+    coinSymbol: coin.symbol,
+    coinName: coin.name,
+    issuer: coin.issuer,
+    chainName: chain.chainName,
+    chain: chain.chain,
+    contract: chain.contract,
+    explorerUrl: chain.explorerUrl,
+    rpcUrl: chain.apiUrl,
+    fnName: chain.fnName,
+    selector: chain.selector,
+    notes: chain.notes,
+    seizureNote: coin.seizureNote,
+  }
+
+  const ownerHex = evmToTronHex(evmAddress)
+  const parameter = encodeTronAddressParam(evmAddress)
+
+  const { result, errorMessage } = await tronTriggerConstantContract(
+    chain.apiUrl,
+    chain.contract,
+    chain.fnSelector,
+    parameter,
+    ownerHex,
+  )
+
+  // TRON returns hex without "0x" — prefix it so decodeBool works correctly
+  const flagged = decodeBool(result !== null ? `0x${result}` : null)
+
+  if (flagged === null) {
+    return {
+      ...base,
+      status: "error",
+      errorMessage: errorMessage
+        ? `${errorMessage} — TronGrid API issue.`
+        : "TronGrid returned null or unexpected response. Check CORS or rate limit.",
+    }
+  }
+
+  if (flagged) {
+    // Balance check — same ABI as EVM (TRON uses identical encoding)
+    const { result: balRaw } = await tronTriggerConstantContract(
+      chain.apiUrl,
+      chain.contract,
+      "balanceOf(address)",
+      parameter,
+      ownerHex,
+    )
+    const balance = decodeUint256(balRaw !== null ? `0x${balRaw}` : null) ?? undefined
+    const hasBalance = balance !== undefined && balance > BigInt(0)
+
+    return {
+      ...base,
+      status: hasBalance ? "flagged-with-balance" : chain.checkType === "blacklist" ? "blacklisted" : "frozen",
+      balance,
+    }
+  }
+
+  return { ...base, status: "clear" }
+}
+
+// ── Solana check runner ───────────────────────────────────────────────────────
+
+async function runSolanaCheck(
+  coin: CoinComplianceConfig,
+  chain: SolanaChainConfig,
+  solanaAddress: string,
+): Promise<ChainResult> {
+  const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
+    coinSymbol: coin.symbol,
+    coinName: coin.name,
+    issuer: coin.issuer,
+    chainName: chain.chainName,
+    chain: chain.chain,
+    contract: chain.contract,
+    explorerUrl: chain.explorerUrl,
+    rpcUrl: chain.rpcUrl,
+    fnName: "getTokenAccountsByOwner",
+    notes: chain.notes,
+    seizureNote: coin.seizureNote,
+  }
+
+  const { frozen, balance, errorMessage } = await getSolanaTokenFreezeStatus(
+    chain.rpcUrl,
+    chain.contract,
+    solanaAddress,
+    chain.programId,
+  )
+
+  if (errorMessage) {
+    return { ...base, status: "error", errorMessage }
+  }
+
+  if (frozen) {
+    const hasBalance = balance > BigInt(0)
+    return {
+      ...base,
+      status: hasBalance ? "flagged-with-balance" : "frozen",
+      balance,
+    }
+  }
+
+  return { ...base, status: "clear", balance }
+}
+
+// ── XRPL check runner ─────────────────────────────────────────────────────────
+
+async function runXrplCheck(
+  coin: CoinComplianceConfig,
+  chain: XrplChainConfig,
+  xrplAddress: string,
+): Promise<ChainResult> {
+  const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
+    coinSymbol: coin.symbol,
+    coinName: coin.name,
+    issuer: coin.issuer,
+    chainName: chain.chainName,
+    chain: chain.chain,
+    contract: chain.contract,
+    explorerUrl: chain.explorerUrl,
+    rpcUrl: chain.apiUrl,
+    fnName: "account_lines (freeze_peer)",
+    notes: chain.notes,
+    seizureNote: coin.seizureNote,
+  }
+
+  const { frozen, balance, errorMessage } = await getXrplTrustlineFreezeStatus(
+    chain.apiUrl,
+    xrplAddress,
+    chain.currency,
+    chain.issuer,
+  )
+
+  if (errorMessage) {
+    return { ...base, status: "error", errorMessage }
+  }
+
+  if (frozen) {
+    const balFloat = parseFloat(balance)
+    const hasBalance = !isNaN(balFloat) && balFloat > 0
+    // Convert XRPL decimal balance to bigint (6 decimal places for RLUSD)
+    const balanceBigint = hasBalance ? BigInt(Math.round(balFloat * 1_000_000)) : undefined
+    return {
+      ...base,
+      status: hasBalance ? "flagged-with-balance" : "frozen",
+      balance: balanceBigint,
+    }
+  }
+
+  return { ...base, status: "clear" }
+}
+
+// ── Staggered RPC group runners ───────────────────────────────────────────────
+// Groups all checks by endpoint URL so each provider is queried at most once
+// every RPC_STAGGER_MS. Different providers run fully in parallel.
+
+async function runEvmGroup(
   tasks: Array<{ coin: CoinComplianceConfig; chain: EvmChainConfig }>,
   walletAddress: string,
   onProgress: () => void,
 ): Promise<ChainResult[]> {
-
   const results: ChainResult[] = []
   for (let i = 0; i < tasks.length; i++) {
     if (i > 0) await sleep(RPC_STAGGER_MS)
     try {
-      const result = await runEvmCheck(tasks[i].coin, tasks[i].chain, walletAddress)
-      results.push(result)
+      results.push(await runEvmCheck(tasks[i].coin, tasks[i].chain, walletAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
       results.push({
@@ -254,43 +430,148 @@ async function runRpcGroup(
   return results
 }
 
+async function runTronGroup(
+  tasks: Array<{ coin: CoinComplianceConfig; chain: TronChainConfig }>,
+  evmAddress: string,
+  onProgress: () => void,
+): Promise<ChainResult[]> {
+  const results: ChainResult[] = []
+  for (let i = 0; i < tasks.length; i++) {
+    if (i > 0) await sleep(RPC_STAGGER_MS)
+    try {
+      results.push(await runTronCheck(tasks[i].coin, tasks[i].chain, evmAddress))
+    } catch (err) {
+      const { coin, chain } = tasks[i]
+      results.push({
+        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
+        explorerUrl: chain.explorerUrl, rpcUrl: chain.apiUrl,
+        status: "error", errorMessage: String(err),
+      })
+    }
+    onProgress()
+  }
+  return results
+}
+
+async function runSolanaGroup(
+  tasks: Array<{ coin: CoinComplianceConfig; chain: SolanaChainConfig }>,
+  solanaAddress: string,
+  onProgress: () => void,
+): Promise<ChainResult[]> {
+  const results: ChainResult[] = []
+  for (let i = 0; i < tasks.length; i++) {
+    if (i > 0) await sleep(RPC_STAGGER_MS)
+    try {
+      results.push(await runSolanaCheck(tasks[i].coin, tasks[i].chain, solanaAddress))
+    } catch (err) {
+      const { coin, chain } = tasks[i]
+      results.push({
+        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
+        explorerUrl: chain.explorerUrl, rpcUrl: chain.rpcUrl,
+        status: "error", errorMessage: String(err),
+      })
+    }
+    onProgress()
+  }
+  return results
+}
+
+async function runXrplGroup(
+  tasks: Array<{ coin: CoinComplianceConfig; chain: XrplChainConfig }>,
+  xrplAddress: string,
+  onProgress: () => void,
+): Promise<ChainResult[]> {
+  const results: ChainResult[] = []
+  for (let i = 0; i < tasks.length; i++) {
+    if (i > 0) await sleep(RPC_STAGGER_MS)
+    try {
+      results.push(await runXrplCheck(tasks[i].coin, tasks[i].chain, xrplAddress))
+    } catch (err) {
+      const { coin, chain } = tasks[i]
+      results.push({
+        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
+        explorerUrl: chain.explorerUrl, rpcUrl: chain.apiUrl,
+        status: "error", errorMessage: String(err),
+      })
+    }
+    onProgress()
+  }
+  return results
+}
+
 async function checkAllCoins(
-  walletAddress: string,
+  walletAddress: string | null,
+  solanaAddress: string | null,
+  xrplAddress: string | null,
   onProgress: (done: number, total: number) => void,
 ): Promise<ChainResult[]> {
-  // Collect all EVM tasks and group by RPC URL
-  const byRpc = new Map<string, Array<{ coin: CoinComplianceConfig; chain: EvmChainConfig }>>()
+  // ── Collect tasks ──────────────────────────────────────────────────────────
+  const byEvmRpc = new Map<string, Array<{ coin: CoinComplianceConfig; chain: EvmChainConfig }>>()
+  const tronTasks: Array<{ coin: CoinComplianceConfig; chain: TronChainConfig }> = []
+  const solanaTasks: Array<{ coin: CoinComplianceConfig; chain: SolanaChainConfig }> = []
+  const xrplTasks: Array<{ coin: CoinComplianceConfig; chain: XrplChainConfig }> = []
 
   for (const coin of COMPLIANCE_CONFIG) {
     for (const chain of coin.chains) {
       if (chain.support === "evm") {
-        const group = byRpc.get(chain.rpcUrl) ?? []
-        group.push({ coin, chain })
-        byRpc.set(chain.rpcUrl, group)
+        // Only queue EVM tasks if an EVM address was provided
+        if (walletAddress) {
+          const group = byEvmRpc.get(chain.rpcUrl) ?? []
+          group.push({ coin, chain })
+          byEvmRpc.set(chain.rpcUrl, group)
+        }
+      } else if (chain.support === "tron") {
+        // TRON uses the same key derivation as EVM — requires the EVM address
+        if (walletAddress) tronTasks.push({ coin, chain })
+      } else if (chain.support === "solana") {
+        solanaTasks.push({ coin, chain })
+      } else if (chain.support === "xrpl") {
+        xrplTasks.push({ coin, chain })
       }
     }
   }
 
-  const totalEvm = Array.from(byRpc.values()).reduce((n, g) => n + g.length, 0)
-  let done = 0
-  const tick = () => onProgress(++done, totalEvm)
+  const totalEvm = Array.from(byEvmRpc.values()).reduce((n, g) => n + g.length, 0)
+  const total =
+    totalEvm +
+    (walletAddress ? tronTasks.length : 0) +
+    (solanaAddress ? solanaTasks.length : 0) +
+    (xrplAddress ? xrplTasks.length : 0)
 
-  // All RPC groups run in parallel; checks within each group are staggered
-  const settled = await Promise.allSettled(
-    Array.from(byRpc.values()).map((tasks) => runRpcGroup(tasks, walletAddress, tick)),
-  )
+  let done = 0
+  const tick = () => onProgress(++done, total)
+
+  // ── Run all groups in parallel ─────────────────────────────────────────────
+  const groups: Promise<ChainResult[]>[] = [
+    // EVM groups (one per RPC provider) — only if EVM address provided
+    ...Array.from(byEvmRpc.values()).map((tasks) => runEvmGroup(tasks, walletAddress!, tick)),
+    // TRON group (all via TronGrid, staggered) — only if EVM address provided
+    ...(tronTasks.length > 0 && walletAddress ? [runTronGroup(tronTasks, walletAddress, tick)] : []),
+    // Solana group (only if address provided)
+    ...(solanaAddress && solanaTasks.length > 0
+      ? [runSolanaGroup(solanaTasks, solanaAddress, tick)]
+      : []),
+    // XRPL group (only if address provided)
+    ...(xrplAddress && xrplTasks.length > 0
+      ? [runXrplGroup(xrplTasks, xrplAddress, tick)]
+      : []),
+  ]
+
+  const settled = await Promise.allSettled(groups)
 
   const results: ChainResult[] = []
   for (const s of settled) {
     if (s.status === "fulfilled") {
       results.push(...s.value)
     } else if (process.env.NODE_ENV === "development") {
-      // runRpcGroup should not reject (errors become per-row status) — log if it does
-      console.error("Wallet check: RPC group promise rejected", s.reason)
+      console.error("Wallet check: group promise rejected", s.reason)
     }
   }
 
-  // Static rows for non-EVM / pending / no-controls
+  // ── Static rows: no-controls, pending-abi, coming-soon ────────────────────
   for (const coin of COMPLIANCE_CONFIG) {
     if (!coin.hasComplianceControls) {
       results.push({
@@ -333,6 +614,30 @@ async function checkAllCoins(
           status: "coming-soon",
           notes: chain.reason,
         })
+      } else if (chain.support === "evm" && !walletAddress) {
+        results.push({
+          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
+          explorerUrl: chain.explorerUrl, status: "not-checked",
+        })
+      } else if (chain.support === "tron" && !walletAddress) {
+        results.push({
+          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
+          explorerUrl: chain.explorerUrl, status: "not-checked",
+        })
+      } else if (chain.support === "solana" && !solanaAddress) {
+        results.push({
+          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
+          explorerUrl: chain.explorerUrl, status: "not-checked",
+        })
+      } else if (chain.support === "xrpl" && !xrplAddress) {
+        results.push({
+          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
+          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
+          explorerUrl: chain.explorerUrl, status: "not-checked",
+        })
       }
     }
   }
@@ -353,6 +658,7 @@ const STATUS_META: Record<
   "pending-abi":       { label: "Pending ABI",         color: "text-yellow-500", icon: AlertTriangle },
   "coming-soon":       { label: "Coming soon",         color: "text-muted-foreground", icon: Clock },
   "no-controls":       { label: "No controls",         color: "text-sky-400",          icon: CheckCircle2 },
+  "not-checked":       { label: "—",                   color: "text-muted-foreground/40", icon: Minus },
   error:               { label: "RPC error",           color: "text-yellow-500", icon: AlertTriangle },
 }
 
@@ -399,7 +705,9 @@ function DevDetails({ result }: { result: ChainResult }) {
           <>
             <dt className="text-muted-foreground">Function</dt>
             <dd className="font-mono">
-              {result.fnName}(address)
+              {result.selector
+                ? `${result.fnName}(address)`
+                : result.fnName}
               {result.selector && (
                 <span className="text-muted-foreground ml-2">→ {result.selector}</span>
               )}
@@ -506,14 +814,20 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
               const flagged = isFlagged(result)
               const isLive = result.status !== "coming-soon" && result.status !== "no-controls" && result.status !== "pending-abi"
 
+              const isNotChecked = result.status === "not-checked"
+
               return (
                 <React.Fragment key={key}>
                   <tr
                     className={cn(
                       "border-b border-border/60 last:border-0 transition-colors",
-                      flagged && resultsRowTone.flagged,
-                      !flagged && isLive && result.status === "clear" && resultsRowTone.clearLive,
-                      expanded && resultsRowTone.expanded,
+                      isNotChecked
+                        ? "opacity-30"
+                        : [
+                            flagged && resultsRowTone.flagged,
+                            !flagged && isLive && result.status === "clear" && resultsRowTone.clearLive,
+                            expanded && resultsRowTone.expanded,
+                          ],
                     )}
                   >
                     {/* Coin */}
@@ -538,14 +852,18 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
 
                     {/* Status */}
                     <td className="px-3 py-2.5 align-middle">
-                      <div className="flex flex-col gap-1">
-                        <StatusBadge status={result.status} />
-                        {result.status === "flagged-with-balance" && result.balance !== undefined && (
-                          <span className="font-mono text-xs text-red-300">
-                            Balance: {result.balance.toLocaleString()} raw units — seizure risk
-                          </span>
-                        )}
-                      </div>
+                      {isNotChecked ? (
+                        <Minus className="size-3.5 text-muted-foreground/40" />
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          <StatusBadge status={result.status} />
+                          {result.status === "flagged-with-balance" && result.balance !== undefined && (
+                            <span className="font-mono text-xs text-red-300">
+                              Balance: {result.balance.toLocaleString()} raw units — seizure risk
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </td>
 
                     {/* Contract */}
@@ -555,7 +873,7 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                           <code className="font-mono text-xs text-muted-foreground">
                             {truncate(result.contract)}
                           </code>
-                          {result.explorerUrl && (
+                          {!isNotChecked && result.explorerUrl && (
                             <a href={result.explorerUrl} {...explorerIconLinkProps}>
                               <ExternalLink className="size-3.5" />
                             </a>
@@ -566,29 +884,31 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                       )}
                     </td>
 
-                    {/* Expand toggle */}
+                    {/* Expand toggle — hidden for not-checked rows */}
                     <td className="px-3 py-2.5 align-middle">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-7 shrink-0"
-                        onClick={() => toggleRow(key)}
-                        title={expanded ? "Hide details" : "Show dev details"}
-                        aria-expanded={expanded}
-                        aria-controls={panelId}
-                        aria-label={
-                          expanded
-                            ? `Collapse dev details for ${result.coinSymbol} on ${result.chainName}`
-                            : `Expand dev details for ${result.coinSymbol} on ${result.chainName}`
-                        }
-                      >
-                        {expanded ? (
-                          <ChevronDown className="size-4" />
-                        ) : (
-                          <ChevronRight className="size-4" />
-                        )}
-                      </Button>
+                      {!isNotChecked && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 shrink-0"
+                          onClick={() => toggleRow(key)}
+                          title={expanded ? "Hide details" : "Show dev details"}
+                          aria-expanded={expanded}
+                          aria-controls={panelId}
+                          aria-label={
+                            expanded
+                              ? `Collapse dev details for ${result.coinSymbol} on ${result.chainName}`
+                              : `Expand dev details for ${result.coinSymbol} on ${result.chainName}`
+                          }
+                        >
+                          {expanded ? (
+                            <ChevronDown className="size-4" />
+                          ) : (
+                            <ChevronRight className="size-4" />
+                          )}
+                        </Button>
+                      )}
                     </td>
                   </tr>
 
@@ -622,35 +942,49 @@ function SummaryBanner({
   checkedAt: string
 }) {
   const { flags, live, errors } = getWalletCheckSummary(results)
-  const allClear = flags.length === 0
+  const hasFlagged = flags.length > 0
+  const hasErrors = errors.length > 0
+
+  const bannerTone = hasFlagged
+    ? summaryBannerTone.flagged
+    : hasErrors
+      ? summaryBannerTone.incomplete
+      : summaryBannerTone.clear
+
+  const headlineColor = hasFlagged
+    ? "text-red-300"
+    : hasErrors
+      ? "text-yellow-300"
+      : "text-green-300"
+
+  const headlineText = hasFlagged
+    ? `${flags.length} flag${flags.length === 1 ? "" : "s"} found`
+    : hasErrors
+      ? `Check incomplete — ${errors.length} RPC error${errors.length === 1 ? "" : "s"}`
+      : "No compliance flags found"
+
+  const HeadlineIcon = hasFlagged
+    ? ShieldAlert
+    : hasErrors
+      ? AlertTriangle
+      : CheckCircle2
+
+  const iconColor = hasFlagged ? "text-red-400" : hasErrors ? "text-yellow-400" : "text-green-400"
 
   return (
-    <div
-      className={cn(
-        "rounded-lg border px-4 py-3",
-        allClear ? summaryBannerTone.clear : summaryBannerTone.flagged,
-      )}
-    >
+    <div className={cn("rounded-lg border px-4 py-3", bannerTone)}>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          {allClear ? (
-            <CheckCircle2 className="size-5 shrink-0 text-green-400" />
-          ) : (
-            <ShieldAlert className="size-5 shrink-0 text-red-400" />
-          )}
+          <HeadlineIcon className={cn("size-5 shrink-0", iconColor)} />
           <div>
-            <p className={cn("font-semibold", allClear ? "text-green-300" : "text-red-300")}>
-              {allClear
-                ? "No compliance flags found"
-                : `${flags.length} flag${flags.length === 1 ? "" : "s"} found`}
-            </p>
+            <p className={cn("font-semibold", headlineColor)}>{headlineText}</p>
             <p className="text-muted-foreground font-mono text-xs">{wallet}</p>
           </div>
         </div>
         <div className="text-muted-foreground flex flex-col items-end gap-0.5 text-xs">
           <span>{live.length} live checks across {new Set(live.map((r) => r.chain)).size} chains</span>
-          {errors.length > 0 && (
-            <span className="text-yellow-400">{errors.length} RPC error{errors.length === 1 ? "" : "s"}</span>
+          {hasErrors && (
+            <span className="text-yellow-400">{errors.length} check{errors.length === 1 ? "" : "s"} failed — expand row for details</span>
           )}
           <span>Checked {checkedAt}</span>
         </div>
@@ -668,12 +1002,16 @@ export function WalletChecker() {
   const errorId = `${formUid}-error`
 
   const [input, setInput] = React.useState("")
+  const [solanaInput, setSolanaInput] = React.useState("")
+  const [xrplInput, setXrplInput] = React.useState("")
   const [loading, setLoading] = React.useState(false)
   const [progress, setProgress] = React.useState<{ done: number; total: number } | null>(null)
   const [results, setResults] = React.useState<ChainResult[] | null>(null)
   const [checkedWallet, setCheckedWallet] = React.useState("")
   const [checkedAt, setCheckedAt] = React.useState("")
   const [inputError, setInputError] = React.useState("")
+  const [solanaInputError, setSolanaInputError] = React.useState("")
+  const [xrplInputError, setXrplInputError] = React.useState("")
 
   const ariaDescribedBy = inputError ? `${errorId} ${hintId}` : hintId
   const liveStatusMessage = loading
@@ -689,34 +1027,48 @@ export function WalletChecker() {
 
   async function handleCheck(e: React.FormEvent) {
     e.preventDefault()
-    const addr = input.trim()
+    const addr = input.trim() || null
+    const solana = solanaInput.trim() || null
+    const xrpl = xrplInput.trim() || null
 
-    if (!isValidEthAddress(addr)) {
+    let hasError = false
+    // EVM address is optional — only validate if provided
+    if (addr && !isValidEthAddress(addr)) {
       setInputError(INVALID_WALLET_MESSAGE)
-      return
+      hasError = true
+    } else {
+      setInputError("")
     }
+    if (solana && !isValidSolanaAddress(solana)) {
+      setSolanaInputError(INVALID_SOLANA_MESSAGE)
+      hasError = true
+    } else {
+      setSolanaInputError("")
+    }
+    if (xrpl && !isValidXrplAddress(xrpl)) {
+      setXrplInputError(INVALID_XRPL_MESSAGE)
+      hasError = true
+    } else {
+      setXrplInputError("")
+    }
+    if (hasError) return
 
-    setInputError("")
     setLoading(true)
     setProgress(null)
     setResults(null)
 
     try {
-      const data = await checkAllCoins(addr, (done, total) =>
+      const data = await checkAllCoins(addr, solana, xrpl, (done, total) =>
         setProgress({ done, total }),
       )
       setResults(data)
-      setCheckedWallet(addr)
+      setCheckedWallet(addr ?? solana ?? xrpl ?? "")
       setCheckedAt(new Date().toLocaleTimeString())
     } finally {
       setLoading(false)
       setProgress(null)
     }
   }
-
-  const totalEvmChecks = COMPLIANCE_CONFIG.flatMap((c) =>
-    c.chains.filter((ch) => ch.support === "evm"),
-  ).length
 
   return (
     <div className="space-y-6">
@@ -726,52 +1078,114 @@ export function WalletChecker() {
       {/* Input form */}
       <form
         onSubmit={handleCheck}
-        className="flex flex-col gap-3 sm:flex-row sm:items-start"
+        className="space-y-4"
         aria-busy={loading}
       >
-        <div className="flex-1 space-y-1.5">
-          <Input
-            id={inputId}
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value)
-              if (inputError) setInputError("")
-            }}
-            placeholder={WALLET_INPUT_PLACEHOLDER}
-            className="font-mono"
-            aria-label="Wallet address"
-            aria-invalid={!!inputError}
-            aria-describedby={ariaDescribedBy}
-            disabled={loading}
-            spellCheck={false}
-            autoComplete="off"
-          />
-          {inputError ? (
-            <p id={errorId} className="text-destructive text-xs" role="alert">
-              {inputError}
+        {/* EVM address row */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <div className="flex-1 space-y-1.5">
+            <Input
+              id={inputId}
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value)
+                if (inputError) setInputError("")
+              }}
+              placeholder={WALLET_INPUT_PLACEHOLDER}
+              className="font-mono"
+              aria-label="EVM wallet address"
+              aria-invalid={!!inputError}
+              aria-describedby={ariaDescribedBy}
+              disabled={loading}
+              spellCheck={false}
+              autoComplete="off"
+            />
+            {inputError ? (
+              <p id={errorId} className="text-destructive text-xs" role="alert">
+                {inputError}
+              </p>
+            ) : null}
+            <p id={hintId} className="text-muted-foreground text-xs">
+              EVM address also checks TRON automatically — same 20-byte key derivation. Read-only{" "}
+              <code className="font-mono">eth_call</code> / TronGrid — no transaction sent.
+              Your address is sent to each public RPC you query (third-party visibility).
             </p>
-          ) : null}
-          <p id={hintId} className="text-muted-foreground text-xs">
-            Read-only <code className="font-mono">eth_call</code> — no transaction is sent. Checks{" "}
-            {totalEvmChecks} live EVM contracts. Your address is sent to each public RPC you query
-            (third-party visibility).
-          </p>
+          </div>
+          <Button
+          type="submit"
+          disabled={loading || (!input.trim() && !solanaInput.trim() && !xrplInput.trim())}
+          className="shrink-0"
+        >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                {progress
+                  ? `${progress.done} / ${progress.total}`
+                  : "Starting…"}
+              </>
+            ) : (
+              <>
+                <Search className="mr-2 size-4" />
+                Check wallet
+              </>
+            )}
+          </Button>
         </div>
-        <Button type="submit" disabled={loading || !input.trim()} className="shrink-0">
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              {progress
-                ? `${progress.done} / ${progress.total}`
-                : "Starting…"}
-            </>
-          ) : (
-            <>
-              <Search className="mr-2 size-4" />
-              Check wallet
-            </>
-          )}
-        </Button>
+
+        {/* Optional Solana + XRPL addresses */}
+        <div className="rounded-md border border-border/60 bg-muted/10 px-3 py-3 space-y-3">
+          <p className="text-xs text-muted-foreground font-medium">
+            Solana &amp; XRP Ledger addresses use different address formats
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label htmlFor={`${formUid}-solana`} className="text-xs text-muted-foreground">
+                Solana address
+              </label>
+              <Input
+                id={`${formUid}-solana`}
+                value={solanaInput}
+                onChange={(e) => {
+                  setSolanaInput(e.target.value)
+                  if (solanaInputError) setSolanaInputError("")
+                }}
+                placeholder={SOLANA_INPUT_PLACEHOLDER}
+                className="font-mono text-sm h-8"
+                aria-label="Solana wallet address (optional)"
+                aria-invalid={!!solanaInputError}
+                disabled={loading}
+                spellCheck={false}
+                autoComplete="off"
+              />
+              {solanaInputError && (
+                <p className="text-destructive text-xs" role="alert">{solanaInputError}</p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <label htmlFor={`${formUid}-xrpl`} className="text-xs text-muted-foreground">
+                XRP Ledger address
+              </label>
+              <Input
+                id={`${formUid}-xrpl`}
+                value={xrplInput}
+                onChange={(e) => {
+                  setXrplInput(e.target.value)
+                  if (xrplInputError) setXrplInputError("")
+                }}
+                placeholder={XRPL_INPUT_PLACEHOLDER}
+                className="font-mono text-sm h-8"
+                aria-label="XRP Ledger address (optional)"
+                aria-invalid={!!xrplInputError}
+                disabled={loading}
+                spellCheck={false}
+                autoComplete="off"
+              />
+              {xrplInputError && (
+                <p className="text-destructive text-xs" role="alert">{xrplInputError}</p>
+              )}
+            </div>
+          </div>
+        </div>
       </form>
 
       {/* Results */}

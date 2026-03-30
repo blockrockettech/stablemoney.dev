@@ -17,4 +17,13 @@ describe("getWalletCheckSummary", () => {
     expect(live).toHaveLength(4)
     expect(errors).toHaveLength(1)
   })
+
+  it("treats rows with errorMessage as errors even if status is wrong", () => {
+    const rows = [
+      { status: "clear", chain: "solana", errorMessage: "RPC failed" },
+      { status: "clear", chain: "solana" },
+    ]
+    const { errors } = getWalletCheckSummary(rows)
+    expect(errors).toHaveLength(1)
+  })
 })

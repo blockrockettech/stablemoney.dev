@@ -40,6 +40,34 @@ export const EVM_RPC_URLS: Record<string, string> = {
   zksync: "https://mainnet.era.zksync.io", // Matter Labs
 }
 
+// ── Non-EVM API endpoints ──────────────────────────────────────────────────────
+// TronGrid: free tier, no API key required for low-volume read calls.
+// Swap trongrid for a private TronGrid Pro URL to raise rate limits.
+export const TRON_API_URLS = {
+  trongrid: "https://api.trongrid.io/wallet/triggerconstantcontract",
+} as const
+
+// Solana public RPCs — CORS-friendly, no API key required.
+// api.mainnet-beta.solana.com blocks browser fetch() (403 / CORS).
+// PublicNode is the same provider used for several EVM chains here.
+// Ankr free tier is a reliable fallback.
+// Swap for a Helius/QuickNode key URL for higher throughput.
+export const SOLANA_RPC_URLS = {
+  mainnet: "https://solana.publicnode.com",  // PublicNode — CORS-enabled, no key needed
+  ankr:    "https://rpc.ankr.com/solana",    // Ankr free tier — fallback
+} as const
+
+// XRPL community cluster maintained by XRPL Foundation. Stable and CORS-friendly.
+export const XRPL_API_URLS = {
+  cluster: "https://xrplcluster.com/",
+} as const
+
+// Token program IDs for Solana (needed for getTokenAccountsByOwner filtering).
+export const SOLANA_TOKEN_PROGRAMS = {
+  classic:   "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  token2022: "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+} as const
+
 // ── Verified ABI function selectors ───────────────────────────────────────────
 // keccak256(functionSignature), first 4 bytes. Verified via `cast sig`.
 export const SELECTORS = {
@@ -105,7 +133,62 @@ export interface ComingSoonChainConfig {
   reason: string
 }
 
-export type ChainConfig = EvmChainConfig | PendingAbiChainConfig | ComingSoonChainConfig
+export interface TronChainConfig {
+  support: "tron"
+  chainName: string
+  chain: string
+  /** Base58 TRON address (T-prefix) — passed to TronGrid with visible:true */
+  contract: string
+  explorerUrl: string | null
+  apiUrl: string
+  /** Human-readable function name shown in dev details */
+  fnName: string
+  /** Function signature string for TronGrid, e.g. "isBlackListed(address)" */
+  fnSelector: string
+  /** 4-byte hex selector (same as EVM — TRON uses identical ABI encoding) */
+  selector?: string
+  checkType: ComplianceCheckType
+  notes?: string
+}
+
+export interface SolanaChainConfig {
+  support: "solana"
+  chainName: string
+  chain: string
+  /** SPL / Token-2022 mint address (base58) */
+  contract: string
+  explorerUrl: string | null
+  rpcUrl: string
+  /**
+   * Token-2022 program ID — required for Token-2022 mints (e.g. PYUSD).
+   * Omit for classic SPL Token mints; { mint } filter is used in that case.
+   */
+  programId?: string
+  notes?: string
+}
+
+export interface XrplChainConfig {
+  support: "xrpl"
+  chainName: string
+  chain: string
+  /** Display string: "CURRENCY_HEX.issuer_address" */
+  contract: string
+  explorerUrl: string | null
+  apiUrl: string
+  /** 20-byte hex currency code (e.g. "524C555344000000000000000000000000000000" for RLUSD) */
+  currency: string
+  /** XRPL issuer r-address */
+  issuer: string
+  notes?: string
+}
+
+export type ChainConfig =
+  | EvmChainConfig
+  | PendingAbiChainConfig
+  | ComingSoonChainConfig
+  | TronChainConfig
+  | SolanaChainConfig
+  | XrplChainConfig
 
 export interface CoinComplianceConfig {
   symbol: string
@@ -154,14 +237,14 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
         ],
         notes: "6 decimals. Primary deployment — ~103B supply, 13M+ holders.",
       },
-      {
-        support: "coming-soon",
-        chainName: "BNB Chain",
-        chain: "bnb",
-        contract: "0x55d398326f99059fF775485246999027B3197955",
-        explorerUrl: "https://bscscan.com/token/0x55d398326f99059fF775485246999027B3197955",
-        reason: "BNB Chain USDT (BEP-20) has no onchain compliance query — bytecode analysis confirmed no blocklist selector present in this deployment.",
-      },
+      // {
+      //   support: "coming-soon",
+      //   chainName: "BNB Chain",
+      //   chain: "bnb",
+      //   contract: "0x55d398326f99059fF775485246999027B3197955",
+      //   explorerUrl: "https://bscscan.com/token/0x55d398326f99059fF775485246999027B3197955",
+      //   reason: "BNB Chain USDT (BEP-20) has no onchain compliance query — bytecode analysis confirmed no blocklist selector present in this deployment.",
+      // },
       {
         support: "evm",
         chainName: "Polygon",
@@ -196,14 +279,14 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
         ],
         notes: "USDT0 — LayerZero OFT (ArbitrumExtensionV2). Same WithBlockedList pattern as Polygon.",
       },
-      {
-        support: "coming-soon",
-        chainName: "Optimism",
-        chain: "optimism",
-        contract: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-        explorerUrl: "https://optimistic.etherscan.io/token/0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-        reason: "L2StandardERC20 bridge token — no blacklist or freeze capability on this deployment. Only bridge-controlled mint/burn.",
-      },
+      // {
+      //   support: "coming-soon",
+      //   chainName: "Optimism",
+      //   chain: "optimism",
+      //   contract: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+      //   explorerUrl: "https://optimistic.etherscan.io/token/0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+      //   reason: "L2StandardERC20 bridge token — no blacklist or freeze capability on this deployment. Only bridge-controlled mint/burn.",
+      // },
       {
         support: "evm",
         chainName: "Avalanche",
@@ -222,20 +305,26 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
         notes: "Avalanche TetherToken. Same WithBlockedList pattern as Polygon and Arbitrum.",
       },
       {
-        support: "coming-soon",
+        support: "tron",
         chainName: "TRON",
         chain: "tron",
         contract: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
         explorerUrl: "https://tronscan.org/#/token20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-        reason: "TRC-20 — TRON JSON-RPC support coming soon.",
+        apiUrl: TRON_API_URLS.trongrid,
+        fnName: "isBlackListed",
+        fnSelector: "isBlackListed(address)",
+        selector: SELECTORS.isBlackListed,
+        checkType: "blacklist",
+        notes: "TRC-20 TetherToken. Same isBlackListed ABI as Ethereum. destroyBlackFunds can burn the balance.",
       },
       {
-        support: "coming-soon",
+        support: "solana",
         chainName: "Solana",
         chain: "solana",
         contract: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
         explorerUrl: "https://solscan.io/token/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-        reason: "SPL Token — Solana web3 support coming soon.",
+        rpcUrl: SOLANA_RPC_URLS.mainnet,
+        notes: "SPL Token. Checks token account freeze state via getTokenAccountsByOwner.",
       },
     ],
   },
@@ -352,12 +441,13 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
         notes: "Native USDC on Optimism.",
       },
       {
-        support: "coming-soon",
+        support: "solana",
         chainName: "Solana",
         chain: "solana",
         contract: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
         explorerUrl: "https://solscan.io/token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        reason: "SPL Token freeze authority check — Solana web3 support coming soon.",
+        rpcUrl: SOLANA_RPC_URLS.mainnet,
+        notes: "SPL Token. Circle holds the freeze authority — token accounts can be frozen per address.",
       },
     ],
   },
@@ -390,12 +480,14 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
         notes: "Paxos FiatToken v1. 6 decimals. Also integrates an external sanctions list via SanctionedAddressListUpdate events.",
       },
       {
-        support: "coming-soon",
+        support: "solana",
         chainName: "Solana",
         chain: "solana",
         contract: "2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
         explorerUrl: "https://solscan.io/token/2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
-        reason: "Token-2022 permanent delegate freeze — Solana support coming soon.",
+        rpcUrl: SOLANA_RPC_URLS.mainnet,
+        programId: SOLANA_TOKEN_PROGRAMS.token2022,
+        notes: "Token-2022. Paxos holds a permanent delegate that can freeze or seize token accounts.",
       },
     ],
   },
@@ -428,12 +520,15 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
         notes: "StablecoinUpgradeableV2 (UUPS). AccountPausableUpgradeable with ERC-7201 namespaced storage. V2 added EIP-2612 permit (Sept 2025).",
       },
       {
-        support: "coming-soon",
+        support: "xrpl",
         chainName: "XRP Ledger",
         chain: "xrpl",
         contract: "524C555344000000000000000000000000000000.rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
         explorerUrl: "https://livenet.xrpl.org/token/524C555344000000000000000000000000000000.rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
-        reason: "XRP Ledger IOU — XRPL RPC support coming soon.",
+        apiUrl: XRPL_API_URLS.cluster,
+        currency: "524C555344000000000000000000000000000000",
+        issuer: "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        notes: "XRPL IOU. Ripple can set freeze_peer on any trustline via the issuer account freeze authority. clawback() can permanently destroy tokens.",
       },
     ],
   },
@@ -539,38 +634,38 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
     seizureNote:
       "Asset-protection freeze exists. $456M in reserves frozen by Dubai court order (Nov 2025).",
     chains: [
-      {
-        support: "coming-soon",
-        chainName: "Ethereum",
-        chain: "ethereum",
-        contract: "0x0000000000085d4780B73119b644AE5ecd22b376",
-        explorerUrl: "https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376",
-        reason: "isBlacklisted mapping is declared without 'public' in ProxyStorage — no external getter was generated by the compiler. eth_call reverts. No accessible onchain compliance check on this contract.",
-      },
-      {
-        support: "coming-soon",
-        chainName: "BNB Chain",
-        chain: "bnb",
-        contract: "0x14016E85a25aeb13065688cAFB43044C2ef86784",
-        explorerUrl: "https://bscscan.com/token/0x14016E85a25aeb13065688cAFB43044C2ef86784",
-        reason: "Same issue as Ethereum — isBlacklisted is not publicly callable on this deployment.",
-      },
-      {
-        support: "coming-soon",
-        chainName: "Avalanche",
-        chain: "avalanche",
-        contract: "0x1C20E891Bab6b1727d14Da358FAe2984Ed9B59EB",
-        explorerUrl: "https://snowtrace.io/token/0x1C20E891Bab6b1727d14Da358FAe2984Ed9B59EB",
-        reason: "Same issue as Ethereum — isBlacklisted is not publicly callable on this deployment.",
-      },
-      {
-        support: "coming-soon",
-        chainName: "TRON",
-        chain: "tron",
-        contract: "TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4",
-        explorerUrl: "https://tronscan.org/#/token20/TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4",
-        reason: "TRC-20 — TRON RPC support coming soon.",
-      },
+      // {
+      //   support: "coming-soon",
+      //   chainName: "Ethereum",
+      //   chain: "ethereum",
+      //   contract: "0x0000000000085d4780B73119b644AE5ecd22b376",
+      //   explorerUrl: "https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376",
+      //   reason: "isBlacklisted mapping is declared without 'public' in ProxyStorage — no external getter was generated by the compiler. eth_call reverts. No accessible onchain compliance check on this contract.",
+      // },
+      // {
+      //   support: "coming-soon",
+      //   chainName: "BNB Chain",
+      //   chain: "bnb",
+      //   contract: "0x14016E85a25aeb13065688cAFB43044C2ef86784",
+      //   explorerUrl: "https://bscscan.com/token/0x14016E85a25aeb13065688cAFB43044C2ef86784",
+      //   reason: "Same issue as Ethereum — isBlacklisted is not publicly callable on this deployment.",
+      // },
+      // {
+      //   support: "coming-soon",
+      //   chainName: "Avalanche",
+      //   chain: "avalanche",
+      //   contract: "0x1C20E891Bab6b1727d14Da358FAe2984Ed9B59EB",
+      //   explorerUrl: "https://snowtrace.io/token/0x1C20E891Bab6b1727d14Da358FAe2984Ed9B59EB",
+      //   reason: "Same issue as Ethereum — isBlacklisted is not publicly callable on this deployment.",
+      // },
+      // {
+      //   support: "coming-soon",
+      //   chainName: "TRON",
+      //   chain: "tron",
+      //   contract: "TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4",
+      //   explorerUrl: "https://tronscan.org/#/token20/TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4",
+      //   reason: "TRC-20 — TRON RPC support coming soon.",
+      // },
     ],
   },
 
