@@ -18,7 +18,11 @@
       "WebFetch(domain:optimistic.etherscan.io)",
       "Bash(curl:*)",
       "WebFetch(domain:api.bscscan.com)",
-      "WebFetch(domain:bscscan.com)"
+      "WebFetch(domain:bscscan.com)",
+      "Bash(grep -n \"SITE_CANONICAL_URL\\\\|stablemoney.dev\" /Users/jamesmorgan/Dropbox/workspace-personal/stablemoney.dev/app/coins/[symbol]/page.tsx)",
+      "Bash(grep:*)",
+      "Bash(sed -n '47,49p' /Users/jamesmorgan/Dropbox/workspace-personal/stablemoney.dev/app/coins/[symbol]/page.tsx)",
+      "Bash(sed -n '7,11p' /Users/jamesmorgan/Dropbox/workspace-personal/stablemoney.dev/app/coins/[symbol]/opengraph-image.tsx)"
     ]
   }
 }

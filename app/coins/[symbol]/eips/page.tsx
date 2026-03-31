@@ -11,6 +11,7 @@ import { EipCard } from "@/components/EipCard"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import { shortAddress } from "@/lib/crypto/address-utils"
+import { SITE_CANONICAL_URL } from "@/site/config"
 
 export function generateStaticParams() {
   return coins.map((c) => ({ symbol: c.symbol.toLowerCase() }))
@@ -25,7 +26,7 @@ export async function generateMetadata({
   if (!coin) return {}
   const title = `${coin.symbol} — EIP / ERC Standards`
   const description = `ERC-20, EIP-712, EIP-2612, proxy, compliance, and flash loan implementation notes for ${coin.name} (${coin.symbol}).`
-  const canonicalUrl = `https://stablemoney.dev/coins/${params.symbol.toLowerCase()}/eips`
+  const canonicalUrl = `${SITE_CANONICAL_URL}/coins/${params.symbol.toLowerCase()}/eips`
   return {
     title,
     description,

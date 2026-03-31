@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ArrowRight, ExternalLink } from "lucide-react"
 import { getMarketCap, getMarketCapRank } from "@/lib/market-data/market-data"
+import { SITE_CANONICAL_URL } from "@/site/config"
 
 const typeLabel: Record<StablecoinType, string> = {
   fiat: "Fiat-backed",
@@ -57,7 +58,7 @@ export async function generateMetadata({
   if (!coin) return {}
   const title = `${coin.symbol} — ${coin.name}`
   const description = coin.description.slice(0, 155)
-  const canonicalUrl = `https://stablemoney.dev/coins/${params.symbol.toLowerCase()}`
+  const canonicalUrl = `${SITE_CANONICAL_URL}/coins/${params.symbol.toLowerCase()}`
   return {
     title,
     description,
@@ -85,6 +86,7 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
   const mdx = await loadCoinMdx(coin.symbol)
   const featureRows = mergeCoinFeatures(coin)
   const mcapRank = getMarketCapRank(coin.symbol)
+  const eipProfile = getCoinEipProfile(coin.symbol)
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -156,36 +158,32 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
         <p className="text-muted-foreground mb-4 max-w-3xl text-sm leading-relaxed">
           Standards &amp; compliance support for {coin.symbol}. Click an EIP to jump to the global deep-dive section.
         </p>
-        {(() => {
-          const eipProfile = getCoinEipProfile(coin.symbol)
-          if (!eipProfile?.contractAddress && !coin.githubUrl) return null
-          return (
-            <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              {eipProfile?.contractAddress ? (
-                <a
-                  href={`https://etherscan.io/address/${eipProfile.contractAddress}#code`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
-                >
-                  Verified contract: {shortAddress(eipProfile.contractAddress)}
-                  <ExternalLink className="size-3" />
-                </a>
-              ) : null}
-              {coin.githubUrl ? (
-                <a
-                  href={coin.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
-                >
-                  Source: {coin.githubUrl.replace("https://github.com/", "")}
-                  <ExternalLink className="size-3" />
-                </a>
-              ) : null}
-            </div>
-          )
-        })()}
+        {(eipProfile?.contractAddress || coin.githubUrl) ? (
+          <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            {eipProfile?.contractAddress ? (
+              <a
+                href={`https://etherscan.io/address/${eipProfile.contractAddress}#code`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
+              >
+                Verified contract: {shortAddress(eipProfile.contractAddress)}
+                <ExternalLink className="size-3" />
+              </a>
+            ) : null}
+            {coin.githubUrl ? (
+              <a
+                href={coin.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
+              >
+                Source: {coin.githubUrl.replace("https://github.com/", "")}
+                <ExternalLink className="size-3" />
+              </a>
+            ) : null}
+          </div>
+        ) : null}
         <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>

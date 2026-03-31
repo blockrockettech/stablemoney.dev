@@ -458,10 +458,16 @@ async function runTronGroup(
       const { coin, chain } = tasks[i]
       const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName, issuer,
-        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-        explorerUrl: chain.explorerUrl, rpcUrl: chain.apiUrl,
-        status: "error", errorMessage: String(err),
+        coinSymbol: coin.symbol,
+        coinName,
+        issuer,
+        chainName: chain.chainName,
+        chain: chain.chain,
+        contract: chain.contract,
+        explorerUrl: chain.explorerUrl,
+        rpcUrl: chain.apiUrl,
+        status: "error",
+        errorMessage: String(err),
       })
     }
     onProgress()
@@ -483,10 +489,16 @@ async function runSolanaGroup(
       const { coin, chain } = tasks[i]
       const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName, issuer,
-        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-        explorerUrl: chain.explorerUrl, rpcUrl: chain.rpcUrl,
-        status: "error", errorMessage: String(err),
+        coinSymbol: coin.symbol,
+        coinName,
+        issuer,
+        chainName: chain.chainName,
+        chain: chain.chain,
+        contract: chain.contract,
+        explorerUrl: chain.explorerUrl,
+        rpcUrl: chain.rpcUrl,
+        status: "error",
+        errorMessage: String(err),
       })
     }
     onProgress()
@@ -508,10 +520,16 @@ async function runXrplGroup(
       const { coin, chain } = tasks[i]
       const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName, issuer,
-        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-        explorerUrl: chain.explorerUrl, rpcUrl: chain.apiUrl,
-        status: "error", errorMessage: String(err),
+        coinSymbol: coin.symbol,
+        coinName,
+        issuer,
+        chainName: chain.chainName,
+        chain: chain.chain,
+        contract: chain.contract,
+        explorerUrl: chain.explorerUrl,
+        rpcUrl: chain.apiUrl,
+        status: "error",
+        errorMessage: String(err),
       })
     }
     onProgress()
@@ -632,29 +650,21 @@ async function checkAllCoins(
           status: "coming-soon",
           notes: chain.reason,
         })
-      } else if (chain.support === "evm" && !walletAddress) {
+      } else if (
+        (chain.support === "evm" && !walletAddress) ||
+        (chain.support === "tron" && !walletAddress) ||
+        (chain.support === "solana" && !solanaAddress) ||
+        (chain.support === "xrpl" && !xrplAddress)
+      ) {
         results.push({
-          coinSymbol: coin.symbol, coinName, issuer,
-          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-          explorerUrl: chain.explorerUrl, status: "not-checked",
-        })
-      } else if (chain.support === "tron" && !walletAddress) {
-        results.push({
-          coinSymbol: coin.symbol, coinName, issuer,
-          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-          explorerUrl: chain.explorerUrl, status: "not-checked",
-        })
-      } else if (chain.support === "solana" && !solanaAddress) {
-        results.push({
-          coinSymbol: coin.symbol, coinName, issuer,
-          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-          explorerUrl: chain.explorerUrl, status: "not-checked",
-        })
-      } else if (chain.support === "xrpl" && !xrplAddress) {
-        results.push({
-          coinSymbol: coin.symbol, coinName, issuer,
-          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-          explorerUrl: chain.explorerUrl, status: "not-checked",
+          coinSymbol: coin.symbol,
+          coinName,
+          issuer,
+          chainName: chain.chainName,
+          chain: chain.chain,
+          contract: chain.contract,
+          explorerUrl: chain.explorerUrl,
+          status: "not-checked",
         })
       }
     }
@@ -1035,15 +1045,15 @@ export function WalletChecker() {
   const [solanaInputError, setSolanaInputError] = React.useState("")
   const [xrplInputError, setXrplInputError] = React.useState("")
   const [shareCopied, setShareCopied] = React.useState(false)
+  const shareCopyTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ENS resolution state
   const [ensResolved, setEnsResolved] = React.useState<string | null>(null)
   const [ensResolving, setEnsResolving] = React.useState(false)
   const [ensError, setEnsError] = React.useState<string | null>(null)
 
-  // Auto-run coordination: pendingAutoCheck is set on mount if URL params exist
-  const pendingAutoCheck = React.useRef(false)
-  const hasAutoRun = React.useRef(false)
+  // "pending" → params found on mount, waiting to run; "done" → already ran
+  const autoRunState = React.useRef<"idle" | "pending" | "done">("idle")
 
   // On mount: read URL params and pre-fill inputs
   React.useEffect(() => {
@@ -1057,7 +1067,7 @@ export function WalletChecker() {
     if (paramSolana) { setSolanaInput(paramSolana); setShowNonEvm(true) }
     if (paramXrpl) { setXrplInput(paramXrpl); setShowNonEvm(true) }
 
-    pendingAutoCheck.current = true
+    autoRunState.current = "pending"
   // searchParams is stable on mount — intentionally run once
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -1092,18 +1102,25 @@ export function WalletChecker() {
   }, [input])
 
   const ariaDescribedBy = inputError ? `${errorId} ${hintId}` : hintId
-  const liveStatusMessage = loading
-    ? progress
-      ? `Checking contracts: ${progress.done} of ${progress.total} completed.`
-      : "Starting wallet check."
-    : results
-      ? (() => {
-          const { flags, errors } = getWalletCheckSummary(results)
-          return `Check complete. ${flags.length} compliance flag${flags.length === 1 ? "" : "s"}.${errors.length > 0 ? ` ${errors.length} RPC error${errors.length === 1 ? "" : "s"}.` : ""}`
-        })()
-      : ""
 
-  // Core check runner — shared by manual submit and URL-param auto-run
+  function buildLiveStatusMessage(): string {
+    if (loading) {
+      return progress
+        ? `Checking contracts: ${progress.done} of ${progress.total} completed.`
+        : "Starting wallet check."
+    }
+    if (results) {
+      const { flags, errors } = getWalletCheckSummary(results)
+      const flagText = `${flags.length} compliance flag${flags.length === 1 ? "" : "s"}.`
+      const errorText = errors.length > 0
+        ? ` ${errors.length} RPC error${errors.length === 1 ? "" : "s"}.`
+        : ""
+      return `Check complete. ${flagText}${errorText}`
+    }
+    return ""
+  }
+  const liveStatusMessage = buildLiveStatusMessage()
+
   async function doCheck(
     rawEvmInput: string,
     solana: string | null,
@@ -1135,7 +1152,7 @@ export function WalletChecker() {
 
   // Auto-run when URL params are present — waits for ENS resolution if needed
   React.useEffect(() => {
-    if (!pendingAutoCheck.current || hasAutoRun.current) return
+    if (autoRunState.current !== "pending") return
 
     const paramAddress = searchParams.get("address")?.trim() ?? ""
     const paramSolana = searchParams.get("solana")?.trim() || null
@@ -1144,7 +1161,7 @@ export function WalletChecker() {
     // If the address is an ENS name, wait until resolution finishes
     if (paramAddress && isEnsName(paramAddress)) {
       if (ensResolving || (!ensResolved && !ensError)) return
-      if (!ensResolved) return // ENS failed — don't auto-run with no address
+      if (!ensResolved) return
     }
 
     let resolvedAddr: string | null = null
@@ -1153,8 +1170,7 @@ export function WalletChecker() {
       if (!resolvedAddr && !paramSolana && !paramXrpl) return // nothing valid
     }
 
-    hasAutoRun.current = true
-    pendingAutoCheck.current = false
+    autoRunState.current = "done"
     doCheck(paramAddress, paramSolana, paramXrpl, resolvedAddr)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input, ensResolved, ensResolving, ensError])
@@ -1373,7 +1389,8 @@ export function WalletChecker() {
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href).then(() => {
                     setShareCopied(true)
-                    setTimeout(() => setShareCopied(false), 2000)
+                    if (shareCopyTimer.current) clearTimeout(shareCopyTimer.current)
+                    shareCopyTimer.current = setTimeout(() => setShareCopied(false), 2000)
                   })
                 }}
                 className="flex items-center gap-1.5 rounded px-2 py-1 transition-colors hover:text-foreground"
