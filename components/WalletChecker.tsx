@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   AlertTriangle,
   CheckCircle2,
@@ -8,6 +9,7 @@ import {
   ChevronRight,
   Clock,
   ExternalLink,
+  Link2,
   Loader2,
   Minus,
   Search,
@@ -1017,6 +1019,9 @@ export function WalletChecker() {
   const hintId = `${formUid}-hint`
   const errorId = `${formUid}-error`
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const [input, setInput] = React.useState("")
   const [solanaInput, setSolanaInput] = React.useState("")
   const [xrplInput, setXrplInput] = React.useState("")
@@ -1029,11 +1034,33 @@ export function WalletChecker() {
   const [inputError, setInputError] = React.useState("")
   const [solanaInputError, setSolanaInputError] = React.useState("")
   const [xrplInputError, setXrplInputError] = React.useState("")
+  const [shareCopied, setShareCopied] = React.useState(false)
 
   // ENS resolution state
   const [ensResolved, setEnsResolved] = React.useState<string | null>(null)
   const [ensResolving, setEnsResolving] = React.useState(false)
   const [ensError, setEnsError] = React.useState<string | null>(null)
+
+  // Auto-run coordination: pendingAutoCheck is set on mount if URL params exist
+  const pendingAutoCheck = React.useRef(false)
+  const hasAutoRun = React.useRef(false)
+
+  // On mount: read URL params and pre-fill inputs
+  React.useEffect(() => {
+    const paramAddress = searchParams.get("address")?.trim() ?? ""
+    const paramSolana = searchParams.get("solana")?.trim() ?? ""
+    const paramXrpl = searchParams.get("xrpl")?.trim() ?? ""
+
+    if (!paramAddress && !paramSolana && !paramXrpl) return
+
+    if (paramAddress) setInput(paramAddress)
+    if (paramSolana) { setSolanaInput(paramSolana); setShowNonEvm(true) }
+    if (paramXrpl) { setXrplInput(paramXrpl); setShowNonEvm(true) }
+
+    pendingAutoCheck.current = true
+  // searchParams is stable on mount — intentionally run once
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Debounced ENS resolution — fires 500ms after the user stops typing
   React.useEffect(() => {
@@ -1075,6 +1102,62 @@ export function WalletChecker() {
           return `Check complete. ${flags.length} compliance flag${flags.length === 1 ? "" : "s"}.${errors.length > 0 ? ` ${errors.length} RPC error${errors.length === 1 ? "" : "s"}.` : ""}`
         })()
       : ""
+
+  // Core check runner — shared by manual submit and URL-param auto-run
+  async function doCheck(
+    rawEvmInput: string,
+    solana: string | null,
+    xrpl: string | null,
+    resolvedEvmAddr: string | null,
+  ) {
+    setLoading(true)
+    setProgress(null)
+    setResults(null)
+    try {
+      const data = await checkAllCoins(resolvedEvmAddr, solana, xrpl, (done, total) =>
+        setProgress({ done, total }),
+      )
+      setResults(data)
+      setCheckedWallet(resolvedEvmAddr ?? solana ?? xrpl ?? "")
+      setCheckedAt(new Date().toLocaleTimeString())
+
+      // Update URL so the check is shareable — use the original input (ENS name or 0x)
+      const params = new URLSearchParams()
+      if (rawEvmInput) params.set("address", rawEvmInput)
+      if (solana) params.set("solana", solana)
+      if (xrpl) params.set("xrpl", xrpl)
+      router.replace(`?${params.toString()}`, { scroll: false })
+    } finally {
+      setLoading(false)
+      setProgress(null)
+    }
+  }
+
+  // Auto-run when URL params are present — waits for ENS resolution if needed
+  React.useEffect(() => {
+    if (!pendingAutoCheck.current || hasAutoRun.current) return
+
+    const paramAddress = searchParams.get("address")?.trim() ?? ""
+    const paramSolana = searchParams.get("solana")?.trim() || null
+    const paramXrpl = searchParams.get("xrpl")?.trim() || null
+
+    // If the address is an ENS name, wait until resolution finishes
+    if (paramAddress && isEnsName(paramAddress)) {
+      if (ensResolving || (!ensResolved && !ensError)) return
+      if (!ensResolved) return // ENS failed — don't auto-run with no address
+    }
+
+    let resolvedAddr: string | null = null
+    if (paramAddress) {
+      resolvedAddr = isEnsName(paramAddress) ? ensResolved : (isValidEthAddress(paramAddress) ? paramAddress : null)
+      if (!resolvedAddr && !paramSolana && !paramXrpl) return // nothing valid
+    }
+
+    hasAutoRun.current = true
+    pendingAutoCheck.current = false
+    doCheck(paramAddress, paramSolana, paramXrpl, resolvedAddr)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [input, ensResolved, ensResolving, ensError])
 
   async function handleCheck(e: React.FormEvent) {
     e.preventDefault()
@@ -1121,21 +1204,7 @@ export function WalletChecker() {
     }
     if (hasError) return
 
-    setLoading(true)
-    setProgress(null)
-    setResults(null)
-
-    try {
-      const data = await checkAllCoins(addr, solana, xrpl, (done, total) =>
-        setProgress({ done, total }),
-      )
-      setResults(data)
-      setCheckedWallet(addr ?? solana ?? xrpl ?? "")
-      setCheckedAt(new Date().toLocaleTimeString())
-    } finally {
-      setLoading(false)
-      setProgress(null)
-    }
+    await doCheck(rawInput, solana, xrpl, addr)
   }
 
   return (
@@ -1299,6 +1368,23 @@ export function WalletChecker() {
               <span className="flex items-center gap-1">
                 <ChevronRight className="size-3" /> expand row for dev details
               </span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href).then(() => {
+                    setShareCopied(true)
+                    setTimeout(() => setShareCopied(false), 2000)
+                  })
+                }}
+                className="flex items-center gap-1.5 rounded px-2 py-1 transition-colors hover:text-foreground"
+                title="Copy shareable link to these results"
+              >
+                {shareCopied ? (
+                  <><CheckCircle2 className="size-3.5 text-green-400" /><span className="text-green-400">Copied!</span></>
+                ) : (
+                  <><Link2 className="size-3.5" />Share results</>
+                )}
+              </button>
             </div>
           </div>
 
