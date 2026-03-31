@@ -1,7 +1,7 @@
 import Fuse from "fuse.js"
 import { coins } from "@/data/coins"
 import type { Coin } from "@/types"
-import { sortCoinsByMarketCap } from "@/lib/market/market-data"
+import { sortCoinsByMarketCap } from "@/lib/market-data/market-data"
 
 type SearchRecord = {
   symbol: string

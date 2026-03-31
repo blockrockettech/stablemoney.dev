@@ -1,10 +1,142 @@
-import type { CoinEipProfile } from "@/types/eip"
+import type { CoinEipProfile, Eip, EipCategory } from "@/types/eip"
+
+// ── Global EIP catalog (standards matrix) ───────────────────────────────────
+
+export interface EipCategoryMeta {
+  id: EipCategory
+  title: string
+}
+
+/**
+ * Canonical ordered list of EIP categories. Every page, matrix, and section
+ * component should import this instead of maintaining a local copy.
+ */
+export const EIP_CATEGORIES: EipCategoryMeta[] = [
+  { id: "core", title: "Core" },
+  { id: "signature", title: "Signatures & typed data" },
+  { id: "upgradeability", title: "Upgradeability & proxies" },
+  { id: "vault", title: "Vaults & yield" },
+  { id: "compliance", title: "Compliance" },
+  { id: "cross-chain", title: "Cross-chain" },
+  { id: "flash", title: "Flash Loans" },
+]
+
+export const EIP_CATEGORY_ORDER: EipCategory[] = EIP_CATEGORIES.map((c) => c.id)
+
+export const EIP_CATEGORY_TITLES: Record<EipCategory, string> = Object.fromEntries(
+  EIP_CATEGORIES.map((c) => [c.id, c.title]),
+) as Record<EipCategory, string>
+
+export const EIPS: Eip[] = [
+  {
+    id: "ERC-20",
+    name: "Fungible token standard",
+    category: "core",
+    summary:
+      "Base interface for all fungible tokens — transfer, approve, allowance, balanceOf, totalSupply",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-20",
+  },
+  {
+    id: "EIP-712",
+    name: "Typed structured data signing",
+    category: "signature",
+    summary:
+      "Domain-separated typed message signing that binds signatures to a specific contract and chain ID, preventing cross-chain and cross-contract replay attacks",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-712",
+  },
+  {
+    id: "EIP-2612",
+    name: "Permit — gasless ERC-20 approval",
+    category: "signature",
+    summary:
+      "Adds permit() to ERC-20 — users sign an approval off-chain, relayer submits on-chain. Eliminates the separate approve() transaction in DeFi flows",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-2612",
+  },
+  {
+    id: "EIP-3009",
+    name: "transferWithAuthorization",
+    category: "signature",
+    summary:
+      "Signed atomic transfer (not just approval) with random bytes32 nonces — enables concurrent authorizations and single-transaction gasless payments",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-3009",
+  },
+  {
+    id: "EIP-1967",
+    name: "Standard proxy storage slots",
+    category: "upgradeability",
+    summary:
+      "Standardises where proxy contracts store the implementation and admin addresses, enabling Etherscan and tooling to auto-detect proxies",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-1967",
+  },
+  {
+    id: "EIP-1822",
+    name: "UUPS — universal upgradeable proxy",
+    category: "upgradeability",
+    summary:
+      "Upgrade logic lives in the implementation contract rather than the proxy. Cheaper to deploy than transparent proxies and easier to audit",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-1822",
+  },
+  {
+    id: "ERC-4626",
+    name: "Tokenized yield vault standard",
+    category: "vault",
+    summary:
+      "Standard interface for yield-bearing vaults: deposit, withdraw, mint, redeem, convertToShares, convertToAssets. Any ERC-4626-aware protocol integrates automatically",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-4626",
+  },
+  {
+    id: "EIP-1271",
+    name: "Signature validation for smart contracts",
+    category: "signature",
+    summary:
+      "isValidSignature() lets smart contract wallets (Safe multisig, Argent, AA wallets) verify signatures — enables permit flows for contracts, not just EOAs",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-1271",
+  },
+  {
+    id: "ERC-7802",
+    name: "Crosschain token interface",
+    category: "cross-chain",
+    summary:
+      "Minimal interface for cross-chain mint/burn — standardises crosschainMint() and crosschainBurn() so any bridge can move tokens without wrapped representations",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-7802",
+  },
+  {
+    id: "ERC-3156",
+    name: "Flash loans",
+    category: "flash",
+    summary:
+      "Standard interface for single-transaction borrow-use-repay flash loans — maxFlashLoan(), flashFee(), flashLoan(). Enables arbitrage, liquidation, and refinancing without upfront capital",
+    eipsUrl: "https://eips.ethereum.org/EIPS/eip-3156",
+  },
+  {
+    id: "Freeze",
+    name: "Address freezing / blacklisting",
+    category: "compliance",
+    summary:
+      "Issuer ability to freeze or blacklist individual addresses, preventing them from sending or receiving tokens. The most fundamental compliance capability for sanctions enforcement (OFAC/SDN) and law-enforcement cooperation.",
+  },
+  {
+    id: "Seize",
+    name: "Fund seizure / clawback",
+    category: "compliance",
+    summary:
+      "Issuer ability to destroy or reclaim tokens from frozen/blacklisted addresses. Goes beyond freeze-in-place — the issuer can permanently remove tokens from circulation or redirect them. Critical for court-ordered asset recovery.",
+  },
+  {
+    id: "Pause",
+    name: "Global transfer pause",
+    category: "compliance",
+    summary:
+      "Emergency circuit-breaker that halts ALL token transfers contract-wide. Used for critical security incidents, regulatory orders, or protocol-level emergencies. Affects every holder simultaneously.",
+  },
+]
+
+// ── Per-coin EIP implementation profiles ──────────────────────────────────────
 
 export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDC",
     contractName: "FiatToken v2.2",
-    contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     decimals: 6,
     deployedBlock: 6082465,
     isUpgradeable: true,
@@ -195,7 +327,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDT",
     contractName: "TetherToken",
-    contractAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     decimals: 6,
     deployedBlock: 4634748,
     isUpgradeable: true,
@@ -375,7 +506,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "DAI",
     contractName: "dai.sol (MCD)",
-    contractAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     decimals: 18,
     deployedBlock: 8928158,
     isUpgradeable: false,
@@ -551,7 +681,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDS",
     contractName: "USDS + sUSDS (Sky Protocol)",
-    contractAddress: "0xdC035D45d973E3EC169d2276DDab16f1e407384F",
     decimals: 18,
     deployedBlock: 20690000,
     isUpgradeable: true,
@@ -744,7 +873,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USDe",
     contractName: "USDe.sol + StakedUSDe.sol (Ethena Labs)",
-    contractAddress: "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
     decimals: 18,
     isUpgradeable: false,
     upgradePattern:
@@ -925,7 +1053,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "FDUSD",
     contractName: "First Digital USD (EVM deployment)",
-    contractAddress: "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern:
@@ -1082,7 +1209,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "PYUSD",
     contractName: "PayPal USD — Paxos FiatToken derivative (Ethereum)",
-    contractAddress: "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
     decimals: 6,
     isUpgradeable: true,
     upgradePattern:
@@ -1273,7 +1399,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "frxUSD",
     contractName: "frxUSD (Frax Finance) + sfrxUSD vault",
-    contractAddress: "0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern: "Upgradeable proxy — verify pattern on official Frax docs post-December 2025 migration",
@@ -1464,7 +1589,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "TUSD",
     contractName: "TrueUSD — TokenController proxy + delegate",
-    contractAddress: "0x0000000000085d4780B73119b644AE5ecd22b376",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern: "Controller → implementation delegate (legacy TrustToken/Techteryx pattern — Archblock filed Chapter 11 bankruptcy 2025)",
@@ -1612,7 +1736,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "USD1",
     contractName: "USD1 (WLFI) — Foundry/Solidity",
-    contractAddress: "0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern:
@@ -1773,7 +1896,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "GHO",
     contractName: "GhoToken (Solmate-derived ERC20 + OZ AccessControl)",
-    contractAddress: "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
     decimals: 18,
     deployedBlock: 17698470,
     isUpgradeable: false,
@@ -1972,7 +2094,6 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
   {
     symbol: "RLUSD",
     contractName: "StablecoinUpgradeableV2",
-    contractAddress: "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
     decimals: 18,
     deployedBlock: 20492031,
     isUpgradeable: true,

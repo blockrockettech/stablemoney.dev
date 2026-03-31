@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { EIPS, EIP_CATEGORY_ORDER } from "@/data/eips"
+import { EIPS, EIP_CATEGORY_ORDER } from "@/data/coinEips"
 import { EipMatrix } from "@/components/EipMatrix"
 import { EipCategorySection } from "@/components/EipCategorySection"
 

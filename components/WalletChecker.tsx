@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   AlertTriangle,
   CheckCircle2,
@@ -8,6 +9,7 @@ import {
   ChevronRight,
   Clock,
   ExternalLink,
+  Link2,
   Loader2,
   Minus,
   Search,
@@ -29,6 +31,7 @@ import {
   type SolanaChainConfig,
   type XrplChainConfig,
 } from "@/data/compliance"
+import { coinBySymbol } from "@/data/coins"
 import {
   decodeBool,
   decodeUint256,
@@ -164,6 +167,11 @@ function isValidEthAddress(addr: string): boolean {
   return /^0x[0-9a-fA-F]{40}$/.test(addr)
 }
 
+function complianceLabels(c: CoinComplianceConfig) {
+  const row = coinBySymbol[c.symbol.toUpperCase()]
+  return { coinName: row?.name ?? c.symbol, issuer: row?.issuer ?? "" }
+}
+
 // ── Core check runner ─────────────────────────────────────────────────────────
 
 async function runEvmCheck(
@@ -171,10 +179,11 @@ async function runEvmCheck(
   chain: EvmChainConfig,
   walletAddress: string,
 ): Promise<ChainResult> {
+  const { coinName, issuer } = complianceLabels(coin)
   const base: Omit<ChainResult, "status" | "fnName" | "selector" | "balance" | "errorMessage"> = {
     coinSymbol: coin.symbol,
-    coinName: coin.name,
-    issuer: coin.issuer,
+    coinName,
+    issuer,
     chainName: chain.chainName,
     chain: chain.chain,
     contract: chain.contract,
@@ -245,10 +254,11 @@ async function runTronCheck(
   chain: TronChainConfig,
   evmAddress: string,
 ): Promise<ChainResult> {
+  const { coinName, issuer } = complianceLabels(coin)
   const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
     coinSymbol: coin.symbol,
-    coinName: coin.name,
-    issuer: coin.issuer,
+    coinName,
+    issuer,
     chainName: chain.chainName,
     chain: chain.chain,
     contract: chain.contract,
@@ -313,10 +323,11 @@ async function runSolanaCheck(
   chain: SolanaChainConfig,
   solanaAddress: string,
 ): Promise<ChainResult> {
+  const { coinName, issuer } = complianceLabels(coin)
   const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
     coinSymbol: coin.symbol,
-    coinName: coin.name,
-    issuer: coin.issuer,
+    coinName,
+    issuer,
     chainName: chain.chainName,
     chain: chain.chain,
     contract: chain.contract,
@@ -357,10 +368,11 @@ async function runXrplCheck(
   chain: XrplChainConfig,
   xrplAddress: string,
 ): Promise<ChainResult> {
+  const { coinName, issuer } = complianceLabels(coin)
   const base: Omit<ChainResult, "status" | "balance" | "errorMessage"> = {
     coinSymbol: coin.symbol,
-    coinName: coin.name,
-    issuer: coin.issuer,
+    coinName,
+    issuer,
     chainName: chain.chainName,
     chain: chain.chain,
     contract: chain.contract,
@@ -413,10 +425,11 @@ async function runEvmGroup(
       results.push(await runEvmCheck(tasks[i].coin, tasks[i].chain, walletAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
+      const { coinName, issuer } = complianceLabels(coin)
       results.push({
         coinSymbol: coin.symbol,
-        coinName: coin.name,
-        issuer: coin.issuer,
+        coinName,
+        issuer,
         chainName: chain.chainName,
         chain: chain.chain,
         contract: chain.contract,
@@ -443,11 +456,18 @@ async function runTronGroup(
       results.push(await runTronCheck(tasks[i].coin, tasks[i].chain, evmAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
+      const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
-        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-        explorerUrl: chain.explorerUrl, rpcUrl: chain.apiUrl,
-        status: "error", errorMessage: String(err),
+        coinSymbol: coin.symbol,
+        coinName,
+        issuer,
+        chainName: chain.chainName,
+        chain: chain.chain,
+        contract: chain.contract,
+        explorerUrl: chain.explorerUrl,
+        rpcUrl: chain.apiUrl,
+        status: "error",
+        errorMessage: String(err),
       })
     }
     onProgress()
@@ -467,11 +487,18 @@ async function runSolanaGroup(
       results.push(await runSolanaCheck(tasks[i].coin, tasks[i].chain, solanaAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
+      const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
-        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-        explorerUrl: chain.explorerUrl, rpcUrl: chain.rpcUrl,
-        status: "error", errorMessage: String(err),
+        coinSymbol: coin.symbol,
+        coinName,
+        issuer,
+        chainName: chain.chainName,
+        chain: chain.chain,
+        contract: chain.contract,
+        explorerUrl: chain.explorerUrl,
+        rpcUrl: chain.rpcUrl,
+        status: "error",
+        errorMessage: String(err),
       })
     }
     onProgress()
@@ -491,11 +518,18 @@ async function runXrplGroup(
       results.push(await runXrplCheck(tasks[i].coin, tasks[i].chain, xrplAddress))
     } catch (err) {
       const { coin, chain } = tasks[i]
+      const { coinName, issuer } = complianceLabels(coin)
       results.push({
-        coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
-        chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-        explorerUrl: chain.explorerUrl, rpcUrl: chain.apiUrl,
-        status: "error", errorMessage: String(err),
+        coinSymbol: coin.symbol,
+        coinName,
+        issuer,
+        chainName: chain.chainName,
+        chain: chain.chain,
+        contract: chain.contract,
+        explorerUrl: chain.explorerUrl,
+        rpcUrl: chain.apiUrl,
+        status: "error",
+        errorMessage: String(err),
       })
     }
     onProgress()
@@ -574,11 +608,12 @@ async function checkAllCoins(
 
   // ── Static rows: no-controls, pending-abi, coming-soon ────────────────────
   for (const coin of COMPLIANCE_CONFIG) {
+    const { coinName, issuer } = complianceLabels(coin)
     if (!coin.hasComplianceControls) {
       results.push({
         coinSymbol: coin.symbol,
-        coinName: coin.name,
-        issuer: coin.issuer,
+        coinName,
+        issuer,
         chainName: UI_EM_DASH,
         chain: "",
         contract: "",
@@ -593,8 +628,8 @@ async function checkAllCoins(
       if (chain.support === "pending-abi") {
         results.push({
           coinSymbol: coin.symbol,
-          coinName: coin.name,
-          issuer: coin.issuer,
+          coinName,
+          issuer,
           chainName: chain.chainName,
           chain: chain.chain,
           contract: chain.contract,
@@ -606,8 +641,8 @@ async function checkAllCoins(
       } else if (chain.support === "coming-soon") {
         results.push({
           coinSymbol: coin.symbol,
-          coinName: coin.name,
-          issuer: coin.issuer,
+          coinName,
+          issuer,
           chainName: chain.chainName,
           chain: chain.chain,
           contract: chain.contract,
@@ -615,29 +650,21 @@ async function checkAllCoins(
           status: "coming-soon",
           notes: chain.reason,
         })
-      } else if (chain.support === "evm" && !walletAddress) {
+      } else if (
+        (chain.support === "evm" && !walletAddress) ||
+        (chain.support === "tron" && !walletAddress) ||
+        (chain.support === "solana" && !solanaAddress) ||
+        (chain.support === "xrpl" && !xrplAddress)
+      ) {
         results.push({
-          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
-          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-          explorerUrl: chain.explorerUrl, status: "not-checked",
-        })
-      } else if (chain.support === "tron" && !walletAddress) {
-        results.push({
-          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
-          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-          explorerUrl: chain.explorerUrl, status: "not-checked",
-        })
-      } else if (chain.support === "solana" && !solanaAddress) {
-        results.push({
-          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
-          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-          explorerUrl: chain.explorerUrl, status: "not-checked",
-        })
-      } else if (chain.support === "xrpl" && !xrplAddress) {
-        results.push({
-          coinSymbol: coin.symbol, coinName: coin.name, issuer: coin.issuer,
-          chainName: chain.chainName, chain: chain.chain, contract: chain.contract,
-          explorerUrl: chain.explorerUrl, status: "not-checked",
+          coinSymbol: coin.symbol,
+          coinName,
+          issuer,
+          chainName: chain.chainName,
+          chain: chain.chain,
+          contract: chain.contract,
+          explorerUrl: chain.explorerUrl,
+          status: "not-checked",
         })
       }
     }
@@ -1002,6 +1029,9 @@ export function WalletChecker() {
   const hintId = `${formUid}-hint`
   const errorId = `${formUid}-error`
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const [input, setInput] = React.useState("")
   const [solanaInput, setSolanaInput] = React.useState("")
   const [xrplInput, setXrplInput] = React.useState("")
@@ -1014,11 +1044,33 @@ export function WalletChecker() {
   const [inputError, setInputError] = React.useState("")
   const [solanaInputError, setSolanaInputError] = React.useState("")
   const [xrplInputError, setXrplInputError] = React.useState("")
+  const [shareCopied, setShareCopied] = React.useState(false)
+  const shareCopyTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ENS resolution state
   const [ensResolved, setEnsResolved] = React.useState<string | null>(null)
   const [ensResolving, setEnsResolving] = React.useState(false)
   const [ensError, setEnsError] = React.useState<string | null>(null)
+
+  // "pending" → params found on mount, waiting to run; "done" → already ran
+  const autoRunState = React.useRef<"idle" | "pending" | "done">("idle")
+
+  // On mount: read URL params and pre-fill inputs
+  React.useEffect(() => {
+    const paramAddress = searchParams.get("address")?.trim() ?? ""
+    const paramSolana = searchParams.get("solana")?.trim() ?? ""
+    const paramXrpl = searchParams.get("xrpl")?.trim() ?? ""
+
+    if (!paramAddress && !paramSolana && !paramXrpl) return
+
+    if (paramAddress) setInput(paramAddress)
+    if (paramSolana) { setSolanaInput(paramSolana); setShowNonEvm(true) }
+    if (paramXrpl) { setXrplInput(paramXrpl); setShowNonEvm(true) }
+
+    autoRunState.current = "pending"
+  // searchParams is stable on mount — intentionally run once
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Debounced ENS resolution — fires 500ms after the user stops typing
   React.useEffect(() => {
@@ -1050,16 +1102,78 @@ export function WalletChecker() {
   }, [input])
 
   const ariaDescribedBy = inputError ? `${errorId} ${hintId}` : hintId
-  const liveStatusMessage = loading
-    ? progress
-      ? `Checking contracts: ${progress.done} of ${progress.total} completed.`
-      : "Starting wallet check."
-    : results
-      ? (() => {
-          const { flags, errors } = getWalletCheckSummary(results)
-          return `Check complete. ${flags.length} compliance flag${flags.length === 1 ? "" : "s"}.${errors.length > 0 ? ` ${errors.length} RPC error${errors.length === 1 ? "" : "s"}.` : ""}`
-        })()
-      : ""
+
+  function buildLiveStatusMessage(): string {
+    if (loading) {
+      return progress
+        ? `Checking contracts: ${progress.done} of ${progress.total} completed.`
+        : "Starting wallet check."
+    }
+    if (results) {
+      const { flags, errors } = getWalletCheckSummary(results)
+      const flagText = `${flags.length} compliance flag${flags.length === 1 ? "" : "s"}.`
+      const errorText = errors.length > 0
+        ? ` ${errors.length} RPC error${errors.length === 1 ? "" : "s"}.`
+        : ""
+      return `Check complete. ${flagText}${errorText}`
+    }
+    return ""
+  }
+  const liveStatusMessage = buildLiveStatusMessage()
+
+  async function doCheck(
+    rawEvmInput: string,
+    solana: string | null,
+    xrpl: string | null,
+    resolvedEvmAddr: string | null,
+  ) {
+    setLoading(true)
+    setProgress(null)
+    setResults(null)
+    try {
+      const data = await checkAllCoins(resolvedEvmAddr, solana, xrpl, (done, total) =>
+        setProgress({ done, total }),
+      )
+      setResults(data)
+      setCheckedWallet(resolvedEvmAddr ?? solana ?? xrpl ?? "")
+      setCheckedAt(new Date().toLocaleTimeString())
+
+      // Update URL so the check is shareable — use the original input (ENS name or 0x)
+      const params = new URLSearchParams()
+      if (rawEvmInput) params.set("address", rawEvmInput)
+      if (solana) params.set("solana", solana)
+      if (xrpl) params.set("xrpl", xrpl)
+      router.replace(`?${params.toString()}`, { scroll: false })
+    } finally {
+      setLoading(false)
+      setProgress(null)
+    }
+  }
+
+  // Auto-run when URL params are present — waits for ENS resolution if needed
+  React.useEffect(() => {
+    if (autoRunState.current !== "pending") return
+
+    const paramAddress = searchParams.get("address")?.trim() ?? ""
+    const paramSolana = searchParams.get("solana")?.trim() || null
+    const paramXrpl = searchParams.get("xrpl")?.trim() || null
+
+    // If the address is an ENS name, wait until resolution finishes
+    if (paramAddress && isEnsName(paramAddress)) {
+      if (ensResolving || (!ensResolved && !ensError)) return
+      if (!ensResolved) return
+    }
+
+    let resolvedAddr: string | null = null
+    if (paramAddress) {
+      resolvedAddr = isEnsName(paramAddress) ? ensResolved : (isValidEthAddress(paramAddress) ? paramAddress : null)
+      if (!resolvedAddr && !paramSolana && !paramXrpl) return // nothing valid
+    }
+
+    autoRunState.current = "done"
+    doCheck(paramAddress, paramSolana, paramXrpl, resolvedAddr)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [input, ensResolved, ensResolving, ensError])
 
   async function handleCheck(e: React.FormEvent) {
     e.preventDefault()
@@ -1106,21 +1220,7 @@ export function WalletChecker() {
     }
     if (hasError) return
 
-    setLoading(true)
-    setProgress(null)
-    setResults(null)
-
-    try {
-      const data = await checkAllCoins(addr, solana, xrpl, (done, total) =>
-        setProgress({ done, total }),
-      )
-      setResults(data)
-      setCheckedWallet(addr ?? solana ?? xrpl ?? "")
-      setCheckedAt(new Date().toLocaleTimeString())
-    } finally {
-      setLoading(false)
-      setProgress(null)
-    }
+    await doCheck(rawInput, solana, xrpl, addr)
   }
 
   return (
@@ -1284,6 +1384,24 @@ export function WalletChecker() {
               <span className="flex items-center gap-1">
                 <ChevronRight className="size-3" /> expand row for dev details
               </span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href).then(() => {
+                    setShareCopied(true)
+                    if (shareCopyTimer.current) clearTimeout(shareCopyTimer.current)
+                    shareCopyTimer.current = setTimeout(() => setShareCopied(false), 2000)
+                  })
+                }}
+                className="flex items-center gap-1.5 rounded px-2 py-1 transition-colors hover:text-foreground"
+                title="Copy shareable link to these results"
+              >
+                {shareCopied ? (
+                  <><CheckCircle2 className="size-3.5 text-green-400" /><span className="text-green-400">Copied!</span></>
+                ) : (
+                  <><Link2 className="size-3.5" />Share results</>
+                )}
+              </button>
             </div>
           </div>
 

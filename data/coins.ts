@@ -1,4 +1,4 @@
-import type { Coin } from "@/types"
+import type { Coin, NetworkDeployment } from "@/types"
 
 export const coins: Coin[] = [
   {
@@ -1318,3 +1318,46 @@ export const coins: Coin[] = [
 export const coinBySymbol = Object.fromEntries(
   coins.map((c) => [c.symbol.toUpperCase(), c])
 ) as Record<string, Coin>
+
+/** Single source of truth for contract + explorer URLs — used by compliance config and EIP tooling. */
+export function requireCoinChain(symbol: string, chain: string): NetworkDeployment {
+  const coin = coinBySymbol[symbol.toUpperCase()]
+  if (!coin) throw new Error(`coins: unknown symbol "${symbol}"`)
+  const n = coin.networks.find((x) => x.chain === chain)
+  if (!n) throw new Error(`coins: ${symbol} has no deployment for chain "${chain}"`)
+  return n
+}
+
+export function chainEndpoints(symbol: string, chain: string) {
+  const n = requireCoinChain(symbol, chain)
+  return {
+    chainName: n.name,
+    chain,
+    contract: n.contract,
+    explorerUrl: n.explorerUrl,
+  }
+}
+
+export function xrplComplianceEndpoints(symbol: string) {
+  const n = requireCoinChain(symbol, "xrpl")
+  const dot = n.contract.indexOf(".")
+  if (dot < 1 || dot >= n.contract.length - 1) {
+    throw new Error(`coins: invalid XRPL contract field for ${symbol}: ${n.contract}`)
+  }
+  return {
+    chainName: n.name,
+    chain: "xrpl" as const,
+    contract: n.contract,
+    explorerUrl: n.explorerUrl,
+    currency: n.contract.slice(0, dot),
+    issuer: n.contract.slice(dot + 1),
+  }
+}
+
+/** Canonical Ethereum mainnet token address for matrix / explorer links (42-char 0x hex only). */
+export function ethereumTokenAddress(symbol: string): string | undefined {
+  const n = coinBySymbol[symbol.toUpperCase()]?.networks.find((x) => x.chain === "ethereum")
+  const a = n?.contract?.trim()
+  if (a?.startsWith("0x") && a.length === 42) return a
+  return undefined
+}

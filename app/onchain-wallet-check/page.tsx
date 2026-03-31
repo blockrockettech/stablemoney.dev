@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { WalletChecker } from "@/components/WalletChecker"
 
@@ -60,7 +61,9 @@ export default function WalletCheckPage() {
         </p>
       </header>
 
-      <WalletChecker />
+      <Suspense>
+        <WalletChecker />
+      </Suspense>
     </div>
   )
 }

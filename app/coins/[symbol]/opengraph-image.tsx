@@ -4,12 +4,6 @@ import { coinBySymbol } from "@/data/coins"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
-export function generateStaticParams() {
-  return Object.keys(coinBySymbol).map((symbol) => ({
-    symbol: symbol.toLowerCase(),
-  }))
-}
-
 export default function CoinOpenGraphImage({ params }: { params: { symbol: string } }) {
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   const symbol = coin?.symbol ?? params.symbol.toUpperCase()

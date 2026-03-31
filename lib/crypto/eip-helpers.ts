@@ -1,4 +1,5 @@
 import { COIN_EIP_PROFILES } from "@/data/coinEips"
+import { ethereumTokenAddress } from "@/data/coins"
 import type { CoinEipImpl, CoinEipProfile, EipStatus } from "@/types/eip"
 
 /** Fixed column order for matrix comparison (not auto-sorted by market cap) */
@@ -29,7 +30,10 @@ export function eipAnchorId(eipId: string): string {
 }
 
 export function getCoinEipProfile(symbol: string): CoinEipProfile | undefined {
-  return COIN_EIP_PROFILES.find((p) => p.symbol === symbol)
+  const raw = COIN_EIP_PROFILES.find((p) => p.symbol === symbol)
+  if (!raw) return undefined
+  const addr = ethereumTokenAddress(symbol)
+  return addr ? { ...raw, contractAddress: addr } : raw
 }
 
 export function getEipImplementation(
