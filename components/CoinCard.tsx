@@ -1,18 +1,12 @@
 import Link from "next/link"
 import type { Coin, StablecoinType } from "@/types"
+import { STABLECOIN_TYPE_LABEL } from "@/data/stablecoin-taxonomy"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { NetworkChip } from "@/components/NetworkChip"
 import { cn } from "@/lib/utils"
 import { countImplementedEips } from "@/lib/crypto/eip-helpers"
 import { getMarketCap } from "@/lib/market-data/market-data"
-
-const typeLabel: Record<StablecoinType, string> = {
-  fiat: "Fiat-backed",
-  crypto: "Crypto-backed",
-  synthetic: "Synthetic",
-  hybrid: "Hybrid",
-}
 
 const typeAccent: Record<StablecoinType, string> = {
   fiat: "border-l-emerald-500/60",
@@ -69,7 +63,7 @@ export function CoinCard({
             </span>
           </div>
           <Badge variant="outline" className="text-[0.6rem] uppercase tracking-wider">
-            {typeLabel[coin.type]}
+            {STABLECOIN_TYPE_LABEL[coin.type]}
           </Badge>
         </div>
         <div className="mt-2 space-y-0.5">

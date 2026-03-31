@@ -90,6 +90,6 @@ export async function resolveEnsName(
 
 /** True when the input looks like an ENS name rather than a raw hex address. */
 export function isEnsName(input: string): boolean {
-  const t = input.trim()
-  return t.includes(".") && !t.startsWith("0x")
+  const trimmed = input.trim()
+  return trimmed.includes(".") && !trimmed.startsWith("0x")
 }
