@@ -12,23 +12,23 @@ import { cn } from "@/lib/utils"
 
 export function SearchBar({ className }: { className?: string }) {
   const router = useRouter()
-  const [q, setQ] = React.useState("")
+  const [query, setQuery] = React.useState("")
   const [open, setOpen] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   const results = React.useMemo(() => {
-    if (!q.trim()) return [] as Coin[]
-    return searchCoins(q).slice(0, 8)
-  }, [q])
+    if (!query.trim()) return [] as Coin[]
+    return searchCoins(query).slice(0, 8)
+  }, [query])
 
   React.useEffect(() => {
-    function onDoc(e: MouseEvent) {
+    function handleDocumentMouseDown(e: MouseEvent) {
       if (!inputRef.current?.parentElement?.contains(e.target as Node)) {
         setOpen(false)
       }
     }
-    document.addEventListener("mousedown", onDoc)
-    return () => document.removeEventListener("mousedown", onDoc)
+    document.addEventListener("mousedown", handleDocumentMouseDown)
+    return () => document.removeEventListener("mousedown", handleDocumentMouseDown)
   }, [])
 
   return (
@@ -37,9 +37,9 @@ export function SearchBar({ className }: { className?: string }) {
         <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
         <Input
           ref={inputRef}
-          value={q}
+          value={query}
           onChange={(e) => {
-            setQ(e.target.value)
+            setQuery(e.target.value)
             setOpen(true)
           }}
           onFocus={() => setOpen(true)}
@@ -50,7 +50,7 @@ export function SearchBar({ className }: { className?: string }) {
           aria-expanded={open && results.length > 0}
         />
       </div>
-      {open && q.trim() && results.length > 0 ? (
+      {open && query.trim() && results.length > 0 ? (
         <div
           className="bg-popover text-popover-foreground absolute z-50 mt-1 max-h-[min(70vh,520px)] w-full overflow-y-auto rounded-lg border border-border p-2 shadow-lg"
           role="listbox"
@@ -66,7 +66,7 @@ export function SearchBar({ className }: { className?: string }) {
                 onClick={() => {
                   router.push(`/coins/${c.symbol.toLowerCase()}`)
                   setOpen(false)
-                  setQ("")
+                  setQuery("")
                 }}
               >
                 <CoinCard

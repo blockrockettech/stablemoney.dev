@@ -21,21 +21,27 @@ function standardSiteHref(label: string): string | null {
   return null
 }
 
+const audienceStyles: Record<NonNullable<Feature["audience"]>, string> = {
+  user: "border-blue-500/40 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  corporate: "border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
+  both: "border-violet-500/40 bg-violet-500/10 text-violet-800 dark:text-violet-200",
+}
+
+const audienceLabel: Record<NonNullable<Feature["audience"]>, string> = {
+  user: "User",
+  corporate: "Corporate",
+  both: "Both",
+}
+
 function AudienceBadge({ audience }: { audience: NonNullable<Feature["audience"]> }) {
-  const cls =
-    audience === "user"
-      ? "border-blue-500/40 bg-blue-500/10 text-blue-700 dark:text-blue-300"
-      : audience === "corporate"
-        ? "border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-200"
-        : "border-violet-500/40 bg-violet-500/10 text-violet-800 dark:text-violet-200"
   return (
     <span
       className={cn(
         "inline-flex rounded-md border px-2 py-0.5 text-[0.65rem] font-medium uppercase",
-        cls
+        audienceStyles[audience],
       )}
     >
-      {audience === "user" ? "User" : audience === "corporate" ? "Corporate" : "Both"}
+      {audienceLabel[audience]}
     </span>
   )
 }
