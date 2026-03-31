@@ -1401,7 +1401,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
     contractName: "frxUSD (Frax Finance) + sfrxUSD vault",
     decimals: 18,
     isUpgradeable: true,
-    upgradePattern: "Upgradeable proxy — verify pattern on official Frax docs post-December 2025 migration",
+    upgradePattern: "Upgradeable proxy — verify pattern on official Frax docs (post–frxUSD migration)",
     implementations: [
       {
         eipId: "ERC-20",
@@ -1414,11 +1414,11 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "burn(address from, uint256 amount) — minter role",
         ],
         implementationNotes:
-          "frxUSD is fully collateralized by BlackRock BUIDL; supply is managed by Frax minters tied to BUIDL redemptions. Standard ERC-20 transfer semantics with no algorithmic supply mechanics.",
+          "frxUSD is fully collateralised against Frax-permitted cash-equivalent reserves (tokenised Treasuries and related instruments per docs — not BUIDL-only). Supply is minter-governed with standard ERC-20 transfer semantics; no legacy fractional-algorithmic mechanics.",
         devImpact:
-          "Treat as a standard fiat-backed ERC-20 — no fractional-reserve or AMO complexity. Verify new contract addresses post-December 2025 migration before integrating.",
+          "Treat as a reserve-backed fiat-redeemable ERC-20. Verify the canonical address per chain on Frax docs — deployments span 20+ networks; do not assume Ethereum-only.",
         footguns:
-          "Do not use old FRAX stablecoin contract addresses — frxUSD is a new contract. The FRAX ticker now refers to the governance token, not the stablecoin.",
+          "Do not use old FRAX stablecoin contract addresses — frxUSD is a new contract. The FRAX ticker is now Fraxtal’s native gas asset; Frax docs distinguish it from governance layers.",
       },
       {
         eipId: "EIP-712",
@@ -1492,7 +1492,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       {
         eipId: "ERC-4626",
         status: "implemented",
-        contractPattern: "sfrxUSD — ERC-4626 vault over frxUSD backed by BUIDL yield",
+        contractPattern: "sfrxUSD — ERC-4626 vault over frxUSD (benchmark yield strategy)",
         keyFunctions: [
           "deposit(uint256 assets, address receiver) → uint256 shares",
           "mint / withdraw / redeem",
@@ -1502,7 +1502,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes:
           "sfrxUSD (StakedFrxUSD) extends LinearRewardsErc4626 with ERC-4626 vault interface. Non-rebasing — share price increases as yield accumulates. Employs Benchmark Yield Strategy (BYS) that dynamically allocates to highest-yielding venue among three governance-approved tiers: (1) carry-trade strategies (Ethena, Superstate), (2) DeFi AMO venues (Aave, Curve, Convex, Euler, Fraxlend, dTrinity), (3) IORB/T-Bill RWA strategies (BlackRock, FinresPBC). Redemption via FraxtalERC4626MintRedeemer with zero fees and zero price impact — contrasts with Ethena's cooldown approach.",
         devImpact:
-          "Composable with ERC-4626 routers and aggregators. Yield rate reflects BUIDL fund's T-bill income rather than AMO revenues.",
+          "Composable with ERC-4626 routers and aggregators. Yield reflects BYS allocation across approved venues, not a single static AMO.",
         footguns:
           "Old sFRAX contracts are not the same as sfrxUSD — verify vault address from official Frax docs post-migration.",
       },
@@ -1524,8 +1524,8 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         contractPattern: "No cross-chain token standard confirmed",
         keyFunctions: [],
         implementationNotes:
-          "frxUSD is primarily on Ethereum and Fraxtal L2. No ERC-7802 interface.",
-        devImpact: "Cross-chain movement through Fraxtal bridge or future integrations.",
+          "Frax documents frxUSD on 20+ networks; there is no single-chain assumption. No ERC-7802 interface on the canonical token.",
+        devImpact: "Use Frax-published bridge and chain-specific addresses — verify per deployment.",
       },
       {
         eipId: "ERC-3156",
@@ -1533,7 +1533,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         contractPattern: "No flash mint on frxUSD",
         keyFunctions: [],
         implementationNotes:
-          "No native flash loan capability. frxUSD is collateralized by BlackRock BUIDL — permissionless flash minting would conflict with the reserve-backed model.",
+          "No native flash loan capability. Full-reserve model is incompatible with permissionless flash minting on the token itself.",
         devImpact: "Use external flash loan providers.",
       },
       {

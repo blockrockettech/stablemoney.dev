@@ -1,8 +1,10 @@
 ## Integration notes
 
-frxUSD launched in December 2025 as the successor to the original FRAX stablecoin. Unlike the old fractional-algorithmic model, frxUSD is **fully collateralized by BlackRock's BUIDL fund** (tokenized US Treasuries via Securitize) — treat it as a standard fiat-backed ERC-20.
+frxUSD replaced the legacy FRAX stablecoin model during 2025 (announced January 2025). It is **fiat-redeemable and fully collateralised 1:1 against permitted cash-equivalent reserves**, including tokenised US Treasury products such as BUIDL, USTB, JTRSY, WTGXX, and AUSD — confirm the current basket and mint paths on [Frax docs](https://docs.frax.com/protocol/assets/frxusd/frxusd).
 
-**Important:** The **FRAX ticker** now refers to the Frax Finance governance and gas token (formerly FXS) for the Fraxtal L2 — it is no longer the stablecoin. Always verify the canonical frxUSD contract address from official Frax Finance docs before integrating.
+**Networks:** Frax documents frxUSD on **20+ chains**. This site lists the **canonical Ethereum deployment** only; use [Frax contract addresses](https://docs.frax.com/frxusd/frxusd-contracts) for other networks.
+
+**Important:** The **FRAX ticker** is now the **native gas token for Fraxtal**. Frax documentation states FRAX is **not** the governance token. It is no longer the stablecoin ticker. Always verify the canonical frxUSD address for each chain from official Frax docs before integrating.
 
 ## Native stack
 

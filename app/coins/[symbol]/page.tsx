@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { coinBySymbol, coins } from "@/data/coins"
-import type { StablecoinType } from "@/types"
+import { STABLECOIN_TYPE_LABEL } from "@/data/stablecoin-taxonomy"
 import { loadCoinMdx } from "@/site/mdx"
 import { mergeCoinFeatures } from "@/site/merge-features"
 import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/coinEips"
@@ -19,13 +19,6 @@ import { Separator } from "@/components/ui/separator"
 import { ArrowRight, ExternalLink } from "lucide-react"
 import { getMarketCap, getMarketCapRank } from "@/lib/market-data/market-data"
 import { SITE_CANONICAL_URL } from "@/site/config"
-
-const typeLabel: Record<StablecoinType, string> = {
-  fiat: "Fiat-backed",
-  crypto: "Crypto-backed",
-  synthetic: "Synthetic",
-  hybrid: "Hybrid",
-}
 
 const statusBadgeClass: Record<EipStatus, string> = {
   implemented:
@@ -114,7 +107,7 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
             {coin.symbol}
           </span>
           <Badge variant="outline" className="text-xs uppercase">
-            {typeLabel[coin.type]}
+            {STABLECOIN_TYPE_LABEL[coin.type]}
           </Badge>
           <span className="text-muted-foreground text-sm">
             Rank #{mcapRank > 0 ? mcapRank : "—"}

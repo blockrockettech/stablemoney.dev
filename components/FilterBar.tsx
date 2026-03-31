@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils"
 
 const options: { value: "all" | StablecoinType; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "fiat", label: "Fiat-backed" },
-  { value: "crypto", label: "Crypto-backed" },
-  { value: "synthetic", label: "Synthetic" },
+  { value: "fiat", label: "Fiat / issuer reserves" },
+  { value: "crypto", label: "On-chain & RWA" },
+  { value: "synthetic", label: "Synthetic / delta-neutral" },
+  { value: "hybrid", label: "Treasury / mixed" },
 ]
 
 export function FilterBar({

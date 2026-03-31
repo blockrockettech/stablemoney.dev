@@ -163,7 +163,7 @@ export const coins: Coin[] = [
     issuer: "Circle",
     type: "fiat",
     description:
-      "Most developer-friendly and compliance-forward stablecoin. Native on 32 blockchains as of early 2026 with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across 21 chains. Circle completed its IPO on NYSE (ticker: CRCL) in January 2026.",
+      "Most developer-friendly and compliance-forward stablecoin. Native on 32 blockchains as of early 2026 with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across 21 chains. Circle began trading on the NYSE under ticker CRCL on 5 June 2025; the IPO closed on 6 June 2025.",
     networks: [
       {
         name: "Ethereum",
@@ -598,7 +598,7 @@ export const coins: Coin[] = [
     issuer: "Sky Protocol",
     type: "crypto",
     description:
-      "Upgraded successor to DAI, launched with the MakerDAO→Sky Protocol rebrand in 2024. Interchangeable with DAI at 1:1 via DaiUsds.sol migration contract. Key additions: upgradeable proxy, planned freeze function for regulatory compliance, Sky Savings Rate, and Solana deployment.",
+      "Upgraded successor to DAI, launched with the MakerDAO→Sky Protocol rebrand in 2024. Interchangeable with DAI at 1:1 via DaiUsds.sol migration contract. Key additions: upgradeable proxy, planned freeze function for regulatory compliance, Sky Savings Rate, and official Ethereum–Solana bridge availability (Skylink / Wormhole NTT — not a separate native Solana token deployment).",
     networks: [
       {
         name: "Ethereum",
@@ -644,10 +644,10 @@ export const coins: Coin[] = [
           "USDS holders accrue SKY governance token rewards — incentivises migration from DAI.",
       },
       {
-        name: "Solana cross-chain",
+        name: "Ethereum–Solana bridge",
         category: "cross-chain",
         description:
-          "Wormhole NTT Solana deployment exists — omitted from the contract table until the canonical mint address is verified on-chain.",
+          "Sky documents official USDS bridging to Solana via Skylink (Wormhole NTT) — burn-and-mint with rate limits. Canonical token contract below is Ethereum; Solana presence is bridged, not a second native issuance.",
       },
     ],
     reserves: "Identical to DAI — shared MCD protocol collateral pool",
@@ -662,7 +662,7 @@ export const coins: Coin[] = [
       { label: "Slower adoption than DAI", level: "low" },
     ],
     technicalNotes:
-      "18 decimals. sUSDS uses chi rate accumulator — convertToAssets() calculates theoretical current chi on-the-fly even if drip() hasn't been called. No fees assessed and fees CANNOT be enabled (encoded in contract). UUPS (EIP-1822) upgrade pattern on sUSDS — if implementation without upgradeTo() is deployed, contract becomes permanently non-upgradeable (safety property). Cross-chain via Wormhole NTT with burn-and-mint and rate-limiting. DaiUsds.sol: permissionless bidirectional DAI↔USDS 1:1 converter.",
+      "18 decimals. sUSDS uses chi rate accumulator — convertToAssets() calculates theoretical current chi on-the-fly even if drip() hasn't been called. No fees assessed and fees CANNOT be enabled (encoded in contract). UUPS (EIP-1822) upgrade pattern on sUSDS — if implementation without upgradeTo() is deployed, contract becomes permanently non-upgradeable (safety property). Solana exposure is via Skylink / Wormhole NTT (bridged), not a duplicate native mint on Solana. DaiUsds.sol: permissionless bidirectional DAI↔USDS 1:1 converter.",
     docsUrl: "https://sky.money",
     githubUrl: "https://github.com/makerdao",
   },
@@ -842,9 +842,9 @@ export const coins: Coin[] = [
     symbol: "frxUSD",
     name: "Frax USD",
     issuer: "Frax Finance",
-    type: "fiat",
+    type: "hybrid",
     description:
-      "Fully collateralized stablecoin launched December 2025 as the successor to the original FRAX stablecoin. Backed 1:1 by BlackRock's BUIDL fund (USD Institutional Digital Liquidity Fund, tokenized by Securitize) — investing in US Treasury bills, cash, and repo agreements. The original FRAX fractional-algorithmic model was retired. Note: the FRAX ticker now refers to the Frax Finance governance and gas token for the Fraxtal L2 network (formerly FXS).",
+      "Fiat-redeemable, fully collateralised stablecoin that replaced the legacy FRAX fractional-algorithmic model during 2025 (Frax announced frxUSD on 2 January 2025). Backing is 1:1 against permitted cash-equivalent reserves, including tokenised US Treasury products such as BUIDL, USTB, JTRSY, WTGXX, and AUSD — not a single-fund basket. Frax documents frxUSD on 20+ networks; the table below shows the canonical Ethereum deployment only — use Frax docs for other chain addresses. The FRAX ticker is now the native gas token for Fraxtal; Frax documentation states it is not the protocol governance token (governance may be layered separately).",
     networks: [
       {
         name: "Ethereum",
@@ -854,22 +854,23 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://etherscan.io/token/0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
         isPrimary: true,
-        notes: "FrxUSD2 — verified on Etherscan (matches EIP profile)",
+        notes:
+          "Canonical Ethereum deployment (FrxUSD2). frxUSD is live on 20+ chains per Frax — see docs.frax.com/frxusd/frxusd-contracts.",
       },
     ],
     features: [
       {
-        name: "BlackRock BUIDL backing",
+        name: "Permitted cash-equivalent reserves",
         category: "compliance",
         description:
-          "100% backed by BlackRock USD Institutional Digital Liquidity Fund (BUIDL), tokenized by Securitize — invests in US Treasury bills, cash, and repo agreements.",
+          "1:1 against Frax-approved cash-equivalent collateral, including tokenised US Treasury funds (e.g. BUIDL, USTB, JTRSY, WTGXX, AUSD) — see current Frax documentation for the exact basket and mint/redeem paths.",
       },
       {
         name: "sfrxUSD ERC-4626 vault",
         category: "yield",
         eip: "ERC-4626",
         description:
-          "Staked frxUSD earns yield from BUIDL's underlying US Treasury income, distributed via ERC-4626 standard vault.",
+          "Staked frxUSD (sfrxUSD) uses an ERC-4626 vault; yield comes from the protocol’s benchmark yield strategy and reserve income, not a single static venue.",
       },
       {
         name: "Fraxlend isolated pairs",
@@ -885,24 +886,24 @@ export const coins: Coin[] = [
       },
     ],
     reserves:
-      "BlackRock BUIDL fund (US Treasuries, cash, repo agreements) via Securitize tokenization",
-    collateralType: "RWA — tokenized US Treasuries",
-    pegMechanism: "Hard 1:1 via BUIDL fund redemption",
-    auditor: "BlackRock/Securitize transparency reporting on BUIDL fund",
+      "Permitted cash-equivalent reserves (tokenised Treasuries and related instruments per Frax docs — basket can include BUIDL, USTB, JTRSY, WTGXX, AUSD, etc.)",
+    collateralType: "RWA / Treasury-backed, fiat-redeemable",
+    pegMechanism: "Hard 1:1 via issuer-approved reserve redemption",
+    auditor: "Depends on underlying tokenised fund issuers and Frax attestations — verify current disclosures",
     defiIntegration:
       "Fraxswap, Fraxlend (native); early-stage external DeFi integrations",
-    yield: "sfrxUSD variable — BUIDL fund US Treasury yield",
+    yield: "sfrxUSD variable — strategy-dependent (BYS / reserve yields)",
     risks: [
       { label: "Very small market cap — low liquidity", level: "high" },
-      { label: "BUIDL fund custodial and redemption risk", level: "low" },
+      { label: "Tokenised fund and custodian concentration", level: "low" },
       {
         label: "Migration still in progress — verify contract addresses",
         level: "medium",
       },
     ],
     technicalNotes:
-      "18 decimals. frxUSD can be minted 1:1 by depositing BlackRock BUIDL directly into mint contract (0xe827abf9f462ac4f147753d86bc5f91e186e4e9c) — first direct DeFi↔BlackRock tokenized asset integration. sfrxUSD (StakedFrxUSD) extends LinearRewardsErc4626: non-rebasing, share price increases. Benchmark Yield Strategy (BYS) dynamically allocates across carry-trade (Ethena/Superstate), DeFi AMOs (Aave/Curve/Convex/Euler/Fraxlend), and IORB/T-Bill RWA strategies. Redemption via FraxtalERC4626MintRedeemer: zero fees, zero price impact. Original FRAX fractional-algorithmic model retired.",
-    docsUrl: "https://docs.frax.finance",
+      "18 decimals. Mint/redeem paths and approved collateral types are governance-defined — confirm on docs.frax.com (frxUSD overview + contracts). BUIDL and other tokenised Treasury products have been used as collateral; the basket is not BUIDL-only. sfrxUSD (StakedFrxUSD) extends LinearRewardsErc4626: non-rebasing, share price increases. Benchmark Yield Strategy (BYS) dynamically allocates across carry-trade (Ethena/Superstate), DeFi AMOs (Aave/Curve/Convex/Euler/Fraxlend), and IORB/T-Bill RWA strategies. Redemption via FraxtalERC4626MintRedeemer: zero fees, zero price impact. Legacy FRAX stablecoin model retired.",
+    docsUrl: "https://docs.frax.com",
     githubUrl: "https://github.com/FraxFinance",
   },
   {
@@ -1008,7 +1009,7 @@ export const coins: Coin[] = [
     issuer: "World Liberty Financial (WLFI)",
     type: "fiat",
     description:
-      "Fastest-growing stablecoin of 2025 — announced March 2025 and went live around April 2025 (sources vary). Reached $4.7B by February 2026 via Binance and Abu Dhabi MGX partnerships. Backed 1:1 by USD, US Treasuries, and cash equivalents, custodied by BitGo. In February 2026, USD1 briefly de-pegged to $0.98 in what WLFI described as a coordinated attack; it recovered within hours. WLFI launched World Liberty Markets (lending platform using USD1) in January 2026 and an AI payments SDK in March 2026.",
+      "Fastest-growing stablecoin of 2025 — announced March 2025 and went live around April 2025 (sources vary). Reached $4.7B by February 2026 via Binance and Abu Dhabi MGX partnerships. Backed 1:1 by USD, US Treasuries, and cash equivalents, custodied by BitGo. In February 2026, USD1 traded below peg during what WLFI described as a coordinated attack; reported lows varied by venue — broad trackers cited around $0.994 while some exchanges showed deeper intraday wicks. WLFI launched World Liberty Markets (lending platform using USD1) in January 2026 and an AI payments SDK in March 2026.",
     networks: [
       {
         name: "Ethereum",
