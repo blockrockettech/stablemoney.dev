@@ -5,7 +5,7 @@ import { HomeClient } from "@/components/HomeClient"
 import { getAllChainSlugs } from "@/lib/crypto/chains"
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/site/config"
 import { getTotalMarketCap, getDataFreshness, isDynamic } from "@/lib/market-data/market-data"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, TableProperties } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -73,19 +73,43 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Standards callout */}
+      {/* Standards callout — primary secondary CTA */}
       <Link
         href="/standards"
-        className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card/60 px-5 py-4 transition-all hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm"
+        className="group relative block overflow-hidden rounded-2xl border-2 border-primary/25 bg-gradient-to-br from-primary/[0.12] via-card to-card shadow-md shadow-primary/[0.06] ring-1 ring-primary/10 transition-all hover:border-primary/45 hover:shadow-lg hover:shadow-primary/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
-        <div>
-          <div className="text-sm font-semibold">EIP/ERC Standards & Compliance Matrix</div>
-          <div className="text-muted-foreground mt-0.5 text-xs">
-            Compare ERC-20, permit, proxy patterns, compliance rules and flash loan support plus more across
-            all {coins.length} stablecoins
+        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/[0.14] blur-3xl transition-opacity group-hover:opacity-100" />
+        <div className="relative flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-8">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
+            <span
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/15 text-primary shadow-inner shadow-primary/5"
+              aria-hidden
+            >
+              <TableProperties className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <div className="min-w-0 space-y-2">
+              <p className="text-primary text-xs font-bold uppercase tracking-[0.14em]">
+                Technical deep dive
+              </p>
+              <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                EIP/ERC standards & compliance matrix
+              </h2>
+              <p className="text-muted-foreground max-w-2xl text-sm leading-relaxed sm:text-base">
+                Side-by-side comparison of ERC-20, permit, proxy patterns, compliance hooks, flash loans,
+                and more — across all {coins.length} stablecoins on the site.
+              </p>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors group-hover:bg-primary/15">
+              Open the matrix
+              <ArrowRight
+                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                aria-hidden
+              />
+            </span>
           </div>
         </div>
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
       </Link>
 
       <HomeClient coins={coins} />
