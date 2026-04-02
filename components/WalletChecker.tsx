@@ -813,7 +813,7 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
-      <table className="w-full min-w-[720px] text-left text-sm">
+      <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-border bg-muted/40">
             <th scope="col" className="px-3 py-2 font-medium">
@@ -825,7 +825,7 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
             <th scope="col" className="px-3 py-2 font-medium">
               Status
             </th>
-            <th scope="col" className="px-3 py-2 font-medium">
+            <th scope="col" className="hidden sm:table-cell px-3 py-2 font-medium">
               Contract
             </th>
             <th scope="col" className="w-8 px-3 py-2">
@@ -862,7 +862,7 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                     <td className="px-3 py-2.5 align-middle">
                       <div className="flex flex-col gap-0.5">
                         <span className="font-medium">{result.coinSymbol}</span>
-                        <span className="text-muted-foreground text-xs">{result.issuer}</span>
+                        <span className="text-muted-foreground text-xs hidden sm:block">{result.issuer}</span>
                       </div>
                     </td>
 
@@ -887,7 +887,8 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                           <StatusBadge status={result.status} />
                           {result.status === "flagged-with-balance" && result.balance !== undefined && (
                             <span className="font-mono text-xs text-red-300">
-                              Balance: {result.balance.toLocaleString()} raw units — seizure risk
+                              <span className="hidden sm:inline">Balance: {result.balance.toLocaleString()} raw units — </span>
+                              seizure risk
                             </span>
                           )}
                         </div>
@@ -895,7 +896,7 @@ function ResultsTable({ results }: { results: ChainResult[] }) {
                     </td>
 
                     {/* Contract */}
-                    <td className="px-3 py-2.5 align-middle">
+                    <td className="hidden sm:table-cell px-3 py-2.5 align-middle">
                       {result.contract ? (
                         <div className="flex items-center gap-1">
                           <code className="font-mono text-xs text-muted-foreground">
@@ -1229,11 +1230,11 @@ export function WalletChecker() {
         {liveStatusMessage}
       </div>
       {/* Input form */}
-      <form onSubmit={handleCheck} aria-busy={loading}>
-        <div className="flex items-start gap-3">
+      <form onSubmit={handleCheck} aria-busy={loading} autoComplete="off">
+        <div className="space-y-3">
 
-          {/* ── Left: stacked address inputs ── */}
-          <div className="flex-1 space-y-2">
+          {/* ── Address inputs ── */}
+          <div className="space-y-2">
 
             {/* EVM / ENS */}
             <div className="space-y-1">
@@ -1291,7 +1292,7 @@ export function WalletChecker() {
 
             {/* Solana + XRPL inputs (shown when toggled) */}
             {showNonEvm && (
-              <div className="space-y-2 pl-4 border-l border-border/60">
+              <div className="space-y-3 rounded-lg border border-border/60 bg-muted/20 p-3">
                 <div className="space-y-1">
                   <label htmlFor={`${formUid}-solana`} className="text-xs text-muted-foreground">
                     Solana address
@@ -1348,11 +1349,11 @@ export function WalletChecker() {
             </p>
           </div>
 
-          {/* ── Right: submit button, pinned to top ── */}
+          {/* ── Submit button — full width on mobile, auto width on sm+ ── */}
           <Button
             type="submit"
             disabled={loading || (!input.trim() && !solanaInput.trim() && !xrplInput.trim())}
-            className="shrink-0 self-start"
+            className="w-full sm:w-auto"
           >
             {loading ? (
               <>
