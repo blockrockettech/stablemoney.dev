@@ -11,6 +11,7 @@ import {
   getCellStatus,
   getEipImplementation,
 } from "@/lib/crypto/eip-helpers"
+import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -181,7 +182,50 @@ export function EipMatrix() {
         </label>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border">
+      {/* ── Mobile: one card per EIP ─────────────────────────────────────── */}
+      <div className="md:hidden space-y-2">
+        {rows.map((eip) => (
+          <button
+            key={eip.id}
+            type="button"
+            className="w-full rounded-lg border border-border bg-card/40 px-3 py-3 text-left transition-colors hover:bg-muted/40 active:bg-muted/60"
+            onClick={() => scrollToEipDeepDive(eip.id)}
+          >
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <span className="font-mono text-xs font-semibold text-primary">{eip.id}</span>
+                <span className="text-muted-foreground ml-1.5 text-[0.7rem]">{eip.name}</span>
+              </div>
+              <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
+            </div>
+            <div className="grid grid-cols-6 gap-x-1 gap-y-2">
+              {COIN_EIP_SYMBOLS.map((sym) => {
+                const rawStatus = getCellStatus(sym, eip.id)
+                const status = displayStatus(rawStatus)
+                return (
+                  <div key={sym} className="flex flex-col items-center gap-0.5">
+                    <span
+                      className={cn("inline-flex rounded p-1", statusPill[status])}
+                      aria-label={`${sym}: ${statusLabel[status]}`}
+                    >
+                      <span
+                        className={cn("size-2.5 rounded-full ring-1 ring-background shadow-sm", statusDot[status])}
+                        aria-hidden
+                      />
+                    </span>
+                    <span className="font-mono text-[0.6rem] leading-none text-muted-foreground">
+                      {sym}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Desktop: full comparison table ───────────────────────────────── */}
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-border">
         <table className="w-full min-w-[1100px] text-left text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/40">
@@ -281,7 +325,7 @@ export function EipMatrix() {
             </tr>
           </tfoot>
         </table>
-      </div>
+      </div>{/* end desktop table */}
 
       <ul className="text-muted-foreground flex flex-wrap gap-4 text-xs">
         <li className="flex items-center gap-1.5">
