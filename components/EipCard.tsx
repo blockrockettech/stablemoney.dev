@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 import type { CoinEipImpl, Eip, EipCategory, EipStatus } from "@/types/eip"
+import { eipExternalLinks } from "@/lib/crypto/eip-helpers"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -76,6 +77,7 @@ export function EipCard({
   const [open, setOpen] = useState(defaultOpen)
   const st = statusStyles[impl.status]
   const devImpactTone = devImpactPanelClass[impl.status]
+  const externalLinks = eipExternalLinks(eip.id)
 
   return (
     <div className="rounded-lg border border-border bg-card shadow-sm">
@@ -119,15 +121,24 @@ export function EipCard({
                 Spec
               </div>
               <p className="text-muted-foreground leading-relaxed">{eip.summary}</p>
-              {eip.eipsUrl ? (
-                <a
-                  href={eip.eipsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary mt-2 inline-block text-xs font-medium hover:underline"
-                >
-                  Read on eips.ethereum.org →
-                </a>
+              {(eip.eipsUrl || externalLinks) ? (
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                  {eip.eipsUrl && (
+                    <a href={eip.eipsUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium hover:underline">
+                      eips.ethereum.org →
+                    </a>
+                  )}
+                  {externalLinks && (
+                    <>
+                      <a href={externalLinks.githubUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium hover:underline">
+                        GitHub source →
+                      </a>
+                      <a href={externalLinks.eipToolsUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium hover:underline">
+                        eip.tools →
+                      </a>
+                    </>
+                  )}
+                </div>
               ) : null}
             </div>
           ) : null}

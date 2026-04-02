@@ -79,7 +79,7 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark scroll-smooth">
       <body
         className={cn(
           geistSans.variable,

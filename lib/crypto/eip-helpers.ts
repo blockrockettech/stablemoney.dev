@@ -20,6 +20,17 @@ export const COIN_EIP_SYMBOLS = [
 
 export type CoinEipSymbol = (typeof COIN_EIP_SYMBOLS)[number]
 
+/** GitHub source and eip.tools URLs for a numbered EIP/ERC, or null for non-numbered IDs. */
+export function eipExternalLinks(eipId: string): { githubUrl: string; eipToolsUrl: string } | null {
+  const m = /^(EIP|ERC)-(\d+)$/i.exec(eipId.trim())
+  if (!m) return null
+  const n = m[2]
+  return {
+    githubUrl: `https://github.com/ethereum/EIPs/blob/master/EIPS/eip-${n}.md`,
+    eipToolsUrl: `https://eip.tools/eip/${n}`,
+  }
+}
+
 export function eipAnchorId(eipId: string): string {
   const m = /^(EIP|ERC)-(\d+)$/i.exec(eipId.trim())
   if (m) return `eip-${m[2]}`
