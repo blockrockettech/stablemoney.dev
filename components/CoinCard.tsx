@@ -49,12 +49,13 @@ export function CoinCard({
         asLink && "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5 hover:border-l-primary/60"
       )}
     >
+      {/* ── Header: rank · symbol · type ───────────────── */}
       <CardHeader className="border-b border-border/60 pb-3">
-        <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
             <Badge
               variant="outline"
-              className={cn("font-mono text-xs font-bold border", rankClass(marketCapRank))}
+              className={cn("shrink-0 font-mono text-xs font-bold border", rankClass(marketCapRank))}
             >
               #{marketCapRank}
             </Badge>
@@ -62,36 +63,35 @@ export function CoinCard({
               {coin.symbol}
             </span>
           </div>
-          <Badge variant="outline" className="text-[0.6rem] uppercase tracking-wider">
+          <Badge variant="outline" className="shrink-0 text-[0.6rem] uppercase tracking-wider">
             {STABLECOIN_TYPE_LABEL[coin.type]}
           </Badge>
         </div>
+
+        {/* Name + issuer — each clamped to one line so all headers are the same height */}
         <div className="mt-2 space-y-0.5">
-          <div className="text-base font-medium leading-tight">{coin.name}</div>
-          <div className="text-muted-foreground text-sm">{coin.issuer}</div>
+          <div className="line-clamp-1 text-base font-medium leading-tight">{coin.name}</div>
+          <div className="text-muted-foreground line-clamp-1 text-sm">{coin.issuer}</div>
         </div>
       </CardHeader>
+
+      {/* ── Body ───────────────────────────────────────── */}
       <CardContent className="space-y-3 pt-3">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        {/* Market cap left, chain/EIP counts right — never wraps */}
+        <div className="flex items-baseline justify-between gap-2">
           <span className="text-lg font-bold tabular-nums tracking-tight text-primary">
             {getMarketCap(coin.symbol)}
           </span>
-          <span className="text-muted-foreground text-sm">
-            <span className="text-foreground/80 font-medium">{coin.networks.length}</span>{" "}
-            {coin.networks.length === 1 ? "chain" : "chains"}{" "}
-            <span className="text-muted-foreground/80">listed</span>
+          <span className="text-muted-foreground shrink-0 text-xs">
+            {coin.networks.length} {coin.networks.length === 1 ? "chain" : "chains"}
+            {eipImplemented != null && (
+              <span className="text-muted-foreground/70"> · {eipImplemented} EIPs</span>
+            )}
           </span>
-          {eipImplemented != null ? (
-            <Badge
-              variant="secondary"
-              className="font-mono text-[0.6rem]"
-              title="EIP/ERC standards marked implemented"
-            >
-              {eipImplemented} EIPs
-            </Badge>
-          ) : null}
         </div>
-        <div className="flex flex-wrap gap-1.5">
+
+        {/* Network chips — min-h keeps this row the same height even with fewer chips */}
+        <div className="flex min-h-[24px] flex-wrap gap-1.5">
           {topNetworks.map((n) => (
             <NetworkChip
               key={`${n.chain}-${n.name}`}
