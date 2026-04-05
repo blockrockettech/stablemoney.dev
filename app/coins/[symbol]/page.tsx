@@ -50,7 +50,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   if (!coin) return {}
-  const title = `${coin.symbol} — ${coin.name}`
+  const title = `${coin.symbol} — ${coin.name} technical reference`
   const description = coin.description.slice(0, 155)
   const canonicalUrl = `${SITE_CANONICAL_URL}/coins/${params.symbol.toLowerCase()}`
   return {
@@ -105,9 +105,6 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
       />
       <header className="space-y-3 border-b border-border pb-8">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-mono text-3xl font-bold tracking-tight">
-            {coin.symbol}
-          </span>
           <Badge variant="outline" className="text-xs uppercase">
             {STABLECOIN_TYPE_LABEL[coin.type]}
           </Badge>
@@ -115,7 +112,10 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
             Rank #{mcapRank > 0 ? mcapRank : "—"}
           </span>
         </div>
-        <h1 className="text-2xl font-semibold">{coin.name}</h1>
+        <h1 className="flex flex-wrap items-baseline gap-3">
+          <span className="font-mono text-3xl font-bold tracking-tight">{coin.symbol}</span>
+          <span className="text-2xl font-semibold">{coin.name}</span>
+        </h1>
         <p className="text-muted-foreground text-sm">{coin.issuer}</p>
         <p className="text-muted-foreground text-sm">
           Market cap:{" "}

@@ -2,7 +2,7 @@
 
 Technical reference site for engineers and DeFi developers: the top stablecoins by market cap, with networks, contracts, features, and risk notes. **Market cap** (and total tracked cap) is refreshed at build time from [DefiLlama](https://defillama.com/). **Per-coin chain lists and counts** come from manually curated deployments in `data/coins.ts` (official / documented networks only — not every DefiLlama-indexed bridge variant). Live at [stablemoney.dev](https://stablemoney.dev).
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/94202cb9-c3cf-49f5-9331-daeba79d3574/deploy-status)](https://app.netlify.com/projects/stablemoneydev/deploys)
+[Netlify Status](https://app.netlify.com/projects/stablemoneydev/deploys)
 
 ## Stack
 
@@ -23,20 +23,22 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command                | Description                                          |
-| ---------------------- | ---------------------------------------------------- |
-| `npm run dev`          | Development server                                   |
-| `npm run build`        | Production build (runs `prebuild` automatically)     |
-| `npm run prebuild`     | Fetch live market data from DefiLlama                |
-| `npm run start`        | Run production server                                |
-| `npm run lint`         | ESLint                                               |
-| `npm run format`       | Prettier write                                       |
-| `npm run format:check` | Prettier check                                       |
+
+| Command                | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `npm run dev`          | Development server                               |
+| `npm run build`        | Production build (runs `prebuild` automatically) |
+| `npm run prebuild`     | Fetch live market data from DefiLlama            |
+| `npm run start`        | Run production server                            |
+| `npm run lint`         | ESLint                                           |
+| `npm run format`       | Prettier write                                   |
+| `npm run format:check` | Prettier check                                   |
+
 
 ## Project layout
 
-- `app/` — Routes: home, `/coins/[symbol]`, `/onchain-wallet-check`, `/compare`, `sitemap.ts`, `robots.ts`
-- `components/` — UI: cards, filters, search, compare matrix, tables
+- `app/` — Routes: home, `/coins/[symbol]`, `/onchain-wallet-check`, `/standards`, `sitemap.ts`, `robots.ts`
+- `components/` — UI: cards, filters, search, tables
 - `data/coins.ts` — Typed coin dataset
 - `site/` — Site config, coin search (Fuse), feature merge helpers, MDX loader, and `site/content/coins/*.mdx` for optional coin page sections
 - `lib/` — Market data, crypto RPC helpers, EIP utilities, etc.

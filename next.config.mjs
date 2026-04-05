@@ -6,7 +6,7 @@ const nextConfig = {
         source: "/coins/frax",
         destination: "/coins/frxusd",
         permanent: true,
-      },
+      }
     ]
   },
 }

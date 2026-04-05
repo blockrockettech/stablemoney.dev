@@ -10,6 +10,9 @@ const description =
 export const metadata: Metadata = {
   title,
   description,
+  alternates: {
+    canonical: "https://stablemoney.dev/standards",
+  },
   openGraph: {
     title,
     description,
@@ -21,9 +24,22 @@ export const metadata: Metadata = {
   },
 }
 
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://stablemoney.dev" },
+    { "@type": "ListItem", position: 2, name: "ERC / EIP Standards", item: "https://stablemoney.dev/standards" },
+  ],
+}
+
 export default function StandardsPage() {
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <header className="space-y-3 border-b border-border pb-8">
         <h1 className="text-3xl font-bold tracking-tight">ERC / EIP standards and compliance</h1>
         <p className="text-muted-foreground max-w-3xl text-sm leading-relaxed">

@@ -24,7 +24,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   if (!coin) return {}
-  const title = `${coin.symbol} — EIP / ERC Standards`
+  const title = `${coin.symbol} ERC / EIP Standards — ${coin.name} on-chain implementation`
   const description = `ERC-20, EIP-712, EIP-2612, proxy, compliance, and flash loan implementation notes for ${coin.name} (${coin.symbol}).`
   const canonicalUrl = `${SITE_CANONICAL_URL}/coins/${params.symbol.toLowerCase()}/eips`
   return {

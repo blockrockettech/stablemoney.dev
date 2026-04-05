@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     absolute: `${SITE_NAME} — Stablecoin Technical Reference for Engineers`,
   },
   description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "https://stablemoney.dev",
+  },
   openGraph: {
     title: `${SITE_NAME} — Stablecoin Technical Reference`,
     description: SITE_DESCRIPTION,
@@ -45,15 +48,15 @@ export default function HomePage() {
               className="rounded-lg"
               aria-hidden="true"
             />
-            <h1 className="flex items-baseline gap-2 font-mono tracking-tight">
+            <div className="flex items-baseline gap-2 font-mono tracking-tight" aria-hidden="true">
               <span className="text-4xl font-bold text-primary sm:text-5xl">Stable</span>
               <span className="text-4xl font-bold text-foreground sm:text-5xl">Money</span>
               <span className="text-2xl font-semibold text-muted-foreground sm:text-3xl">.dev</span>
-            </h1>
+            </div>
           </div>
-          <p className="text-muted-foreground max-w-2xl text-base leading-relaxed sm:text-lg">
+          <h1 className="text-muted-foreground max-w-2xl text-base leading-relaxed sm:text-lg">
             {SITE_TAGLINE} — networks, contracts, EIP standards, compliance, and risk factors.
-          </p>
+          </h1>
         </div>
 
         {/* Stats row */}
