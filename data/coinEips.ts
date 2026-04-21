@@ -700,7 +700,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes:
           "Standard ERC-20 with DS-Auth ward pattern for mint/burn, inherited from DAI/MakerDAO architecture. The token address is the ERC1967Proxy. No blacklist, no pause, no fee-on-transfer. DaiUsds.sol is a ward and calls mint when DAI is deposited and burn when USDS is redeemed.",
         devImpact:
-          "Clean standard ERC-20 with no compliance extensions. Governance can add a freeze function via upgrade if voted in — the proxy pattern makes this possible.",
+          "Clean ERC-20 surface today with no current compliance hooks, but the upgradeable proxy means integrators should watch implementation changes over time.",
       },
       {
         eipId: "EIP-712",
@@ -837,25 +837,25 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "Freeze",
-        status: "partial",
-        contractPattern: "Planned via governance upgrade — not yet active",
+        status: "not-implemented",
+        contractPattern: "No freeze function in current implementation",
         keyFunctions: [],
         implementationNotes:
-          "USDS is deployed behind an ERC1967Proxy, making it upgradeable via Sky governance spells. The governance has voted to enable an optional address-freeze capability for regulatory compliance at institutional scale, but this has NOT been activated yet. The current USDS implementation has no blacklist, no freeze, and no transfer restrictions. When implemented, it would bring USDS closer to USDC-style compliance capability.",
+          "USDS is deployed behind an ERC1967Proxy, so its behavior can change via governance-approved upgrades, but the current implementation exposes no blacklist, freeze, or transfer-restriction function.",
         devImpact:
-          "Currently, USDS behaves like DAI — fully permissionless with no freeze. Plan for the possibility that a future governance upgrade adds freeze capability. Monitor Sky governance forums and spell proposals for timeline.",
+          "Treat current USDS transfers as permissionless, while monitoring implementation upgrades if your product depends on that assumption.",
         footguns:
-          "The proxy upgradeability means the compliance surface can change without token migration. Protocols that depend on USDS being freeze-free should monitor governance proposals.",
+          "The proxy upgradeability means the compliance surface can change without a token migration. Protocols that depend on USDS being freeze-free should monitor governance proposals and implementation diffs.",
       },
       {
         eipId: "Seize",
         status: "not-implemented",
-        contractPattern: "No seizure mechanism — current or planned",
+        contractPattern: "No seizure mechanism in current implementation",
         keyFunctions: [],
         implementationNotes:
-          "No mechanism to destroy or reclaim USDS from any address. The planned freeze capability (when activated) would freeze-in-place only, similar to USDC's model. No destroyBlackFunds-style seizure has been proposed in Sky governance.",
+          "No mechanism exists today to destroy or reclaim USDS from arbitrary addresses. The current implementation has no destroyBlackFunds-, wipeFrozenAddress-, or clawback-style path.",
         devImpact:
-          "Even after freeze is activated, USDS is expected to follow the USDC freeze-in-place model, not the USDT destroy model. Supply tracking will be unaffected.",
+          "Current supply tracking is unaffected by administrative seizure logic because no such path exists in the live implementation.",
       },
       {
         eipId: "Pause",
@@ -1329,15 +1329,13 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "ERC-7802",
-        status: "alternative",
-        contractPattern: "PYUSD uses LayerZero OFT for cross-chain, not ERC-7802",
+        status: "not-implemented",
+        contractPattern: "No published ERC-7802-style interface on the token",
         keyFunctions: [],
         implementationNotes:
-          "Cross-chain PYUSD uses LayerZero OFT burn-and-mint mechanics. Not ERC-7802 standardised interface.",
-        devImpact: "Use LayerZero SDK for cross-chain PYUSD, not ERC-7802.",
-        alternativeStandard: "LayerZero OFT",
-        alternativeNotes:
-          "LayerZero Omnichain Fungible Token — burn-and-mint via LayerZero endpoints. Achieves cross-chain transfer without the ERC-7802 interface.",
+          "Current PayPal and Paxos documentation publish canonical PYUSD deployments on multiple networks, but they do not expose an ERC-7802 crosschainMint/crosschainBurn interface on the token.",
+        devImpact:
+          "Treat each supported PYUSD network deployment as its own canonical token integration surface unless the issuer documents a specific cross-chain transfer mechanism.",
       },
       {
         eipId: "ERC-3156",
@@ -1735,7 +1733,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
 
   {
     symbol: "USD1",
-    contractName: "USD1 (WLFI) — Foundry/Solidity",
+    contractName: "USD1 — worldliberty/usd1-smart-contracts",
     decimals: 18,
     isUpgradeable: true,
     upgradePattern:
@@ -1753,11 +1751,11 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "unfreeze(address) — compliance",
         ],
         implementationNotes:
-          "Follows standard fiat-backed stablecoin pattern (similar to Paxos FiatToken). BitGo acts as custodian. Mint and burn controlled by WLFI with reserves held by BitGo. IMPORTANT: Always verify contract address from official WLFI sources — do not use addresses from unofficial channels.",
+          "Follows a standard fiat-backed stablecoin pattern with owner-controlled mint, burn, freeze, and pause capabilities. Official USD1 documentation says BitGo handles issuance, custody, and redemptions. Always verify contract addresses from official issuer or project materials before integrating.",
         devImpact:
           "Standard ERC-20 integration. No signature extensions confirmed at this time.",
         footguns:
-          "Early-stage issuer with limited public documentation. Contract addresses must be verified on Etherscan/BscScan from official WLFI sources. Audit reports not yet independently available — full due diligence recommended before any production integration.",
+          "Early-stage stablecoin with limited third-party technical review. Contract addresses must be verified from official issuer/project materials. Audit reports are not prominently disclosed in public documentation, so full due diligence is recommended before production integration.",
       },
       {
         eipId: "EIP-712",
@@ -1888,7 +1886,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes:
           "Verified on Etherscan: inherits OpenZeppelin PausableUpgradeable. Both _transfer and _approve have whenNotPaused modifier. When paused, all transfers and approvals are blocked globally. Single-owner model with renounceOwnership() disabled — the contract will always have an active owner with pause authority.",
         devImpact:
-          "Standard pause risk model. The non-renounceable ownership combined with TransparentUpgradeableProxy means WLFI retains full admin control permanently.",
+          "Standard pause risk model. The non-renounceable ownership combined with the proxy architecture means an admin authority retains full control permanently.",
       },
     ],
   },

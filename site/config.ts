@@ -6,5 +6,5 @@ export const SITE_TAGLINE =
 export const SITE_DESCRIPTION =
   "Engineering-focused stablecoin reference: networks, contracts, features, and risks for top stablecoins by market cap."
 
-/** Bump when static data meaningfully changes */
-export const LAST_UPDATED = "2026-03-26"
+/** Bump when static editorial content or UI changes */
+export const LAST_UPDATED = "2026-04-21"

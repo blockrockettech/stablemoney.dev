@@ -91,7 +91,7 @@ export const coins: Coin[] = [
         contract: "Property ID: 31",
         explorerUrl: "https://www.omniexplorer.info/lookupasset.aspx?asset=31",
         isPrimary: false,
-        notes: "Original deployment, minimal usage",
+        notes: "Historical deployment only — Tether no longer issues or redeems Omni USDT",
       },
       {
         name: "TON",
@@ -129,10 +129,10 @@ export const coins: Coin[] = [
           "Highest-volume deployment due to near-zero fees — dominant in retail and exchange use.",
       },
       {
-        name: "Daily reserve reports",
+        name: "Daily reserve transparency",
         category: "compliance",
         description:
-          "Tether publishes daily attestations and quarterly third-party reports on reserve composition.",
+          "Tether publishes daily reserve and circulation data, alongside quarterly third-party reserve reports.",
       },
       {
         name: "Issuer mint/burn",
@@ -598,7 +598,7 @@ export const coins: Coin[] = [
     issuer: "Sky Protocol",
     type: "crypto",
     description:
-      "Upgraded successor to DAI, launched with the MakerDAO→Sky Protocol rebrand in 2024. Interchangeable with DAI at 1:1 via DaiUsds.sol migration contract. Key additions: upgradeable proxy, planned freeze function for regulatory compliance, Sky Savings Rate, and official Ethereum–Solana bridge availability (Skylink / Wormhole NTT — not a separate native Solana token deployment).",
+      "Upgraded successor to DAI, launched with the MakerDAO→Sky Protocol rebrand in 2024. Interchangeable with DAI at 1:1 via DaiUsds.sol migration contract. Key additions: upgradeable proxy architecture, Sky Savings Rate, and official Ethereum–Solana bridge availability (Skylink / Wormhole NTT, later migrated to LayerZero infrastructure — not a separate native Solana issuance).",
     networks: [
       {
         name: "Ethereum",
@@ -629,13 +629,7 @@ export const coins: Coin[] = [
         category: "compliance",
         eip: "EIP-1967",
         description:
-          "Sky governance can upgrade the USDS implementation via governance spell — enables future features including freeze.",
-      },
-      {
-        name: "Planned freeze function",
-        category: "compliance",
-        description:
-          "Governance voted to enable optional asset-freeze capability for regulatory compliance at institutional scale. Not yet active.",
+          "Sky governance can upgrade the USDS implementation via governance spell, so integrators should monitor implementation changes.",
       },
       {
         name: "Sky Token Rewards",
@@ -658,7 +652,7 @@ export const coins: Coin[] = [
     yield: "sUSDS ~4.75% SSR",
     risks: [
       { label: "Upgradeability introduces governance risk", level: "medium" },
-      { label: "Potential future freeze capability", level: "low" },
+      { label: "Upgradeability changes trust assumptions vs DAI", level: "low" },
       { label: "Slower adoption than DAI", level: "low" },
     ],
     technicalNotes:
@@ -750,7 +744,7 @@ export const coins: Coin[] = [
     issuer: "Paxos Trust Company (for PayPal)",
     type: "fiat",
     description:
-      "Most UX-focused stablecoin with deep fintech integration across PayPal and Venmo (400M+ users). Issued by Paxos (NYDFS-regulated). The Solana deployment uses Token Extensions (Token-2022) enabling confidential transfers, transfer hooks, and memo fields. In March 2026, PayPal expanded PYUSD to 70 international markets across Asia-Pacific, Europe, Latin America, and North America.",
+      "Consumer-focused stablecoin with deep PayPal and Venmo distribution. Issued by Paxos (NYDFS-regulated). PayPal's current terms list PYUSD support on Ethereum, Solana, Arbitrum, and Stellar. The Solana deployment uses Token Extensions (Token-2022) for programmable token controls.",
     networks: [
       {
         name: "Ethereum",
@@ -770,7 +764,27 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://solscan.io/token/2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo",
         isPrimary: true,
-        notes: "SPL Token Extensions program (Paxos lists Ethereum + Solana only)",
+        notes: "Token-2022 deployment with Paxos-controlled extensions",
+      },
+      {
+        name: "Arbitrum",
+        chain: "arbitrum",
+        standard: "ERC-20",
+        contract: "0x46850aD61C2B7d64d08c9C754F45254596696984",
+        explorerUrl:
+          "https://arbiscan.io/token/0x46850aD61C2B7d64d08c9C754F45254596696984",
+        isPrimary: false,
+        notes: "Mainnet address published in Paxos developer docs",
+      },
+      {
+        name: "Stellar",
+        chain: "stellar",
+        standard: "Stellar asset",
+        contract: "PYUSD:GDQE7IXJ4HUHV6RQHIUPRJSEZE4DRS5WY577O2FY6YQ5LVWZ7JZTU2V5",
+        explorerUrl:
+          "https://stellar.expert/explorer/public/asset/PYUSD-GDQE7IXJ4HUHV6RQHIUPRJSEZE4DRS5WY577O2FY6YQ5LVWZ7JZTU2V5",
+        isPrimary: false,
+        notes: "Asset code and issuer published in Paxos docs",
       },
     ],
     features: [
@@ -805,16 +819,10 @@ export const coins: Coin[] = [
           "Paxos holds permanent delegate authority to freeze or seize funds for NYDFS regulatory compliance — initialized at mint creation.",
       },
       {
-        name: "LayerZero OFT burn-and-mint",
-        category: "cross-chain",
-        description:
-          "Burn-and-mint bridge: PYUSD burned on source chain, minted on destination. No bridge liquidity pools — eliminates slippage and inflation risk.",
-      },
-      {
         name: "PayPal/Venmo unified balance",
         category: "compliance",
         description:
-          "Users see a single dollar balance in PayPal and Venmo apps regardless of underlying chain.",
+          "PayPal abstracts blockchain selection in its app experience rather than exposing users to explicit per-chain routing.",
       },
       {
         name: "~4% APY on PYUSD (custodial)",
@@ -826,7 +834,7 @@ export const coins: Coin[] = [
     reserves: "USD deposits, US Treasuries, cash equivalents",
     collateralType: "Fiat (off-chain)",
     pegMechanism: "Hard 1:1 via Paxos redemption",
-    auditor: "KPMG LLP (monthly attestation, effective Feb 2025)",
+    auditor: "KPMG LLP (monthly attestation)",
     defiIntegration: "Kamino, Marginfi (Solana); Aave (Ethereum); emerging",
     yield: "~4% APY via PayPal (custodial; rate variable)",
     risks: [
@@ -912,7 +920,7 @@ export const coins: Coin[] = [
     issuer: "Techteryx Ltd.",
     type: "fiat",
     description:
-      "One of the earliest regulated stablecoins (2018). Acquired by Techteryx Ltd. (BVI) in 2020; Archblock (formerly TrueCoin), the original operator, filed for Chapter 11 bankruptcy in 2025. TUSD is under significant legal and financial stress: $456M in reserves were locked in an illiquid offshore fund (Cayman-based Aria Commodity Finance Fund) and a Dubai court issued a global freezing order on those assets in November 2025. TrueCoin and TrustToken settled with the SEC in September 2024 for fraud charges related to falsely marketing TUSD as fully dollar-backed. Real-time attestations have been suspended/unreliable. The peg has been maintained only due to a ~$500M bailout by Justin Sun.",
+      "One of the earliest regulated stablecoins (2018). Acquired by Techteryx Ltd. (BVI) in 2020, TUSD now presents a mixed diligence picture: the issuer site currently markets daily reserve attestations by Moore Hong Kong, while adverse SEC action against former operators and later reserve-dispute reporting raise serious questions about historical transparency and reserve handling.",
     networks: [
       {
         name: "Ethereum",
@@ -954,10 +962,10 @@ export const coins: Coin[] = [
     ],
     features: [
       {
-        name: "Real-time on-chain attestation",
+        name: "Daily reserve attestations",
         category: "compliance",
         description:
-          "The Network Firm provides real-time reserve attestations visible directly on-chain — first stablecoin to implement this.",
+          "TUSD currently markets daily reserve attestations, with reserve reports executed by Moore Hong Kong.",
       },
       {
         name: "Chainlink Proof of Reserve",
@@ -978,11 +986,11 @@ export const coins: Coin[] = [
           "Issuer can freeze individual accounts for regulatory compliance via ERC-20 admin function.",
       },
     ],
-    reserves: "USD held in trust across multiple banking partners",
+    reserves:
+      "Reserve assets are reported through TUSD transparency disclosures; verify current reserve composition and counterparties directly from issuer reports",
     collateralType: "Fiat (off-chain)",
     pegMechanism: "Hard 1:1 via trust company redemption",
-    auditor:
-      "The Network Firm (real-time attestations suspended — unreliable as of 2025)",
+    auditor: "Moore Hong Kong (daily reserve attestation reports on tusd.io)",
     defiIntegration: "Limited — PancakeSwap (BNB), select DEXes",
     yield: "None",
     risks: [
@@ -990,7 +998,7 @@ export const coins: Coin[] = [
       { label: "SEC fraud settlement — TrueCoin/TrustToken Sept 2024", level: "high" },
       { label: "Archblock (operator) Chapter 11 bankruptcy 2025", level: "high" },
       {
-        label: "Attestations suspended — reserve transparency unreliable",
+        label: "Issuer transparency claims conflict with adverse reporting",
         level: "high",
       },
       {
@@ -1000,16 +1008,16 @@ export const coins: Coin[] = [
       { label: "Declining exchange support and MiCA delisting", level: "medium" },
     ],
     technicalNotes:
-      "18 decimals. Proxy address 0x0000000000085d4780B73119b644AE5ecd22b376 uses deliberate leading zeros (vanity deployment) — can confuse address parsers. Implementation 0xDBC97a631c2fee80417d5d69f32b198c8c39c27e. TrueCurrencyWithLegacyAutosweep inheritance chain. Deprecated TrueReward feature (per-account interest toggle) — legacy code remains. Controller proxy pattern is NOT standard EIP-1967 — proxy detection tooling may mislabel. $456M reserves stuck in unauthorized illiquid investments ('large-scale fraud' per court filings). Peg maintained by Justin Sun $456M bailout. Attestations suspended.",
+      "18 decimals. Proxy address 0x0000000000085d4780B73119b644AE5ecd22b376 uses deliberate leading zeros (vanity deployment) — can confuse address parsers. Implementation 0xDBC97a631c2fee80417d5d69f32b198c8c39c27e. TrueCurrencyWithLegacyAutosweep inheritance chain. Deprecated TrueReward feature (per-account interest toggle) — legacy code remains. Controller proxy pattern is NOT standard EIP-1967 — proxy detection tooling may mislabel. SEC filings and later reserve-dispute reporting describe major historical reserve-handling issues, so current issuer transparency statements should be treated cautiously and re-verified before integration.",
     docsUrl: "https://tusd.io",
   },
   {
     symbol: "USD1",
     name: "World Liberty Financial USD1",
-    issuer: "World Liberty Financial (WLFI)",
+    issuer: "BitGo Trust Company, Inc. / BitGo Technologies LLC",
     type: "fiat",
     description:
-      "Fastest-growing stablecoin of 2025 — announced March 2025 and went live around April 2025 (sources vary). Reached $4.7B by February 2026 via Binance and Abu Dhabi MGX partnerships. Backed 1:1 by USD, US Treasuries, and cash equivalents, custodied by BitGo. In February 2026, USD1 traded below peg during what WLFI described as a coordinated attack; reported lows varied by venue — broad trackers cited around $0.994 while some exchanges showed deeper intraday wicks. WLFI launched World Liberty Markets (lending platform using USD1) in January 2026 and an AI payments SDK in March 2026.",
+      "USD-backed stablecoin branded by World Liberty Financial and issued by BitGo. Official WLFI documentation says USD1 is redeemable 1:1 for USD and backed by short-term U.S. government treasuries, U.S. government money market funds, U.S. dollar deposits, and other cash equivalents. WLFI markets USD1 as a multichain stablecoin with BitGo handling issuance, reserve custody, and redemptions.",
     networks: [
       {
         name: "Ethereum",
@@ -1037,7 +1045,7 @@ export const coins: Coin[] = [
         name: "BitGo qualified custody",
         category: "compliance",
         description:
-          "USD reserves and Treasuries held by BitGo Trust Company (South Dakota chartered trust) — regulated qualified custodian for institutional assets.",
+          "Official WLFI documentation says reserve assets are held or maintained by BitGo Trust and/or BitGo Tech, with BitGo processing purchases and redemptions.",
       },
       {
         name: "Chainlink real-time Proof of Reserves",
@@ -1049,7 +1057,7 @@ export const coins: Coin[] = [
         name: "BitGo monthly attestations",
         category: "compliance",
         description:
-          "BitGo publishes monthly reserve attestation reports examined by an independent accounting firm per AICPA criteria.",
+          "WLFI publishes monthly attestation reports and says reserves are periodically examined by an independent third-party firm.",
       },
       {
         name: "Multi-chain deployment",
@@ -1073,7 +1081,8 @@ export const coins: Coin[] = [
     reserves: "USD, US Treasuries, cash equivalents — BitGo custody",
     collateralType: "Fiat and Treasuries (off-chain)",
     pegMechanism: "Hard 1:1 via issuer redemption",
-    auditor: "BitGo (monthly attestation) + Chainlink real-time Proof of Reserves",
+    auditor:
+      "Independent third-party reserve examinations, plus monthly attestation reports and Chainlink-powered proof of reserves",
     defiIntegration: "CEX only — Binance, select exchanges",
     yield: "None",
     risks: [
@@ -1083,7 +1092,7 @@ export const coins: Coin[] = [
       { label: "No DeFi depth", level: "medium" },
     ],
     technicalNotes:
-      "18 decimals. Source code public at worldliberty/usd1-smart-contracts (Foundry/Solidity). TransparentUpgradeableProxy (EIP-1967) confirmed. Conforms to EIP-20, EIP-712, EIP-2612. Freeze capability. EVM contract 0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d on Ethereum and BNB Chain (verified). WLFI also advertises additional chains — only explorer-verified deployments are listed here. Monthly AICPA attestations (2025 criteria). Notable gap: no formal smart contract security audit from a recognized firm publicly disclosed.",
+      "18 decimals. Source code public at worldliberty/usd1-smart-contracts (Foundry/Solidity). TransparentUpgradeableProxy (EIP-1967) confirmed. Conforms to EIP-20, EIP-712, EIP-2612. Freeze capability. EVM contract 0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d on Ethereum and BNB Chain (verified). WLFI advertises additional chains, but only explorer-verified deployments are listed here. Proof of reserves uses a Chainlink oracle, while formal reserve reporting is published separately in monthly attestation reports.",
   },
   {
     symbol: "GHO",

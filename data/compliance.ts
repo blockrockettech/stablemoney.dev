@@ -598,7 +598,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
     symbol: "USDS",
     hasComplianceControls: false,
     noControlsReason:
-      "Freeze function voted in by governance but NOT yet deployed on-chain as of this check. Will be added once active.",
+      "Current USDS implementation has no on-chain freeze or blacklist function. Because the token is upgradeable, integrators should still monitor governance-approved implementation changes.",
     chains: [],
   },
 

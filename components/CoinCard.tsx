@@ -51,8 +51,7 @@ export function CoinCard({
     >
       {/* ── Header: rank · symbol · type ───────────────── */}
       <CardHeader className="border-b border-border/60 pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
             <Badge
               variant="outline"
               className={cn("shrink-0 font-mono text-xs font-bold border", rankClass(marketCapRank))}
@@ -62,11 +61,14 @@ export function CoinCard({
             <span className="font-mono text-lg font-bold tracking-tight">
               {coin.symbol}
             </span>
-          </div>
-          <Badge variant="outline" className="shrink-0 text-[0.6rem] uppercase tracking-wider">
-            {STABLECOIN_TYPE_LABEL[coin.type]}
-          </Badge>
         </div>
+
+        <Badge
+          variant="outline"
+          className="h-auto max-w-full self-start whitespace-normal px-2 py-1 text-[0.6rem] leading-tight uppercase tracking-wider"
+        >
+          {STABLECOIN_TYPE_LABEL[coin.type]}
+        </Badge>
 
         {/* Name + issuer — each clamped to one line so all headers are the same height */}
         <div className="mt-2 space-y-0.5">

@@ -391,14 +391,6 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         { label: "MakerDAO GitHub", url: "https://github.com/makerdao" },
       ],
     },
-    "Planned freeze function": {
-      audience: "corporate",
-      rationale:
-        "Future freeze capability has been discussed for institutional compliance — track governance for activation.",
-      riskNotes:
-        "If activated, censorship assumptions for USDS diverge from historical DAI expectations.",
-      links: [{ label: "Sky docs", url: "https://docs.sky.money/" }],
-    },
     "Sky Token Rewards": {
       audience: "user",
       rationale:
@@ -527,15 +519,6 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         { label: "PYUSD (PayPal)", url: "https://www.paypal.com/us/digital-wallet/pyusd" },
       ],
     },
-    "LayerZero OFT burn-and-mint": {
-      audience: "both",
-      standards: ["LayerZero OFT"],
-      rationale:
-        "Cross-chain PYUSD uses burn/mint pattern — follow LayerZero peer configuration like other OFT assets.",
-      riskNotes:
-        "Bridge risk if peers mis-set; verify official OFT deployment addresses.",
-      links: [{ label: "LayerZero docs", url: "https://docs.layerzero.network/" }],
-    },
     "PayPal/Venmo unified balance": {
       audience: "user",
       rationale:
@@ -597,10 +580,10 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
   },
 
   TUSD: {
-    "Real-time on-chain attestation": {
+    "Daily reserve attestations": {
       audience: "corporate",
       rationale:
-        "Attestation cadence for transparency — useful for dashboards; verify what is actually attested on-chain vs marketing claims.",
+        "Issuer-published reserve attestations are useful for diligence workflows, but integrators should verify scope, cadence, and methodology rather than assuming real-time on-chain proof.",
       riskNotes:
         "Attestation provider or methodology changes can break monitoring assumptions.",
       links: [{ label: "TrueUSD", url: "https://tusd.io/" }],
@@ -644,10 +627,10 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
     "BitGo qualified custody": {
       audience: "corporate",
       rationale:
-        "Reserves custodied with BitGo Trust Company (South Dakota chartered trust) — institutional due diligence focus; on-chain token does not custody assets.",
+        "Official USD1 documentation says reserve assets are held or maintained by BitGo Trust and/or BitGo Tech, so diligence should focus on the issuer-custodian stack rather than the token contract alone.",
       riskNotes:
         "Counterparty to custodian and issuer; early-stage disclosure may be limited.",
-      links: [{ label: "BitGo", url: "https://www.bitgo.com/" }],
+      links: [{ label: "USD1 FAQ", url: "https://docs.worldlibertyfinancial.com/resources/faq" }],
     },
     "Chainlink real-time Proof of Reserves": {
       audience: "both",
@@ -663,10 +646,10 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
     "BitGo monthly attestations": {
       audience: "corporate",
       rationale:
-        "Monthly reserve attestation reports examined by an independent accounting firm per AICPA 2025 criteria — used for listing and compliance reviews, not on-chain proof.",
+        "Monthly attestation reports provide periodic reserve confirmation, but they are still point-in-time reports rather than continuous on-chain proof.",
       riskNotes:
         "Attestation lag vs real-time market; scope and criteria can change between periods.",
-      links: [{ label: "BitGo", url: "https://www.bitgo.com/" }],
+      links: [{ label: "USD1 Proof of Reserves", url: "https://docs.worldlibertyfinancial.com/usd1-token/proof-of-reserves" }],
     },
     "Multi-chain deployment": {
       audience: "both",
