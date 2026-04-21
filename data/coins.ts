@@ -1222,7 +1222,7 @@ export const coins: Coin[] = [
     ],
     technicalNotes:
       "18 decimals. Ethereum mainnet GHO is a non-proxied immutable contract (Solmate-derived ERC20 + OZ AccessControl). L2 deployments use UpgradeableGhoToken (proxy-based, Initializable). Custom ERC20 base from Solmate — gas-optimised with built-in EIP-2612 permit() and EIP-712 DOMAIN_SEPARATOR. No EIP-3009 transferWithAuthorization. No freeze, seize, or pause on the GHO token itself — fully permissionless transfers. Flash mints via separate GhoFlashMinter facilitator (ERC-3156). GSM4626 variant supports ERC-4626 vault shares as exogenous token. CCIP cross-chain uses GhoCCIPTokenPoolEthereum (lock/release on L1) and GhoCCIPTokenPool (burn/mint on L2s). AccessControl roles: DEFAULT_ADMIN_ROLE (Aave Governance), FACILITATOR_MANAGER_ROLE, BUCKET_MANAGER_ROLE.",
-    docsUrl: "https://docs.gho.xyz/",
+    docsUrl: "https://aave.com/docs/developers/gho",
     githubUrl: "https://github.com/aave/gho-core",
   },
   {

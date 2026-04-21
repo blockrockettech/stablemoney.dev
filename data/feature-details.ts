@@ -99,8 +99,8 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
       links: [
         { label: "EIP-2612", url: EIP(2612) },
         {
-          label: "Circle: USDC on Ethereum",
-          url: "https://developers.circle.com/stablecoins/usdc-on-main-networks",
+          label: "Circle: multi-chain USDC",
+          url: "https://www.circle.com/multi-chain-usdc",
         },
         {
           label: "Verified FiatToken (Ethereum)",
@@ -407,15 +407,16 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         "Reward parameters change; smart contract risk in distributor contracts.",
       links: [{ label: "Sky.money", url: "https://sky.money/" }],
     },
-    "Solana cross-chain": {
+    "Ethereum–Solana bridge": {
       audience: "both",
-      standards: ["Wormhole OFT"],
+      standards: ["Wormhole NTT", "Skylink"],
       rationale:
-        "Non-EVM deployment via Wormhole — Solana programs differ from EVM; use Wormhole tooling for addresses.",
+        "USDS on Solana is bridged from Ethereum via Skylink (Wormhole NTT burn-and-mint with rate limits) — not a separate native Solana mint. Integrations must treat bridged balance as distinct from canonical Ethereum supply.",
       riskNotes:
-        "Cross-chain messaging risk in addition to base stablecoin risk.",
+        "Cross-chain messaging risk (Wormhole guardian set) in addition to base USDS risk; rate limits can stall large flows.",
       links: [
-        { label: "Wormhole docs", url: "https://docs.wormhole.com/" },
+        { label: "Skylink docs", url: "https://docs.sky.money/" },
+        { label: "Wormhole NTT", url: "https://wormhole.com/products/ntt" },
       ],
     },
   },
@@ -543,12 +544,12 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         "Off-chain ledger and on-chain wraps can diverge during incidents.",
       links: [{ label: "PayPal PYUSD", url: "https://www.paypal.com/us/digital-wallet/pyusd" }],
     },
-    "3.7% APY on PYUSD": {
+    "~4% APY on PYUSD (custodial)": {
       audience: "user",
       rationale:
-        "Custodial yield product — not on-chain DeFi yield; terms set by PayPal, not smart contracts.",
+        "Custodial yield product — not on-chain DeFi yield; terms set by PayPal, not smart contracts. Rate is variable and advertised on PayPal's consumer PYUSD page.",
       riskNotes:
-        "Yield can change; not FDIC insured; counterparty to PayPal/Paxos stack.",
+        "Yield can change at PayPal's discretion; not FDIC insured; counterparty to PayPal/Paxos stack.",
       links: [{ label: "PayPal PYUSD", url: "https://www.paypal.com/us/digital-wallet/pyusd" }],
     },
   },
@@ -643,32 +644,51 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
     "BitGo qualified custody": {
       audience: "corporate",
       rationale:
-        "Reserves custodied with BitGo — institutional due diligence focus; on-chain token does not custody assets.",
+        "Reserves custodied with BitGo Trust Company (South Dakota chartered trust) — institutional due diligence focus; on-chain token does not custody assets.",
       riskNotes:
         "Counterparty to custodian and issuer; early-stage disclosure may be limited.",
       links: [{ label: "BitGo", url: "https://www.bitgo.com/" }],
     },
-    "Multi-chain from genesis": {
+    "Chainlink real-time Proof of Reserves": {
+      audience: "both",
+      standards: ["Chainlink PoR"],
+      rationale:
+        "PoR oracle pulls live BitGo custody data on-chain so any contract can verify reserve ratio without trusting WLFI — useful for oracle-gated mint/burn or risk circuit-breakers.",
+      riskNotes:
+        "PoR depends on Chainlink liveness and BitGo feeding correct data; oracle stall or deviation can block dependent protocols.",
+      links: [
+        { label: "Chainlink PoR", url: "https://docs.chain.link/data-feeds/proof-of-reserve" },
+      ],
+    },
+    "BitGo monthly attestations": {
+      audience: "corporate",
+      rationale:
+        "Monthly reserve attestation reports examined by an independent accounting firm per AICPA 2025 criteria — used for listing and compliance reviews, not on-chain proof.",
+      riskNotes:
+        "Attestation lag vs real-time market; scope and criteria can change between periods.",
+      links: [{ label: "BitGo", url: "https://www.bitgo.com/" }],
+    },
+    "Multi-chain deployment": {
       audience: "both",
       rationale:
-        "Verify **official** contract addresses per chain before integration — placeholders in static data are not authoritative.",
+        "Only explorer-verified native deployments are listed (Ethereum, BNB Chain) — other chains are omitted until canonical contract IDs are confirmed. Always pin the address from the issuer before integrating.",
       riskNotes:
-        "Wrong address integration is total loss; phishing and fake tokens are likely for high-profile launches.",
+        "Wrong address integration is total loss; phishing and fake USD1 tokens are common for high-profile launches.",
     },
     "Institutional partner focus": {
       audience: "corporate",
       rationale:
-        "Distribution may skew to partner venues — on-chain liquidity depth may lag top stables.",
+        "Distribution skews to partner venues (Binance, Abu Dhabi MGX) — on-chain liquidity depth may lag top stables.",
       riskNotes:
-        "Concentration and listing risk; thin AMM liquidity on some chains.",
+        "Concentration and listing risk; thin AMM liquidity on some chains; political exposure tied to WLFI affiliations.",
     },
     "Standard ERC-20/BEP-20 admin": {
       audience: "corporate",
       standards: ["ERC-20", "BEP-20"],
       rationale:
-        "Typical centralized stable pattern — mint/burn/freeze; read verified source after addresses are confirmed.",
+        "Typical centralized stable pattern — mint, burn, and freeze admin functions; read verified source before integrating.",
       riskNotes:
-        "Admin key compromise is catastrophic; freeze risk for users.",
+        "Admin key compromise is catastrophic; freeze risk for users. No formal smart contract audit from a recognized firm publicly disclosed.",
       links: [{ label: "EIP-20", url: ERC(20) }],
     },
   },
@@ -681,7 +701,7 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
       riskNotes:
         "Governance can add/remove facilitators and adjust caps. A governance attack could dramatically expand supply.",
       links: [
-        { label: "GHO docs", url: "https://docs.gho.xyz/" },
+        { label: "GHO docs", url: "https://aave.com/docs/developers/gho" },
         {
           label: "GhoToken source (GitHub)",
           url: "https://github.com/aave/gho-core/blob/main/src/contracts/gho/GhoToken.sol",
@@ -734,7 +754,7 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
       riskNotes:
         "GSM can be frozen by OracleSwapFreezer if exogenous token price deviates. Last Resort Liquidation can forcibly liquidate GSM holdings. Fee strategy changes affect arbitrage profitability.",
       links: [
-        { label: "GSM docs", url: "https://docs.gho.xyz/" },
+        { label: "GSM docs", url: "https://aave.com/docs/developers/gho" },
         {
           label: "GSM USDC (Etherscan)",
           url: "https://etherscan.io/address/0x3A3868898305f04beC7FEa77BecFf04C13444112",
@@ -794,6 +814,80 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         "Governance attack vector: malicious proposals could dramatically change GHO economics. GHO Stewards add operational agility but introduce multisig trust assumptions.",
       links: [
         { label: "GHO Stewards source", url: "https://github.com/aave/gho-core/tree/main/src/contracts/misc" },
+      ],
+    },
+  },
+
+  RLUSD: {
+    "EIP-2612 permit()": {
+      audience: "user",
+      standards: ["EIP-2612", "EIP-712"],
+      rationale:
+        "Gasless approval via signed message — added in the V2 upgrade (September 2025). Compliance-gated: reverts if owner, spender, or msg.sender is frozen, or if the contract is globally paused.",
+      riskNotes:
+        "Permit reverts silently for frozen parties — callers relying on bool returns will misinterpret failure. No EIP-1271 support, so smart-contract wallets need Permit2 or an EOA signer.",
+      links: [
+        { label: "EIP-2612", url: EIP(2612) },
+        {
+          label: "RLUSD proxy (Etherscan)",
+          url: "https://etherscan.io/address/0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD#code",
+        },
+      ],
+    },
+    "Account freeze": {
+      audience: "corporate",
+      rationale:
+        "PAUSER_ROLE can freeze individual addresses via `pauseAccounts(address[])`. Frozen accounts cannot send, receive, or approve — integrations must surface failures to users.",
+      riskNotes:
+        "Custom AccountPausableUpgradeable with ERC-7201 namespaced storage. Freeze risk applies to every flow including permit and burn-for-redemption.",
+      links: [
+        {
+          label: "RLUSD implementation source",
+          url: "https://github.com/ripple/RLUSD-Implementation",
+        },
+      ],
+    },
+    "Clawback (seize)": {
+      audience: "corporate",
+      rationale:
+        "CLAWBACKER_ROLE can burn tokens from any address — including frozen accounts — via `clawback(address, uint256)`. More powerful than USDC's freeze-only: tokens are permanently destroyed rather than held pending unfreeze.",
+      riskNotes:
+        "Irreversible supply reduction from an arbitrary address. Custody products must disclose this to end users; DeFi integrations must assume supply can be removed at any time.",
+      links: [
+        { label: "Ripple stablecoin overview", url: "https://ripple.com/solutions/stablecoin/" },
+      ],
+    },
+    "Global pause": {
+      audience: "corporate",
+      rationale:
+        "PAUSER_ROLE can halt all transfers, mints, burns, approvals, and permits contract-wide via `pause()` / `unpause()` — useful during incidents, but every dependent protocol stalls.",
+      riskNotes:
+        "A single role can brick the token globally; design for sudden total illiquidity and avoid time-sensitive unwinds that assume transfers work.",
+    },
+    "UUPS upgradeable": {
+      audience: "corporate",
+      standards: ["EIP-1822", "EIP-1967"],
+      rationale:
+        "UPGRADER_ROLE can upgrade implementation via `upgradeToAndCall()`. Already exercised: V1 → V2 upgrade (September 2025) added EIP-2612 permit support — monitor implementation slot and diff bytecode on upgrades.",
+      riskNotes:
+        "UUPS without a public `upgradeTo()` becomes permanently non-upgradeable if an implementation without it is deployed — standard UUPS footgun. Governance/admin compromise can alter token logic.",
+      links: [
+        { label: "EIP-1822 (UUPS)", url: EIP(1822) },
+        { label: "EIP-1967", url: EIP(1967) },
+      ],
+    },
+    "Six-role access control": {
+      audience: "corporate",
+      standards: ["OpenZeppelin AccessControl"],
+      rationale:
+        "DEFAULT_ADMIN, MINTER, BURNER, PAUSER, CLAWBACKER, UPGRADER are separated so capabilities can be distributed. BURNER is self-burn for redemption; CLAWBACKER can seize from any address — distinct responsibilities worth monitoring independently.",
+      riskNotes:
+        "Six roles mean six admin attack surfaces; compromise of CLAWBACKER or UPGRADER is catastrophic. Verify role holders on-chain rather than trusting disclosure.",
+      links: [
+        {
+          label: "OpenZeppelin AccessControl",
+          url: "https://docs.openzeppelin.com/contracts/5.x/access-control",
+        },
       ],
     },
   },
