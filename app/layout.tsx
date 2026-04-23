@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import localFont from "next/font/local"
 import Image from "next/image"
 import Link from "next/link"
+import Script from "next/script"
 import "./globals.css"
 import {
   SITE_CANONICAL_URL,
@@ -25,6 +26,7 @@ const geistMono = localFont({
 })
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_CANONICAL_URL
+const GA_MEASUREMENT_ID = "G-3S5JH16SW5"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -87,56 +89,68 @@ export default function RootLayout({
           "min-h-screen bg-background font-sans antialiased"
         )}
       >
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-          <div className="flex min-h-screen flex-col">
-            <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-lg">
-              <div className="mx-auto flex w-full max-w-6xl items-center gap-6 px-4 py-3">
-                <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-                  <Image
-                    src="/favicon.svg"
-                    alt=""
-                    width={28}
-                    height={28}
-                    className="rounded-md"
-                    aria-hidden="true"
-                  />
-                  <span className="flex items-baseline gap-1.5">
-                    <span className="font-mono text-lg font-bold tracking-tight text-primary">
-                      Stable
-                    </span>
-                    <span className="font-mono text-lg font-bold tracking-tight text-foreground">
-                      Money
-                    </span>
-                    <span className="font-mono text-sm font-medium text-muted-foreground">.dev</span>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <div className="flex min-h-screen flex-col">
+          <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-lg">
+            <div className="mx-auto flex w-full max-w-6xl items-center gap-6 px-4 py-3">
+              <Link href="/" className="group flex shrink-0 items-center gap-2.5">
+                <Image
+                  src="/favicon.svg"
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="rounded-md"
+                  aria-hidden="true"
+                />
+                <span className="flex items-baseline gap-1.5">
+                  <span className="font-mono text-lg font-bold tracking-tight text-primary">
+                    Stable
                   </span>
-                </Link>
-
-                <span className="text-muted-foreground/40 hidden text-sm sm:inline">|</span>
-                <span className="text-muted-foreground hidden text-xs sm:inline">
-                  {SITE_TAGLINE}
+                  <span className="font-mono text-lg font-bold tracking-tight text-foreground">
+                    Money
+                  </span>
+                  <span className="font-mono text-sm font-medium text-muted-foreground">.dev</span>
                 </span>
+              </Link>
 
-                <nav className="ml-auto flex items-center gap-4 text-sm font-medium">
-                  <Link href="/" className="text-muted-foreground transition-colors hover:text-primary">
-                    Home
-                  </Link>
-                  <Link href="/standards" className="text-muted-foreground transition-colors hover:text-primary">
-                    Standards
-                  </Link>
-                  <Link href="/onchain-wallet-check" className="text-muted-foreground transition-colors hover:text-primary">
-                    Wallet check
-                  </Link>
-                </nav>
-              </div>
-            </header>
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-              {children}
-            </main>
-            <Footer />
-          </div>
+              <span className="text-muted-foreground/40 hidden text-sm sm:inline">|</span>
+              <span className="text-muted-foreground hidden text-xs sm:inline">
+                {SITE_TAGLINE}
+              </span>
+
+              <nav className="ml-auto flex items-center gap-4 text-sm font-medium">
+                <Link href="/" className="text-muted-foreground transition-colors hover:text-primary">
+                  Home
+                </Link>
+                <Link href="/standards" className="text-muted-foreground transition-colors hover:text-primary">
+                  Standards
+                </Link>
+                <Link href="/onchain-wallet-check" className="text-muted-foreground transition-colors hover:text-primary">
+                  Wallet check
+                </Link>
+              </nav>
+            </div>
+          </header>
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+            {children}
+          </main>
+          <Footer />
+        </div>
       </body>
     </html>
   )
