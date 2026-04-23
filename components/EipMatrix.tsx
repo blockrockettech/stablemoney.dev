@@ -4,7 +4,7 @@ import type { ReactNode } from "react"
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { EIPS, EIP_CATEGORY_ORDER } from "@/data/coinEips"
-import type { Eip, EipCategory, EipStatus } from "@/types/eip"
+import type { Eip, EipCategory, EipScope, EipStatus } from "@/types/eip"
 import {
   COIN_EIP_SYMBOLS,
   eipAnchorId,
@@ -54,17 +54,36 @@ const statusTooltipBadge: Record<EipStatus, string> = {
   alternative: "bg-violet-500/15 text-violet-900 dark:bg-violet-500/20 dark:text-violet-200",
 }
 
+const scopeTooltipBadge = {
+  "network-specific":
+    "bg-sky-500/15 text-sky-900 dark:bg-sky-500/20 dark:text-sky-200",
+  "deployment-specific":
+    "bg-cyan-500/15 text-cyan-900 dark:bg-cyan-500/20 dark:text-cyan-200",
+} as const
+
+const scopeMatrixText = {
+  "network-specific": "NET",
+  "deployment-specific": "DEPLOY",
+} as const
+
+const scopeTooltipText = {
+  "network-specific": "Network-specific",
+  "deployment-specific": "Deployment-specific",
+} as const
+
 function MatrixCellTooltip({
   sym,
   eip,
   status,
   description,
+  scope,
   children,
 }: {
   sym: string
   eip: Eip
   status: EipStatus
   description: string
+  scope?: EipScope
   children: ReactNode
 }) {
   return (
@@ -94,6 +113,16 @@ function MatrixCellTooltip({
             >
               {statusLabel[status]}
             </span>
+            {scope ? (
+              <span
+                className={cn(
+                  "rounded-md px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide",
+                  scopeTooltipBadge[scope],
+                )}
+              >
+                {scopeTooltipText[scope]}
+              </span>
+            ) : null}
           </div>
           <p className="text-foreground/90 text-xs leading-relaxed">{description}</p>
         </div>
@@ -277,6 +306,9 @@ export function EipMatrix() {
                   if (isAlt && impl?.alternativeStandard) {
                     description = `Via ${impl.alternativeStandard}: ${impl.alternativeNotes ?? impl.devImpact}`
                   }
+                  if (impl?.scope && impl.scopeLabel) {
+                    description = `${scopeTooltipText[impl.scope]}: ${impl.scopeLabel}. ${description}`
+                  }
 
                   return (
                     <td key={sym} className="px-2 py-2 text-center align-middle">
@@ -285,6 +317,7 @@ export function EipMatrix() {
                         eip={eip}
                         status={status}
                         description={description}
+                        scope={impl?.scope}
                       >
                         <span
                           className={cn(
@@ -301,7 +334,11 @@ export function EipMatrix() {
                             aria-hidden
                           />
                         </span>
-                        {isAlt && impl?.alternativeStandard ? (
+                        {impl?.scope ? (
+                          <span className="text-[0.52rem] leading-none text-sky-400 font-semibold max-w-[4.5rem] truncate">
+                            {scopeMatrixText[impl.scope]}
+                          </span>
+                        ) : isAlt && impl?.alternativeStandard ? (
                           <span className="text-[0.55rem] leading-none text-violet-400 font-medium max-w-[4.5rem] truncate">
                             {impl.alternativeStandard}
                           </span>

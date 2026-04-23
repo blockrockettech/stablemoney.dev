@@ -231,9 +231,12 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                     {eipsInCat.map((eip) => {
                       const status = getCellStatus(coin.symbol, eip.id)
                       const impl = getEipImplementation(coin.symbol, eip.id)
-                      const notes = impl?.status === "alternative" && impl.alternativeStandard
+                      const notesBody = impl?.status === "alternative" && impl.alternativeStandard
                         ? `Via ${impl.alternativeStandard}: ${impl.alternativeNotes ?? impl.devImpact}`
                         : (impl?.devImpact ?? "—")
+                      const notes = impl?.scope && impl.scopeLabel
+                        ? `${impl.scope === "network-specific" ? "Network-specific" : "Deployment-specific"}: ${impl.scopeLabel}. ${notesBody}`
+                        : notesBody
                       return (
                         <tr key={eip.id} className="border-b border-border/70 align-top last:border-0">
                           <td className="px-3 py-3">

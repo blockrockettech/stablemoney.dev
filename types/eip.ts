@@ -5,6 +5,8 @@ export type EipStatus =
   | "unknown"
   | "alternative"
 
+export type EipScope = "network-specific" | "deployment-specific"
+
 export type EipCategory =
   | "core"
   | "signature"
@@ -27,6 +29,8 @@ export interface CoinEipImpl {
   status: EipStatus
   contractPattern: string
   keyFunctions: string[]
+  scope?: EipScope
+  scopeLabel?: string
   typeHash?: string
   implementationNotes: string
   devImpact: string

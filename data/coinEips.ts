@@ -362,7 +362,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         contractPattern: "Not present",
         keyFunctions: [],
         implementationNotes:
-          "The Ethereum USDT contract was deployed in 2017, predating EIP-712. It has never been upgraded to include typed data signing. Tether has publicly stated it has no current plans to add EIP-712, EIP-2612, or EIP-3009 to the Ethereum deployment.",
+          "The Ethereum USDT contract was deployed in 2017, predating EIP-712. The live canonical Ethereum deployment exposes no typed-data signing interface and has not been upgraded to include EIP-712 support.",
         devImpact:
           "USDT cannot participate in any signature-based approval or transfer flow on Ethereum. Every DeFi interaction requires two on-chain transactions (approve + action). This is the single largest UX gap vs USDC for developers building payment applications.",
       },
@@ -432,18 +432,22 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "ERC-7802",
-        status: "implemented",
-        contractPattern: "USDT0 — TetherTokenOFTExtension + ArbitrumExtensionV2 via LayerZero OFT",
+        status: "partial",
+        scope: "network-specific",
+        scopeLabel:
+          "USDT0 / non-Ethereum deployments only; Ethereum uses an OAdapterUpgradeable lockbox for canonical USDT",
+        contractPattern:
+          "USDT0 extension contracts expose cross-chain mint/burn semantics; canonical Ethereum TetherToken does not",
         keyFunctions: [
           "crosschainMint(address to, uint256 amount) — bridge-authorized",
           "crosschainBurn(address from, uint256 amount) — bridge-authorized",
         ],
         implementationNotes:
-          "USDT0 (launched January 2025) adopts the draft ERC-7802 Crosschain Token Interface on top of LayerZero's OFT standard. Enables native burn-and-mint cross-chain transfers across 15+ networks without wrapped tokens. ArbitrumExtensionV2 facilitates migration of existing Arbitrum USDT to the OFT standard. OpenZeppelin audited Jan-May 2025 with no critical findings. Over $50B moved via USDT0 within months of launch.",
+          "USDT0 uses a split architecture. On Ethereum, canonical USDT is locked in an OAdapterUpgradeable contract. On non-Ethereum networks, OUpgradeable plus token-extension contracts handle mint/burn semantics for USDT0. That means draft ERC-7802-style crosschainMint/crosschainBurn behavior exists in the USDT0 system, but not on the canonical 2017 Ethereum TetherToken contract represented by this profile.",
         devImpact:
-          "For cross-chain USDT transfers, USDT0 OFT is the official path — no bridge wrappers needed. ERC-7802 crosschainMint/crosschainBurn events enable deterministic indexing by off-chain agents.",
+          "For cross-chain USDT transfers, integrators should treat USDT0 as a deployment-specific extension path rather than assuming the canonical Ethereum USDT token itself implements ERC-7802.",
         footguns:
-          "ERC-7802 is still a DRAFT standard — interfaces may change. Only bridge-authorized addresses can call crosschainMint/crosschainBurn. Legacy bridged USDT on some chains is NOT the same as USDT0 — verify which contract you interact with.",
+          "ERC-7802 is still a draft interface and only applies within the USDT0 extension architecture. Legacy bridged USDT and canonical Ethereum USDT are not interchangeable with USDT0 extension contracts — verify the exact network contract before integrating.",
       },
       {
         eipId: "ERC-3156",
@@ -1100,13 +1104,15 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       {
         eipId: "EIP-3009",
         status: "partial",
+        scope: "network-specific",
+        scopeLabel: "BNB Chain deployment only",
         contractPattern: "Documented for BNB Chain upgrade path — chain-specific",
         keyFunctions: [
           "transferWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)",
           "receiveWithAuthorization(...) — if mirrored from Circle-style FiatToken",
         ],
         implementationNotes:
-          "Site research references a late-2025 BSC-oriented upgrade adding gasless transferWithAuthorization. Ethereum and L2 deployments must be checked independently — function selectors may revert if not upgraded.",
+          "First Digital Labs documents transferWithAuthorization support for FDUSD on BNB Chain. Ethereum and other deployments must still be checked independently because the feature is not presented as universal across all FDUSD contracts.",
         devImpact:
           "Enables sponsored transfers on chains where the upgrade is live; critical for payment SDK parity with USDC on those chains.",
         footguns:
@@ -1753,7 +1759,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
         implementationNotes:
           "Follows a standard fiat-backed stablecoin pattern with owner-controlled mint, burn, freeze, and pause capabilities. Official USD1 documentation says BitGo handles issuance, custody, and redemptions. Always verify contract addresses from official issuer or project materials before integrating.",
         devImpact:
-          "Standard ERC-20 integration. No signature extensions confirmed at this time.",
+          "Standard ERC-20 integration, with separate EIP-712 and EIP-2612 permit support documented in the current contract implementation.",
         footguns:
           "Early-stage stablecoin with limited third-party technical review. Contract addresses must be verified from official issuer/project materials. Audit reports are not prominently disclosed in public documentation, so full due diligence is recommended before production integration.",
       },
@@ -1971,6 +1977,8 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       {
         eipId: "EIP-1967",
         status: "not-implemented",
+        scope: "network-specific",
+        scopeLabel: "L2 GHO deployments only; Ethereum mainnet GHO is immutable",
         contractPattern:
           "Ethereum mainnet GHO is not proxied — constructor-deployed immutable contract",
         keyFunctions: [],

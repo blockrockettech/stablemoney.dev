@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
-import type { CoinEipImpl, Eip, EipCategory, EipStatus } from "@/types/eip"
+import type { CoinEipImpl, Eip, EipCategory, EipScope, EipStatus } from "@/types/eip"
 import { eipExternalLinks } from "@/lib/crypto/eip-helpers"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -60,6 +60,18 @@ const devImpactPanelClass: Record<EipStatus, string> = {
     "border-violet-500/50 bg-violet-500/5 text-violet-950 dark:text-violet-100",
 }
 
+const scopeStyles: Record<EipScope, string> = {
+  "network-specific":
+    "border-sky-500/40 bg-sky-500/10 text-sky-900 dark:text-sky-200",
+  "deployment-specific":
+    "border-cyan-500/40 bg-cyan-500/10 text-cyan-900 dark:text-cyan-200",
+}
+
+const scopeLabel: Record<EipScope, string> = {
+  "network-specific": "Network-specific",
+  "deployment-specific": "Deployment-specific",
+}
+
 export function EipCard({
   eip,
   impl,
@@ -99,6 +111,11 @@ export function EipCard({
           <Badge variant="outline" className={cn("text-[0.65rem]", categoryStyles[eip.category])}>
             {eip.category}
           </Badge>
+          {impl.scope ? (
+            <Badge variant="outline" className={cn("text-[0.65rem]", scopeStyles[impl.scope])}>
+              {scopeLabel[impl.scope]}
+            </Badge>
+          ) : null}
           {coinSymbol ? (
             <Badge variant="secondary" className="font-mono text-[0.65rem]">
               {coinSymbol}
@@ -147,6 +164,11 @@ export function EipCard({
             <div className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wide">
               Implementation
             </div>
+            {impl.scope && impl.scopeLabel ? (
+              <div className={cn("mb-3 inline-flex rounded-md border px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-wide", scopeStyles[impl.scope])}>
+                {scopeLabel[impl.scope]}: {impl.scopeLabel}
+              </div>
+            ) : null}
             <p className="leading-relaxed">{impl.implementationNotes}</p>
             <p className="text-muted-foreground mt-2 text-xs">
               <span className="font-medium text-foreground">Pattern:</span>{" "}
