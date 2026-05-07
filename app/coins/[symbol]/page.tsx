@@ -7,7 +7,12 @@ import { STABLECOIN_TYPE_LABEL } from "@/data/stablecoin-taxonomy"
 import { loadCoinMdx } from "@/site/mdx"
 import { mergeCoinFeatures } from "@/site/merge-features"
 import { EIPS, EIP_CATEGORY_ORDER, EIP_CATEGORY_TITLES } from "@/data/coinEips"
-import { eipAnchorId, getCellStatus, getCoinEipProfile, getEipImplementation } from "@/lib/crypto/eip-helpers"
+import {
+  eipAnchorId,
+  getCellStatus,
+  getCoinEipProfile,
+  getEipImplementation,
+} from "@/lib/crypto/eip-helpers"
 import { shortAddress } from "@/lib/crypto/address-utils"
 import type { EipStatus } from "@/types/eip"
 import { CoinMdx } from "@/components/CoinMdx"
@@ -17,7 +22,16 @@ import { RiskBadge } from "@/components/RiskBadge"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ArrowRight, ExternalLink } from "lucide-react"
-import { getMarketCap, getMarketCapRank } from "@/lib/market-data/market-data"
+import {
+  formatCompactNumber,
+  formatPercentage,
+  formatUsd,
+  getChainBreakdown,
+  getCirculatingSupply,
+  getMarketCap,
+  getMarketCapRank,
+  getTrackedChainCount,
+} from "@/lib/market-data/market-data"
 import { SITE_CANONICAL_URL } from "@/site/config"
 import { COMPLIANCE_CONFIG } from "@/data/compliance"
 
@@ -82,12 +96,42 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
   const mcapRank = getMarketCapRank(coin.symbol)
   const eipProfile = getCoinEipProfile(coin.symbol)
   const coinCompliance = COMPLIANCE_CONFIG.find((c) => c.symbol === coin.symbol)
+  const chainBreakdown = getChainBreakdown(coin.symbol)
+  const trackedChainCount = getTrackedChainCount(coin.symbol)
+  const topChainBreakdown = chainBreakdown.slice(0, 12)
+  const otherChainBreakdown = chainBreakdown.slice(12)
+  const otherMarketCap = otherChainBreakdown.reduce(
+    (sum, chain) => sum + chain.marketCap,
+    0
+  )
+  const otherCirculating = otherChainBreakdown.reduce(
+    (sum, chain) => sum + chain.circulating,
+    0
+  )
+  const otherShare = otherChainBreakdown.reduce((sum, chain) => sum + chain.share, 0)
+  const supplyRows =
+    otherChainBreakdown.length > 0
+      ? [
+          ...topChainBreakdown,
+          {
+            chain: `Other tracked chains (${otherChainBreakdown.length})`,
+            circulating: otherCirculating,
+            marketCap: otherMarketCap,
+            share: otherShare,
+          },
+        ]
+      : topChainBreakdown
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://stablemoney.dev" },
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://stablemoney.dev",
+      },
       {
         "@type": "ListItem",
         position: 2,
@@ -113,32 +157,63 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
           </span>
         </div>
         <h1 className="flex flex-wrap items-baseline gap-3">
-          <span className="font-mono text-3xl font-bold tracking-tight">{coin.symbol}</span>
+          <span className="font-mono text-3xl font-bold tracking-tight">
+            {coin.symbol}
+          </span>
           <span className="text-2xl font-semibold">{coin.name}</span>
         </h1>
         <p className="text-muted-foreground text-sm">{coin.issuer}</p>
-        <p className="text-muted-foreground text-sm">
-          Market cap:{" "}
-          <span className="text-foreground font-medium">{getMarketCap(coin.symbol)}</span>
-        </p>
+        <dl className="grid gap-3 text-sm sm:grid-cols-3">
+          <div>
+            <dt className="text-muted-foreground">Market cap</dt>
+            <dd className="text-foreground font-medium">{getMarketCap(coin.symbol)}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Circulating supply</dt>
+            <dd className="text-foreground font-medium">
+              {getCirculatingSupply(coin.symbol)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Networks</dt>
+            <dd className="text-foreground font-medium">{coin.networks.length}</dd>
+          </div>
+        </dl>
         <Link
           href={`/coins/${coin.symbol.toLowerCase()}/eips`}
           className="group mt-2 flex items-center justify-between gap-4 rounded-xl border border-border bg-card/60 px-5 py-4 transition-all hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm"
         >
           <div>
-            <div className="text-sm font-semibold">EIP/ERC standards &amp; compliance</div>
+            <div className="text-sm font-semibold">
+              EIP/ERC standards &amp; compliance
+            </div>
             <div className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
-              Full {coin.symbol} profile: ERC-20, permit, proxy patterns, cross-chain, flash loans, and
-              compliance EIPs — with implementation notes and verified contract context.
+              Full {coin.symbol} profile: ERC-20, permit, proxy patterns, cross-chain,
+              flash loans, and compliance EIPs — with implementation notes and verified
+              contract context.
             </div>
           </div>
           <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
         </Link>
       </header>
 
-      <nav aria-label="Page sections" className="flex flex-wrap gap-x-1 gap-y-1 border-b border-border/40 pb-4">
-        {(["Overview","Features","EIP / ERC","Risks","References","Contracts"] as const).map((label) => {
+      <nav
+        aria-label="Page sections"
+        className="flex flex-wrap gap-x-1 gap-y-1 border-b border-border/40 pb-4"
+      >
+        {(
+          [
+            "Overview",
+            "Supply",
+            "Features",
+            "EIP / ERC",
+            "Risks",
+            "References",
+            "Contracts",
+          ] as const
+        ).map((label) => {
           const id = label === "EIP / ERC" ? "eips" : label.toLowerCase()
+          if (label === "Supply" && supplyRows.length === 0) return null
           return (
             <a
               key={id}
@@ -150,7 +225,10 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
           )
         })}
         {mdx && (
-          <a href="#deep-dive" className="text-muted-foreground hover:text-foreground rounded px-2 py-0.5 text-xs transition-colors hover:bg-muted/40">
+          <a
+            href="#deep-dive"
+            className="text-muted-foreground hover:text-foreground rounded px-2 py-0.5 text-xs transition-colors hover:bg-muted/40"
+          >
             Deep dive
           </a>
         )}
@@ -163,6 +241,83 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
         </p>
       </section>
 
+      {supplyRows.length > 0 ? (
+        <section id="supply" className="scroll-mt-24">
+          <h2 className="mb-4 text-lg font-semibold">Supply by chain</h2>
+          <div className="mb-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border border-border bg-card/60 px-4 py-3">
+              <div className="text-muted-foreground text-xs">Market cap</div>
+              <div className="mt-1 text-lg font-semibold tabular-nums">
+                {getMarketCap(coin.symbol)}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-card/60 px-4 py-3">
+              <div className="text-muted-foreground text-xs">Circulating supply</div>
+              <div className="mt-1 text-lg font-semibold tabular-nums">
+                {getCirculatingSupply(coin.symbol)}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-card/60 px-4 py-3">
+              <div className="text-muted-foreground text-xs">Supply chains</div>
+              <div className="mt-1 text-lg font-semibold tabular-nums">
+                {trackedChainCount}
+              </div>
+            </div>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full min-w-[600px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/40">
+                  <th scope="col" className="px-3 py-2 font-medium">
+                    Chain
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">
+                    Supply
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">
+                    Market cap
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">
+                    Share
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {supplyRows.map((chain) => (
+                  <tr
+                    key={chain.chain}
+                    className="border-b border-border/70 last:border-0"
+                  >
+                    <td className="px-3 py-2 font-medium">{chain.chain}</td>
+                    <td className="px-3 py-2 text-right font-mono text-xs tabular-nums">
+                      {formatCompactNumber(chain.circulating)}
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono text-xs tabular-nums">
+                      {formatUsd(chain.marketCap)}
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono text-xs tabular-nums">
+                      {formatPercentage(chain.share)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t border-border bg-muted/30">
+                  <td
+                    colSpan={4}
+                    className="px-3 py-2.5 text-center text-[0.7rem] leading-relaxed text-muted-foreground"
+                  >
+                    Current circulating supply by chain from DeFiLlama. Small supply
+                    footprints are grouped after the top 12 chains and may include
+                    bridged or non-curated deployments.
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
       <section id="features" className="scroll-mt-24">
         <h2 className="mb-4 text-lg font-semibold">Features</h2>
         <FeatureTable coin={coin} features={featureRows} />
@@ -171,9 +326,10 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
       <section id="eips" className="scroll-mt-24">
         <h2 className="mb-4 text-lg font-semibold">EIP / ERC support matrix</h2>
         <p className="text-muted-foreground mb-4 max-w-3xl text-sm leading-relaxed">
-          Standards &amp; compliance support for {coin.symbol}. Click an EIP to jump to the global deep-dive section.
+          Standards &amp; compliance support for {coin.symbol}. Click an EIP to jump to
+          the global deep-dive section.
         </p>
-        {(eipProfile?.contractAddress || coin.githubUrl) ? (
+        {eipProfile?.contractAddress || coin.githubUrl ? (
           <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {eipProfile?.contractAddress ? (
               <a
@@ -231,14 +387,19 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                     {eipsInCat.map((eip) => {
                       const status = getCellStatus(coin.symbol, eip.id)
                       const impl = getEipImplementation(coin.symbol, eip.id)
-                      const notesBody = impl?.status === "alternative" && impl.alternativeStandard
-                        ? `Via ${impl.alternativeStandard}: ${impl.alternativeNotes ?? impl.devImpact}`
-                        : (impl?.devImpact ?? "—")
-                      const notes = impl?.scope && impl.scopeLabel
-                        ? `${impl.scope === "network-specific" ? "Network-specific" : "Deployment-specific"}: ${impl.scopeLabel}. ${notesBody}`
-                        : notesBody
+                      const notesBody =
+                        impl?.status === "alternative" && impl.alternativeStandard
+                          ? `Via ${impl.alternativeStandard}: ${impl.alternativeNotes ?? impl.devImpact}`
+                          : (impl?.devImpact ?? "—")
+                      const notes =
+                        impl?.scope && impl.scopeLabel
+                          ? `${impl.scope === "network-specific" ? "Network-specific" : "Deployment-specific"}: ${impl.scopeLabel}. ${notesBody}`
+                          : notesBody
                       return (
-                        <tr key={eip.id} className="border-b border-border/70 align-top last:border-0">
+                        <tr
+                          key={eip.id}
+                          className="border-b border-border/70 align-top last:border-0"
+                        >
                           <td className="px-3 py-3">
                             <Link
                               href={`/standards#${eipAnchorId(eip.id)}`}
@@ -246,10 +407,15 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                             >
                               {eip.id}
                             </Link>
-                            <div className="text-muted-foreground mt-1 text-xs">{eip.name}</div>
+                            <div className="text-muted-foreground mt-1 text-xs">
+                              {eip.name}
+                            </div>
                           </td>
                           <td className="px-3 py-3">
-                            <Badge variant="outline" className={statusBadgeClass[status]}>
+                            <Badge
+                              variant="outline"
+                              className={statusBadgeClass[status]}
+                            >
                               {statusLabel[status]}
                             </Badge>
                           </td>
@@ -269,8 +435,9 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                   colSpan={3}
                   className="px-3 py-2.5 text-center text-[0.7rem] leading-relaxed text-muted-foreground"
                 >
-                  Data sourced from verified Etherscan contract source code. Implementations may differ across
-                  networks — always verify on the specific chain you integrate with.
+                  Data sourced from verified Etherscan contract source code.
+                  Implementations may differ across networks — always verify on the
+                  specific chain you integrate with.
                 </td>
               </tr>
             </tfoot>
@@ -291,7 +458,10 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                   key={i}
                   className="text-muted-foreground flex items-start gap-2 text-sm leading-relaxed"
                 >
-                  <span className="mt-1.5 inline-block size-1.5 shrink-0 rounded-full bg-primary/50" aria-hidden />
+                  <span
+                    className="mt-1.5 inline-block size-1.5 shrink-0 rounded-full bg-primary/50"
+                    aria-hidden
+                  />
                   <span className="font-mono text-xs">{text}</span>
                 </li>
               )
@@ -359,7 +529,9 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
               rel="noopener noreferrer"
               className="group rounded-lg border border-border bg-card/60 px-4 py-3 transition-all hover:border-primary/40 hover:bg-primary/[0.03]"
             >
-              <div className="text-muted-foreground mb-1 text-[0.65rem] font-semibold uppercase tracking-wide">Official docs</div>
+              <div className="text-muted-foreground mb-1 text-[0.65rem] font-semibold uppercase tracking-wide">
+                Official docs
+              </div>
               <div className="text-primary flex items-center gap-1 text-sm font-medium group-hover:underline">
                 {coin.name}
                 <ExternalLink className="size-3 shrink-0" />
@@ -377,7 +549,9 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
               rel="noopener noreferrer"
               className="group rounded-lg border border-border bg-card/60 px-4 py-3 transition-all hover:border-primary/40 hover:bg-primary/[0.03]"
             >
-              <div className="text-muted-foreground mb-1 text-[0.65rem] font-semibold uppercase tracking-wide">Compliance & legal</div>
+              <div className="text-muted-foreground mb-1 text-[0.65rem] font-semibold uppercase tracking-wide">
+                Compliance & legal
+              </div>
               <div className="text-primary flex items-center gap-1 text-sm font-medium group-hover:underline">
                 Issuer compliance docs
                 <ExternalLink className="size-3 shrink-0" />
@@ -395,7 +569,9 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
               rel="noopener noreferrer"
               className="group rounded-lg border border-border bg-card/60 px-4 py-3 transition-all hover:border-primary/40 hover:bg-primary/[0.03]"
             >
-              <div className="text-muted-foreground mb-1 text-[0.65rem] font-semibold uppercase tracking-wide">Source code</div>
+              <div className="text-muted-foreground mb-1 text-[0.65rem] font-semibold uppercase tracking-wide">
+                Source code
+              </div>
               <div className="text-primary flex items-center gap-1 text-sm font-medium group-hover:underline">
                 GitHub repository
                 <ExternalLink className="size-3 shrink-0" />
@@ -413,7 +589,9 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
               rel="noopener noreferrer"
               className="group rounded-lg border border-border bg-card/60 px-4 py-3 transition-all hover:border-primary/40 hover:bg-primary/[0.03]"
             >
-              <div className="text-muted-foreground mb-1 text-[0.65rem] font-semibold uppercase tracking-wide">Verified contract · Ethereum</div>
+              <div className="text-muted-foreground mb-1 text-[0.65rem] font-semibold uppercase tracking-wide">
+                Verified contract · Ethereum
+              </div>
               <div className="text-primary flex items-center gap-1 text-sm font-medium group-hover:underline">
                 {eipProfile.contractName}
                 <ExternalLink className="size-3 shrink-0" />
@@ -421,7 +599,9 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
               <div className="text-muted-foreground mt-0.5 font-mono text-[0.65rem]">
                 {shortAddress(eipProfile.contractAddress)}
                 {eipProfile.deployedBlock != null && (
-                  <span className="ml-2">· block {eipProfile.deployedBlock.toLocaleString()}</span>
+                  <span className="ml-2">
+                    · block {eipProfile.deployedBlock.toLocaleString()}
+                  </span>
                 )}
               </div>
             </a>
@@ -431,7 +611,9 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
         {/* Block explorers per chain */}
         {coin.networks.some((n) => n.explorerUrl) && (
           <div>
-            <h3 className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">Block explorers</h3>
+            <h3 className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">
+              Block explorers
+            </h3>
             <div className="flex flex-wrap gap-2">
               {coin.networks
                 .filter((n) => n.explorerUrl)
@@ -444,7 +626,11 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
                     className="text-primary inline-flex items-center gap-1.5 rounded-md border border-border bg-card/40 px-3 py-1.5 text-xs font-medium transition-colors hover:border-primary/40 hover:bg-primary/[0.03]"
                   >
                     {n.name}
-                    {n.isPrimary && <span className="text-muted-foreground text-[0.6rem]">primary</span>}
+                    {n.isPrimary && (
+                      <span className="text-muted-foreground text-[0.6rem]">
+                        primary
+                      </span>
+                    )}
                     <ExternalLink className="size-3 shrink-0 opacity-60" />
                   </a>
                 ))}
@@ -456,8 +642,8 @@ export default async function CoinPage({ params }: { params: { symbol: string } 
       <section id="contracts" className="scroll-mt-24">
         <h2 className="mb-4 text-lg font-semibold">Networks &amp; contracts</h2>
         <p className="text-muted-foreground mb-4 max-w-3xl text-sm">
-          Deployments by chain — primary rows are highlighted. Always verify addresses against issuer
-          docs before mainnet integrations.
+          Deployments by chain — primary rows are highlighted. Always verify addresses
+          against issuer docs before mainnet integrations.
         </p>
         <ContractTable networks={coin.networks} />
       </section>

@@ -23,13 +23,32 @@ interface DefiLlamaAsset {
   symbol: string
   name: string
   circulating?: { peggedUSD?: number }
+  chainCirculating?: Record<
+    string,
+    {
+      current?: { peggedUSD?: number }
+      circulatingPrevDay?: { peggedUSD?: number }
+      circulatingPrevWeek?: { peggedUSD?: number }
+      circulatingPrevMonth?: { peggedUSD?: number }
+    }
+  >
   chains?: string[]
   price?: number
 }
 
+interface MarketDataChain {
+  chain: string
+  circulating: number
+  marketCap: number
+  share: number
+}
+
 interface MarketDataCoin {
   marketCap: number
+  circulatingSupply: number
   price: number
+  chains: string[]
+  chainBreakdown: MarketDataChain[]
 }
 
 interface MarketDataFile {
@@ -43,8 +62,33 @@ const OUTPUT_PATH = join(
   "..",
   "data",
   "generated",
-  "market-data.json",
+  "market-data.json"
 )
+
+function readPeggedUsd(value: { peggedUSD?: number } | undefined): number {
+  return typeof value?.peggedUSD === "number" && Number.isFinite(value.peggedUSD)
+    ? value.peggedUSD
+    : 0
+}
+
+function normalizeChainBreakdown(
+  asset: DefiLlamaAsset,
+  price: number,
+  marketCap: number
+): MarketDataChain[] {
+  return Object.entries(asset.chainCirculating ?? {})
+    .map(([chain, values]) => {
+      const circulating = readPeggedUsd(values.current)
+      return {
+        chain,
+        circulating,
+        marketCap: circulating * price,
+        share: marketCap > 0 ? (circulating * price) / marketCap : 0,
+      }
+    })
+    .filter((entry) => entry.circulating > 0)
+    .sort((a, b) => b.marketCap - a.marketCap || a.chain.localeCompare(b.chain))
+}
 
 async function fetchMarketData(): Promise<MarketDataFile> {
   console.log("[fetch-market-data] Fetching from DefiLlama…")
@@ -63,13 +107,22 @@ async function fetchMarketData(): Promise<MarketDataFile> {
   for (const [symbol, id] of Object.entries(SYMBOL_TO_DEFILLAMA_ID)) {
     const asset = byId.get(id)
     if (!asset) {
-      console.warn(`[fetch-market-data] Warning: DefiLlama ID ${id} (${symbol}) not found`)
+      console.warn(
+        `[fetch-market-data] Warning: DefiLlama ID ${id} (${symbol}) not found`
+      )
       continue
     }
-    const mcap = asset.circulating?.peggedUSD ?? 0
+    const circulatingSupply = readPeggedUsd(asset.circulating)
     const price = asset.price ?? 1
+    const mcap = circulatingSupply * price
 
-    coins[symbol] = { marketCap: mcap, price }
+    coins[symbol] = {
+      marketCap: mcap,
+      circulatingSupply,
+      price,
+      chains: asset.chains ?? [],
+      chainBreakdown: normalizeChainBreakdown(asset, price, mcap),
+    }
     totalMarketCap += mcap
   }
 
@@ -85,7 +138,7 @@ async function main() {
     const result = await fetchMarketData()
     const found = Object.keys(result.coins).length
     console.log(
-      `[fetch-market-data] Got data for ${found}/${Object.keys(SYMBOL_TO_DEFILLAMA_ID).length} coins, total mcap $${(result.totalMarketCap / 1e9).toFixed(1)}B`,
+      `[fetch-market-data] Got data for ${found}/${Object.keys(SYMBOL_TO_DEFILLAMA_ID).length} coins, total mcap $${(result.totalMarketCap / 1e9).toFixed(1)}B`
     )
 
     mkdirSync(dirname(OUTPUT_PATH), { recursive: true })
@@ -97,7 +150,9 @@ async function main() {
     if (existsSync(OUTPUT_PATH)) {
       console.log("[fetch-market-data] Using existing cached file — build will proceed")
     } else {
-      console.log("[fetch-market-data] No cached file — build will use static fallbacks from data/coins.ts")
+      console.log(
+        "[fetch-market-data] No cached file — build will use static fallbacks from data/coins.ts"
+      )
       mkdirSync(dirname(OUTPUT_PATH), { recursive: true })
       const fallback: MarketDataFile = {
         fetchedAt: new Date().toISOString(),

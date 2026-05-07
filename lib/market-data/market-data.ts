@@ -4,7 +4,17 @@ const NO_MCAP_LABEL = "N/A"
 
 interface MarketDataCoin {
   marketCap: number
+  circulatingSupply?: number
   price: number
+  chains?: string[]
+  chainBreakdown?: MarketDataChain[]
+}
+
+export interface MarketDataChain {
+  chain: string
+  circulating: number
+  marketCap: number
+  share: number
 }
 
 interface MarketDataFile {
@@ -39,11 +49,45 @@ export function formatUsd(value: number): string {
   return `$${value.toFixed(0)}`
 }
 
+export function formatCompactNumber(value: number): string {
+  if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`
+  if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`
+  if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`
+  if (value >= 1e3) return `${(value / 1e3).toFixed(1)}K`
+  return value.toFixed(0)
+}
+
+export function formatPercentage(value: number): string {
+  if (!Number.isFinite(value)) return "0.0%"
+  return `${(value * 100).toFixed(value >= 0.01 ? 1 : 2)}%`
+}
+
 export function getMarketCap(symbol: string): string {
   const data = load()
   const entry = data?.coins[symbol]
   if (entry && entry.marketCap > 0) return formatUsd(entry.marketCap)
   return NO_MCAP_LABEL
+}
+
+export function getCirculatingSupply(symbol: string): string {
+  const data = load()
+  const value = data?.coins[symbol]?.circulatingSupply
+  if (value && value > 0) return formatCompactNumber(value)
+  return NO_MCAP_LABEL
+}
+
+export function getTrackedChainCount(symbol: string): number {
+  const data = load()
+  return (
+    data?.coins[symbol]?.chains?.length ??
+    data?.coins[symbol]?.chainBreakdown?.length ??
+    0
+  )
+}
+
+export function getChainBreakdown(symbol: string): MarketDataChain[] {
+  const data = load()
+  return data?.coins[symbol]?.chainBreakdown ?? []
 }
 
 export function getTotalMarketCap(): string {

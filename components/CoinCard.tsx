@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { NetworkChip } from "@/components/NetworkChip"
 import { cn } from "@/lib/utils"
 import { countImplementedEips } from "@/lib/crypto/eip-helpers"
-import { getMarketCap } from "@/lib/market-data/market-data"
+import { getCirculatingSupply, getMarketCap } from "@/lib/market-data/market-data"
 
 const typeAccent: Record<StablecoinType, string> = {
   fiat: "border-l-emerald-500/60",
@@ -16,9 +16,12 @@ const typeAccent: Record<StablecoinType, string> = {
 }
 
 function rankClass(rank: number): string {
-  if (rank === 1) return "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40"
-  if (rank === 2) return "bg-slate-300/25 text-slate-600 dark:text-slate-300 border-slate-400/40"
-  if (rank === 3) return "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30"
+  if (rank === 1)
+    return "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40"
+  if (rank === 2)
+    return "bg-slate-300/25 text-slate-600 dark:text-slate-300 border-slate-400/40"
+  if (rank === 3)
+    return "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30"
   return "bg-secondary text-secondary-foreground border-transparent"
 }
 
@@ -46,21 +49,25 @@ export function CoinCard({
       className={cn(
         "h-full border-l-[3px] transition-all duration-200",
         typeAccent[coin.type],
-        asLink && "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5 hover:border-l-primary/60"
+        asLink &&
+          "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5 hover:border-l-primary/60"
       )}
     >
       {/* ── Header: rank · symbol · type ───────────────── */}
       <CardHeader className="border-b border-border/60 pb-3">
         <div className="flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className={cn("shrink-0 font-mono text-xs font-bold border", rankClass(marketCapRank))}
-            >
-              #{marketCapRank}
-            </Badge>
-            <span className="font-mono text-lg font-bold tracking-tight">
-              {coin.symbol}
-            </span>
+          <Badge
+            variant="outline"
+            className={cn(
+              "shrink-0 font-mono text-xs font-bold border",
+              rankClass(marketCapRank)
+            )}
+          >
+            #{marketCapRank}
+          </Badge>
+          <span className="font-mono text-lg font-bold tracking-tight">
+            {coin.symbol}
+          </span>
         </div>
 
         <Badge
@@ -72,22 +79,43 @@ export function CoinCard({
 
         {/* Name + issuer — each clamped to one line so all headers are the same height */}
         <div className="mt-2 space-y-0.5">
-          <div className="line-clamp-1 text-base font-medium leading-tight">{coin.name}</div>
-          <div className="text-muted-foreground line-clamp-1 text-sm">{coin.issuer}</div>
+          <div className="line-clamp-1 text-base font-medium leading-tight">
+            {coin.name}
+          </div>
+          <div className="text-muted-foreground line-clamp-1 text-sm">
+            {coin.issuer}
+          </div>
         </div>
       </CardHeader>
 
       {/* ── Body ───────────────────────────────────────── */}
       <CardContent className="space-y-3 pt-3">
-        {/* Market cap left, chain/EIP counts right — never wraps */}
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-lg font-bold tabular-nums tracking-tight text-primary">
-            {getMarketCap(coin.symbol)}
-          </span>
-          <span className="text-muted-foreground shrink-0 text-xs">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <div className="text-muted-foreground text-[0.65rem] uppercase tracking-wide">
+              Market cap
+            </div>
+            <div className="text-lg font-bold tabular-nums tracking-tight text-primary">
+              {getMarketCap(coin.symbol)}
+            </div>
+          </div>
+          <div>
+            <div className="text-muted-foreground text-[0.65rem] uppercase tracking-wide">
+              Supply
+            </div>
+            <div className="text-base font-semibold tabular-nums tracking-tight">
+              {getCirculatingSupply(coin.symbol)}
+            </div>
+          </div>
+        </div>
+
+        <div className="text-muted-foreground flex items-center justify-between gap-2 text-xs">
+          <span>
             {coin.networks.length} {coin.networks.length === 1 ? "chain" : "chains"}
+          </span>
+          <span>
             {eipImplemented != null && (
-              <span className="text-muted-foreground/70"> · {eipImplemented} EIPs</span>
+              <span className="text-muted-foreground/70">{eipImplemented} EIPs</span>
             )}
           </span>
         </div>
