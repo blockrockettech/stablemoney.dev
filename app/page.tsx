@@ -3,7 +3,7 @@ import Image from "next/image"
 import { coins } from "@/data/coins"
 import { HomeClient } from "@/components/HomeClient"
 import { getAllChainSlugs } from "@/lib/crypto/chains"
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/site/config"
+import { SITE_DESCRIPTION, SITE_NAME } from "@/site/config"
 import { getTotalMarketCap, getDataFreshness, isDynamic } from "@/lib/market-data/market-data"
 import { ArrowRight, TableProperties } from "lucide-react"
 import type { Metadata } from "next"
@@ -17,11 +17,11 @@ export const metadata: Metadata = {
     canonical: "https://stablemoney.dev",
   },
   openGraph: {
-    title: `${SITE_NAME} — Stablecoin Technical Reference`,
+    title: `${SITE_NAME} — Stablecoin Technical Reference for Engineers`,
     description: SITE_DESCRIPTION,
   },
   twitter: {
-    title: `${SITE_NAME} — Stablecoin Technical Reference`,
+    title: `${SITE_NAME} — Stablecoin Technical Reference for Engineers`,
     description: SITE_DESCRIPTION,
   },
 }
@@ -39,24 +39,26 @@ export default function HomePage() {
         <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-primary/[0.07] blur-2xl" />
 
         <div className="relative space-y-4">
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-3.5" aria-hidden="true">
             <Image
               src="/favicon.svg"
               alt=""
               width={44}
               height={44}
               className="rounded-lg"
-              aria-hidden="true"
             />
-            <div className="flex items-baseline gap-2 font-mono tracking-tight" aria-hidden="true">
+            <div className="flex items-baseline gap-2 font-mono tracking-tight">
               <span className="text-4xl font-bold text-primary sm:text-5xl">Stable</span>
               <span className="text-4xl font-bold text-foreground sm:text-5xl">Money</span>
               <span className="text-2xl font-semibold text-muted-foreground sm:text-3xl">.dev</span>
             </div>
           </div>
-          <h1 className="text-muted-foreground max-w-2xl text-base leading-relaxed sm:text-lg">
-            {SITE_TAGLINE} — networks, contracts, EIP standards, compliance, and risk factors.
+          <h1 className="max-w-2xl text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-2xl">
+            Stablecoin technical reference for engineers
           </h1>
+          <p className="text-muted-foreground max-w-2xl text-sm leading-relaxed sm:text-base">
+            Contract addresses, EIP standards, compliance hooks, and risk factors — for USDT, USDC, DAI, PYUSD, and {coins.length - 4} more, across every major EVM chain.
+          </p>
         </div>
 
         {/* Stats row */}

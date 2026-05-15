@@ -206,7 +206,15 @@ function Footer() {
           >
             @BlockRocketTech (x.com)
           </a>
-          .
+          — built by {" "}
+          <a
+            href="https://x.com/jimbob_87"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary font-medium hover:underline"
+          >
+            @jimbob_87
+          </a>
         </p>
       </div>
     </footer>

@@ -4,7 +4,7 @@ export const SITE_CANONICAL_URL = "https://stablemoney.dev"
 export const SITE_TAGLINE =
   "Technical reference for engineers building with stablecoins"
 export const SITE_DESCRIPTION =
-  "Engineering-focused stablecoin reference: networks, contracts, features, and risks for top stablecoins by market cap."
+  "Technical reference for engineers building with stablecoins. ERC-20 contract addresses, EIP-2612 permit support, EIP-712 typed data, blacklist and freeze compliance — for USDT, USDC, DAI, PYUSD, and more, across every major EVM chain."
 
 /** Bump when static editorial content or UI changes */
 export const LAST_UPDATED = "2026-04-21"
