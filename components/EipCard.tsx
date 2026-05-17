@@ -96,10 +96,17 @@ export function EipCard({
       <Button
         type="button"
         variant="ghost"
-        className="hover:bg-muted/50 flex h-auto w-full items-start justify-between gap-3 rounded-b-none rounded-t-lg px-4 py-3 text-left font-normal"
+        className="hover:bg-muted/50 flex h-auto w-full items-stretch justify-between gap-3 rounded-b-none rounded-t-lg px-4 py-3 text-left font-normal"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
       >
+        {coinSymbol ? (
+          <div className="flex min-h-12 w-16 shrink-0 items-center justify-center rounded-md border border-primary/40 bg-primary/10 px-2 shadow-sm shadow-primary/5">
+            <span className="font-mono text-sm font-bold leading-none tracking-tight text-foreground">
+              {coinSymbol}
+            </span>
+          </div>
+        ) : null}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           <Badge variant="outline" className={cn("font-mono text-xs", st.badge)}>
             {eip.id}
@@ -116,15 +123,10 @@ export function EipCard({
               {scopeLabel[impl.scope]}
             </Badge>
           ) : null}
-          {coinSymbol ? (
-            <Badge variant="secondary" className="font-mono text-[0.65rem]">
-              {coinSymbol}
-            </Badge>
-          ) : null}
         </div>
         <ChevronDown
           className={cn(
-            "text-muted-foreground mt-0.5 size-5 shrink-0 transition-transform",
+            "text-muted-foreground size-5 shrink-0 self-center transition-transform",
             open && "rotate-180"
           )}
         />

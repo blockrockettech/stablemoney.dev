@@ -25,11 +25,18 @@ function PlaceholderCell({
 }) {
   const style = placeholderLabel[status]
   return (
-    <div className="text-muted-foreground rounded-lg border border-dashed border-border bg-muted/20 p-4 text-sm">
-      <span className="font-mono font-semibold text-foreground">{symbol}</span>
-      <p className="mt-2 text-xs leading-relaxed">
-        <span className={`font-medium ${style.accent}`}>{style.text}</span> for {eipId}.
-      </p>
+    <div className="flex items-stretch gap-3 rounded-lg border border-dashed border-border bg-muted/20 p-3 text-sm">
+      <div className="flex min-h-12 w-16 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-primary/10 px-2 shadow-sm shadow-primary/5">
+        <span className="font-mono text-sm font-bold leading-none tracking-tight text-foreground">
+          {symbol}
+        </span>
+      </div>
+      <div className="flex min-w-0 items-center">
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          <span className={`font-medium ${style.accent}`}>{style.text}</span> for{" "}
+          <span className="font-mono text-foreground">{eipId}</span>.
+        </p>
+      </div>
     </div>
   )
 }

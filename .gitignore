@@ -39,3 +39,5 @@ next-env.d.ts
 # generated build-time data (rebuilt on each deploy)
 data/generated/
 .vscode/settings.json
+*.docx
+VALIDATION-REPORT.md
