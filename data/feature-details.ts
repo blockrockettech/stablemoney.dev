@@ -62,7 +62,7 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         },
       ],
     },
-    "Daily reserve reports": {
+    "Daily reserve transparency": {
       audience: "corporate",
       rationale:
         "Attestations underpin reserve narrative for compliance and listings — useful for off-chain risk monitoring, not on-chain proof of backing per se.",
@@ -119,7 +119,7 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         { label: "EIP-3009", url: EIP(3009) },
         {
           label: "Circle developer docs",
-          url: "https://developers.circle.com/stablecoins/docs",
+          url: "https://developers.circle.com/stablecoins",
         },
       ],
     },
@@ -143,8 +143,8 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         "Must use correct TokenMessenger/MessageTransmitter addresses per domain; wrong domain config bricks flows.",
       links: [
         {
-          label: "CCTP developer docs",
-          url: "https://developers.circle.com/stablecoins/docs/cctp-getting-started",
+          label: "CCTP supported blockchains",
+          url: "https://developers.circle.com/cctp/concepts/supported-chains-and-domains",
         },
       ],
     },
@@ -161,15 +161,18 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         },
       ],
     },
-    "TransparentUpgradeableProxy": {
+    "FiatTokenProxy upgradeable": {
       audience: "corporate",
-      standards: ["ERC-1967", "proxy pattern"],
+      standards: ["ZeppelinOS unstructured-storage proxy", "proxy pattern"],
       rationale:
         "Implementation can be upgraded — monitor implementation changes and diff bytecode on upgrades for breaking behavior.",
       riskNotes:
         "Governance/compromise of admin can alter token logic; dependency risk for deep integrations.",
       links: [
-        { label: "EIP-1967", url: EIP(1967) },
+        {
+          label: "Verified FiatToken proxy",
+          url: "https://etherscan.io/address/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48#code",
+        },
         {
           label: "OpenZeppelin proxies",
           url: "https://docs.openzeppelin.com/contracts/4.x/api/proxy",
@@ -408,7 +411,7 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         "Cross-chain messaging risk (Wormhole guardian set) in addition to base USDS risk; rate limits can stall large flows.",
       links: [
         { label: "Skylink docs", url: "https://docs.sky.money/" },
-        { label: "Wormhole NTT", url: "https://wormhole.com/products/ntt" },
+        { label: "Wormhole NTT", url: "https://docs.wormhole.com/products/token-transfers/native-token-transfers/faqs/" },
       ],
     },
   },
@@ -516,7 +519,7 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
       riskNotes:
         "Similar to centralized freeze on EVM Paxos tokens.",
       links: [
-        { label: "PYUSD (PayPal)", url: "https://www.paypal.com/us/digital-wallet/pyusd" },
+        { label: "PYUSD (PayPal)", url: "https://www.paypal.com/pyusd/" },
       ],
     },
     "PayPal/Venmo unified balance": {
@@ -525,7 +528,7 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         "Custodial UX layer — on-chain balance may not reflect app balance; integrations should not assume 1:1 with PayPal ledger.",
       riskNotes:
         "Off-chain ledger and on-chain wraps can diverge during incidents.",
-      links: [{ label: "PayPal PYUSD", url: "https://www.paypal.com/us/digital-wallet/pyusd" }],
+      links: [{ label: "PayPal PYUSD", url: "https://www.paypal.com/pyusd/" }],
     },
     "~4% APY on PYUSD (custodial)": {
       audience: "user",
@@ -533,7 +536,7 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
         "Custodial yield product — not on-chain DeFi yield; terms set by PayPal, not smart contracts. Rate is variable and advertised on PayPal's consumer PYUSD page.",
       riskNotes:
         "Yield can change at PayPal's discretion; not FDIC insured; counterparty to PayPal/Paxos stack.",
-      links: [{ label: "PayPal PYUSD", url: "https://www.paypal.com/us/digital-wallet/pyusd" }],
+      links: [{ label: "PayPal PYUSD", url: "https://www.paypal.com/pyusd/" }],
     },
   },
 
@@ -541,11 +544,11 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
     "Permitted cash-equivalent reserves": {
       audience: "both",
       rationale:
-        "frxUSD is 1:1 against Frax-approved cash-equivalent collateral, including tokenised Treasury funds (e.g. BUIDL, USTB, JTRSY, WTGXX, AUSD). The legacy fractional-algorithmic FRAX stablecoin model is retired.",
+        "frxUSD is 1:1 against Frax-approved cash-equivalent collateral, including tokenised Treasury funds and stablecoin mint paths documented by Frax. The legacy fractional-algorithmic FRAX stablecoin model is retired.",
       riskNotes:
         "Reserve composition and mint eligibility are governance-defined — track Frax disclosures and on-chain mint contracts rather than assuming a single underlying fund.",
       links: [
-        { label: "Frax frxUSD overview", url: "https://docs.frax.com/protocol/assets/frxusd/frxusd" },
+        { label: "Frax frxUSD overview", url: "https://docs.frax.com/frxusd" },
         { label: "Frax GitHub", url: "https://github.com/FraxFinance" },
       ],
     },
@@ -576,6 +579,20 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
       riskNotes:
         "AMM smart contract risk separate from frxUSD token contract.",
       links: [{ label: "Frax docs", url: "https://docs.frax.com" }],
+    },
+    "Owner freeze/burn/pause": {
+      audience: "corporate",
+      standards: ["ERC-20 admin pattern"],
+      rationale:
+        "The Ethereum frxUSD proxy exposes owner-controlled freeze/thaw, pause, and burn-from-address functionality; custody and DeFi integrations should treat frxUSD as permissioned at the token layer.",
+      riskNotes:
+        "The owner can freeze accounts and burn balances from holder addresses; this is broader than a simple transfer block.",
+      links: [
+        {
+          label: "frxUSD verified proxy",
+          url: "https://etherscan.io/address/0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29#code",
+        },
+      ],
     },
   },
 

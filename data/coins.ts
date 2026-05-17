@@ -17,7 +17,7 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://etherscan.io/token/0xdAC17F958D2ee523a2206206994597C13D831ec7",
         isPrimary: true,
-        notes: "~103B supply, 13M+ holders",
+        notes: "Largest supply chain, 13M+ holders",
       },
       {
         name: "TRON",
@@ -89,7 +89,7 @@ export const coins: Coin[] = [
         chain: "bitcoin",
         standard: "Omni",
         contract: "Property ID: 31",
-        explorerUrl: "https://www.omniexplorer.info/lookupasset.aspx?asset=31",
+        explorerUrl: "https://omniexplorer.info/asset/31",
         isPrimary: false,
         notes: "Historical deployment only — Tether no longer issues or redeems Omni USDT",
       },
@@ -142,10 +142,10 @@ export const coins: Coin[] = [
       },
     ],
     reserves:
-      "Total reserves ~$192.9B (Q4 2025): US Treasuries ~$141.6B plus cash & equivalents, repo, money market funds, Bitcoin, gold, and other assets (figures shift each quarter)",
+      "Total reserves ~$191.8B (Q1 2026): US Treasuries ~$141B, gold ~$20B, Bitcoin ~$7B, plus cash & equivalents, repo, and money market funds. Excess reserves buffer ~$8.2B (figures shift each quarter)",
     collateralType: "Fiat and equivalents (off-chain)",
     pegMechanism: "Hard 1:1 via centralized issuer redemption",
-    auditor: "BDO Italia (quarterly attestation)",
+    auditor: "BDO Italia (quarterly attestation); KPMG engaged March 2026 for first full financial audit",
     defiIntegration: "Deep Uniswap, Curve, Aave, Compound liquidity across all chains",
     yield: "None native",
     risks: [
@@ -154,7 +154,7 @@ export const coins: Coin[] = [
       { label: "Historical reserve opacity", level: "low" },
     ],
     technicalNotes:
-      "6 decimals. Ethereum TetherToken (Solidity 0.4.x) is one of the most non-standard ERC-20s: transfer/transferFrom/approve return void (not bool) — requires SafeERC20. approve() reverts if allowance != 0 (use forceApprove). Dormant fee-on-transfer via basisPointsRate/maximumFee (currently 0/0, activatable by owner). destroyBlackFunds() burns blacklisted balances — more aggressive than USDC's freeze-in-place. USDT0 (Jan 2025) adopts LayerZero OFT + draft ERC-7802 crosschainMint/crosschainBurn across 15+ networks (OpenZeppelin audited, no critical findings, $50B+ moved). Custom deprecate() upgrade mechanism — NOT EIP-1967 standard proxy slots.",
+      "Ethereum USDT uses 6 decimals; BNB Chain USDT uses 18 decimals. Ethereum TetherToken (Solidity 0.4.x) is one of the most non-standard ERC-20s: transfer/transferFrom/approve return void (not bool) — requires SafeERC20. approve() reverts if allowance != 0 (use forceApprove). Dormant fee-on-transfer via basisPointsRate/maximumFee (currently 0/0, activatable by owner). destroyBlackFunds() burns blacklisted balances — more aggressive than USDC's freeze-in-place. USDT0 (Jan 2025) adopts LayerZero OFT + draft ERC-7802 crosschainMint/crosschainBurn across 15+ networks (OpenZeppelin audited, no critical findings, $50B+ moved). Custom deprecate() upgrade mechanism — NOT EIP-1967 standard proxy slots.",
     docsUrl: "https://tether.to",
   },
   {
@@ -163,7 +163,7 @@ export const coins: Coin[] = [
     issuer: "Circle",
     type: "fiat",
     description:
-      "Most developer-friendly and compliance-forward stablecoin. Native on 32 blockchains as of early 2026 with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across 21 chains. Circle began trading on the NYSE under ticker CRCL on 5 June 2025; the IPO closed on 6 June 2025.",
+      "Most developer-friendly and compliance-forward stablecoin. Circle's current docs list USDC mainnet contracts on 34 blockchains, with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across 20+ supported domains. Circle began trading on the NYSE under ticker CRCL on 5 June 2025; the IPO closed on 6 June 2025.",
     networks: [
       {
         name: "Ethereum",
@@ -287,7 +287,7 @@ export const coins: Coin[] = [
         standard: "ERC-20",
         contract: "0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4",
         explorerUrl:
-          "https://era.zksync.network/token/0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4",
+          "https://explorer.zksync.io/address/0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4",
         isPrimary: false,
       },
       {
@@ -337,7 +337,7 @@ export const coins: Coin[] = [
         name: "CCTP v2 cross-chain",
         category: "cross-chain",
         description:
-          "Cross-Chain Transfer Protocol — burn on source chain, native mint on destination. No bridge liquidity pools, no wrapped token risk. 20+ chains supported.",
+          "Cross-Chain Transfer Protocol — burn on source chain, native mint on destination. No bridge liquidity pools, no wrapped token risk. 20+ supported domains.",
       },
       {
         name: "Blacklist and Pause",
@@ -346,10 +346,10 @@ export const coins: Coin[] = [
           "FiatToken admin can freeze individual addresses or pause the entire contract globally.",
       },
       {
-        name: "TransparentUpgradeableProxy",
+        name: "FiatTokenProxy upgradeable",
         category: "compliance",
         description:
-          "Circle can update the implementation contract via the proxy owner — allows feature additions and security patches.",
+          "Circle can update the implementation contract via the legacy FiatTokenProxy/AdminUpgradeabilityProxy path — monitor upgrades and do not assume standard EIP-1967 slots on Ethereum.",
       },
       {
         name: "SEC-registered reserve fund",
@@ -844,7 +844,7 @@ export const coins: Coin[] = [
     ],
     technicalNotes:
       "6 decimals. Paxos extensions beyond standard EIPs: AuthorizationAlreadyUsed, InvalidNonceCount, PermitInvalidated events — extra safety rails around EIP-2612/3009. cancelPermits() admin-style nonce invalidation. Solana Token-2022 extensions: ConfidentialTransfers (ZK proofs, initialized but not active), TransferHooks (programmable per-transfer logic), RequiredMemoOnTransfer (compliance), PermanentDelegate (Paxos), TransferFeeConfig (0% currently). IMPORTANT: confidential transfers CANNOT be combined with transfer fees or transfer hooks simultaneously. Auditor upgraded from Withum to KPMG LLP (Big Four, Feb 2025).",
-    docsUrl: "https://www.paypal.com/us/digital-wallet/pyusd",
+    docsUrl: "https://www.paypal.com/pyusd/",
   },
   {
     symbol: "frxUSD",
@@ -852,7 +852,7 @@ export const coins: Coin[] = [
     issuer: "Frax Finance",
     type: "hybrid",
     description:
-      "Fiat-redeemable, fully collateralised stablecoin that replaced the legacy FRAX fractional-algorithmic model during 2025 (Frax announced frxUSD on 2 January 2025). Backing is 1:1 against permitted cash-equivalent reserves, including tokenised US Treasury products such as BUIDL, USTB, JTRSY, WTGXX, and AUSD — not a single-fund basket. Frax documents frxUSD on 20+ networks; the table below shows the canonical Ethereum deployment only — use Frax docs for other chain addresses. The FRAX ticker is now the native gas token for Fraxtal; Frax documentation states it is not the protocol governance token (governance may be layered separately).",
+      "Fiat-redeemable, fully collateralised stablecoin that replaced the legacy FRAX fractional-algorithmic model during 2025 (Frax announced frxUSD on 2 January 2025). Backing is 1:1 against permitted cash-equivalent reserves, including tokenised U.S. Treasury products and stablecoin mint paths documented by Frax (for example BUIDL, USTB, WTGXX, USDC, PYUSD, USDT, and USDB in current docs) — not a single-fund basket. Frax documents frxUSD on 20+ networks; the table below shows the canonical Ethereum deployment only — use Frax docs for other chain addresses. The FRAX ticker is now the native gas token for Fraxtal; Frax documentation states it is not the protocol governance token (governance may be layered separately).",
     networks: [
       {
         name: "Ethereum",
@@ -871,7 +871,7 @@ export const coins: Coin[] = [
         name: "Permitted cash-equivalent reserves",
         category: "compliance",
         description:
-          "1:1 against Frax-approved cash-equivalent collateral, including tokenised US Treasury funds (e.g. BUIDL, USTB, JTRSY, WTGXX, AUSD) — see current Frax documentation for the exact basket and mint/redeem paths.",
+          "1:1 against Frax-approved cash-equivalent collateral, including tokenised U.S. Treasury funds and stablecoin mint paths documented by Frax (e.g. BUIDL, USTB, WTGXX, USDC, PYUSD, USDT, USDB) — see current Frax documentation for the exact basket and mint/redeem paths.",
       },
       {
         name: "sfrxUSD ERC-4626 vault",
@@ -892,9 +892,15 @@ export const coins: Coin[] = [
         description:
           "Built-in AMM with Time-Weighted Average Market Maker — executes large orders gradually over time to minimise price impact.",
       },
+      {
+        name: "Owner freeze/burn/pause",
+        category: "compliance",
+        description:
+          "Ethereum frxUSD exposes owner-controlled freeze/thaw, pause, and burn-from-address functions; treat it as a permissioned token for custody and protocol risk.",
+      },
     ],
     reserves:
-      "Permitted cash-equivalent reserves (tokenised Treasuries and related instruments per Frax docs — basket can include BUIDL, USTB, JTRSY, WTGXX, AUSD, etc.)",
+      "Permitted cash-equivalent reserves (tokenised Treasuries and related instruments per Frax docs — current docs include BUIDL, USTB, WTGXX, USDC, PYUSD, USDT, USDB mint paths)",
     collateralType: "RWA / Treasury-backed, fiat-redeemable",
     pegMechanism: "Hard 1:1 via issuer-approved reserve redemption",
     auditor: "Depends on underlying tokenised fund issuers and Frax attestations — verify current disclosures",
@@ -904,13 +910,14 @@ export const coins: Coin[] = [
     risks: [
       { label: "Very small market cap — low liquidity", level: "high" },
       { label: "Tokenised fund and custodian concentration", level: "low" },
+      { label: "Owner freeze/burn/pause authority", level: "medium" },
       {
         label: "Migration still in progress — verify contract addresses",
         level: "medium",
       },
     ],
     technicalNotes:
-      "18 decimals. Mint/redeem paths and approved collateral types are governance-defined — confirm on docs.frax.com (frxUSD overview + contracts). BUIDL and other tokenised Treasury products have been used as collateral; the basket is not BUIDL-only. sfrxUSD (StakedFrxUSD) extends LinearRewardsErc4626: non-rebasing, share price increases. Benchmark Yield Strategy (BYS) dynamically allocates across carry-trade (Ethena/Superstate), DeFi AMOs (Aave/Curve/Convex/Euler/Fraxlend), and IORB/T-Bill RWA strategies. Redemption via FraxtalERC4626MintRedeemer: zero fees, zero price impact. Legacy FRAX stablecoin model retired.",
+      "18 decimals. Mint/redeem paths and approved collateral types are governance-defined — confirm on docs.frax.com (frxUSD overview + contracts). BUIDL and other tokenised Treasury products have been used as collateral; the basket is not BUIDL-only. Ethereum frxUSD is a TransparentUpgradeableProxy and exposes owner-controlled freeze/thaw, pause, and burn-from-address functions; protocols should model those admin powers separately from reserve risk. sfrxUSD (StakedFrxUSD) extends LinearRewardsErc4626: non-rebasing, share price increases. Benchmark Yield Strategy (BYS) dynamically allocates across carry-trade (Ethena/Superstate), DeFi AMOs (Aave/Curve/Convex/Euler/Fraxlend), and IORB/T-Bill RWA strategies. Redemption via FraxtalERC4626MintRedeemer: zero fees, zero price impact. Legacy FRAX stablecoin model retired.",
     docsUrl: "https://docs.frax.com",
     githubUrl: "https://github.com/FraxFinance",
   },
@@ -996,7 +1003,7 @@ export const coins: Coin[] = [
     risks: [
       { label: "$456M reserves frozen by Dubai court — Nov 2025", level: "high" },
       { label: "SEC fraud settlement — TrueCoin/TrustToken Sept 2024", level: "high" },
-      { label: "Archblock (operator) Chapter 11 bankruptcy 2025", level: "high" },
+      { label: "Archblock (operator) Chapter 11 bankruptcy Feb 2026", level: "high" },
       {
         label: "Issuer transparency claims conflict with adverse reporting",
         level: "high",

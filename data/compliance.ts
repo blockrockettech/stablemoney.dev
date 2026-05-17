@@ -233,7 +233,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
             description: "Returns true if the address is on the Tether blacklist. Transfers revert. Tether can subsequently call destroyBlackFunds() to burn the balance.",
           },
         ],
-        notes: "6 decimals. Primary deployment — ~103B supply, 13M+ holders.",
+        notes: "6 decimals. Primary deployment — largest supply chain, 13M+ holders.",
       },
       // {
       //   support: "coming-soon",
@@ -416,7 +416,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   {
     symbol: "PYUSD",
     hasComplianceControls: true,
-    complianceDocsUrl: "https://www.paypal.com/us/digital-wallet/pyusd",
+    complianceDocsUrl: "https://www.paypal.com/pyusd/",
     seizureNote:
       "Paxos holds a permanent delegate on Solana (Token-2022) to freeze or seize funds. On Ethereum, the freeze mechanism follows Paxos FiatToken pattern.",
     chains: [
@@ -632,9 +632,27 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
   // ── frxUSD ────────────────────────────────────────────────────────────────
   {
     symbol: "frxUSD",
-    hasComplianceControls: false,
-    noControlsReason:
-      "No blacklist or freeze function present in the frxUSD contract. Permissionless transfers.",
-    chains: [],
+    hasComplianceControls: true,
+    complianceDocsUrl: "https://docs.frax.com/frxusd",
+    seizureNote:
+      "The Ethereum frxUSD owner can burn balances from holder addresses via owner-only burn functions, in addition to freeze/thaw and pause controls.",
+    chains: [
+      {
+        support: "evm",
+        ...chainEndpoints("frxUSD", "ethereum"),
+        rpcUrl: EVM_RPC_URLS.ethereum_c,
+        checks: [
+          {
+            fnName: "isFrozen",
+            selector: SELECTORS.isFrozen,
+            type: "freeze",
+            description:
+              "Returns true if the frxUSD address is frozen. Frozen addresses cannot transfer through normal user flows; owner-level controls can also burn holder balances.",
+          },
+        ],
+        notes:
+          "TransparentUpgradeableProxy. 18 decimals. Owner-controlled freeze/thaw, pause, and burn-from-address functions.",
+      },
+    ],
   },
 ]

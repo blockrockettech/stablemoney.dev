@@ -140,7 +140,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
     decimals: 6,
     deployedBlock: 6082465,
     isUpgradeable: true,
-    upgradePattern: "TransparentUpgradeableProxy (EIP-1967)",
+    upgradePattern: "FiatTokenProxy / AdminUpgradeabilityProxy (ZeppelinOS unstructured storage)",
     implementations: [
       {
         eipId: "ERC-20",
@@ -211,8 +211,8 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "EIP-1967",
-        status: "implemented",
-        contractPattern: "TransparentUpgradeableProxy",
+        status: "not-implemented",
+        contractPattern: "FiatTokenProxy / AdminUpgradeabilityProxy — pre-EIP-1967 storage slots",
         keyFunctions: [
           "upgradeTo(address newImplementation) — admin only",
           "upgradeToAndCall(address newImplementation, bytes calldata data) — admin only",
@@ -220,19 +220,19 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
           "admin() → address",
         ],
         implementationNotes:
-          'Implementation address at slot bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1). Admin at bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1). Current implementation: FiatTokenV2_2. All state (balances, allowances, blacklist) lives in the proxy. The implementation is stateless logic only. Etherscan auto-detects this pattern and shows implementation ABI.',
+          'Ethereum USDC uses Circle/Centre FiatTokenProxy built on the ZeppelinOS-era AdminUpgradeabilityProxy, with implementation/admin storage slots based on "org.zeppelinos.proxy.*" keys rather than the standard EIP-1967 slots. Current implementation: FiatTokenV2_2. All state (balances, allowances, blacklist) lives in the proxy. The implementation is stateless logic only. Etherscan auto-detects this pattern and shows implementation ABI.',
         devImpact:
-          "Allows Circle to patch bugs and add features without requiring a token migration. The EIP-1967 standard means block explorers, risk tools (Tenderly, Forta), and monitoring systems automatically detect the proxy and show the correct ABI.",
+          "Allows Circle to patch bugs and add features without requiring a token migration. Monitoring tools should check the verified proxy metadata or ZeppelinOS storage conventions rather than relying only on EIP-1967 slot reads.",
         footguns:
-          "Always interact with the PROXY address, not the implementation address. The implementation has no balances and calls to it will not behave as expected. Check that your integration uses the proxy address in your constants.",
+          "Always interact with the PROXY address, not the implementation address. The implementation has no balances and calls to it will not behave as expected. Standard EIP-1967-only slot readers can return zero for Ethereum USDC.",
       },
       {
         eipId: "EIP-1822",
         status: "not-implemented",
-        contractPattern: "TransparentUpgradeableProxy — upgrade logic in ProxyAdmin, not implementation",
+        contractPattern: "FiatTokenProxy/AdminUpgradeabilityProxy — not UUPS",
         keyFunctions: [],
         implementationNotes:
-          "USDC uses TransparentUpgradeableProxy (EIP-1967), not UUPS. The upgrade authorization and admin role live in a separate ProxyAdmin contract, not the FiatToken implementation. This is distinct from EIP-1822.",
+          "USDC uses a proxy-admin style upgrade path in the proxy, not UUPS. The upgrade authorization and admin role do not live in the FiatToken implementation. This is distinct from EIP-1822.",
         devImpact:
           "No behavioral impact for token users. Relevant for forks: if you deploy a USDC-compatible token using UUPS, the upgrade mechanism differs from Circle's production deployment.",
       },
