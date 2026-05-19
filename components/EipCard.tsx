@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown } from "lucide-react"
+import Link from "next/link"
+import { ArrowRight, ChevronDown } from "lucide-react"
 import type { CoinEipImpl, Eip, EipCategory, EipScope, EipStatus } from "@/types/eip"
 import { eipExternalLinks } from "@/lib/crypto/eip-helpers"
 import { cn } from "@/lib/utils"
@@ -134,6 +135,24 @@ export function EipCard({
 
       {open ? (
         <div className="space-y-4 border-t border-border px-4 py-4 text-sm">
+          {coinSymbol ? (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-border/50 pb-3">
+              <Link
+                href={`/coins/${coinSymbol.toLowerCase()}`}
+                className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
+              >
+                {coinSymbol} overview
+                <ArrowRight className="size-3 shrink-0" />
+              </Link>
+              <Link
+                href={`/coins/${coinSymbol.toLowerCase()}/eips`}
+                className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-xs hover:underline"
+              >
+                Full {coinSymbol} standards profile
+                <ArrowRight className="size-3 shrink-0" />
+              </Link>
+            </div>
+          ) : null}
           {!suppressEipOverview ? (
             <div>
               <div className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wide">

@@ -8,10 +8,12 @@ import {
   getCoinEipProfile,
 } from "@/lib/crypto/eip-helpers"
 import { EipCard } from "@/components/EipCard"
+import { PROXY_LABELS, PROXY_CLASSES } from "@/lib/proxy-labels"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import { shortAddress } from "@/lib/crypto/address-utils"
 import { SITE_CANONICAL_URL } from "@/site/config"
+import { cn } from "@/lib/utils"
 
 export function generateStaticParams() {
   return coins.map((c) => ({ symbol: c.symbol.toLowerCase() }))
@@ -204,6 +206,33 @@ export default function CoinEipsPage({ params }: { params: { symbol: string } })
               </>
             ) : null}
           </p>
+          {coin.networks.some((n) => n.proxyType) && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-muted-foreground text-xs">Per chain:</span>
+              {coin.networks
+                .filter((n) => n.proxyType)
+                .map((n) => (
+                  <span
+                    key={`${n.chain}-${n.contract}`}
+                    className="inline-flex items-center gap-1 rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[0.65rem]"
+                    title={n.mainnetDiffers ?? undefined}
+                  >
+                    <span className="font-medium">{n.name}</span>
+                    <span
+                      className={cn(
+                        "rounded px-1 py-0 text-[0.6rem] font-medium uppercase",
+                        PROXY_CLASSES[n.proxyType!]
+                      )}
+                    >
+                      {PROXY_LABELS[n.proxyType!]}
+                    </span>
+                    {n.mainnetDiffers && (
+                      <span className="text-orange-500" aria-hidden>↕</span>
+                    )}
+                  </span>
+                ))}
+            </div>
+          )}
         </div>
       </header>
 

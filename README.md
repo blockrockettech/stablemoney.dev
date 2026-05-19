@@ -23,25 +23,45 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
+| Command                    | Description                                                |
+| -------------------------- | ---------------------------------------------------------- |
+| `npm run dev`              | Development server                                         |
+| `npm run build`            | Production build (runs `prebuild` automatically)           |
+| `npm run prebuild`         | Fetch live market data from DefiLlama                      |
+| `npm run start`            | Run production server                                      |
+| `npm run lint`             | ESLint                                                     |
+| `npm run format`           | Prettier write                                             |
+| `npm run format:check`     | Prettier check                                             |
+| `npm run test`             | Run test suite (Vitest)                                    |
+| `npm run test:watch`       | Vitest in watch mode                                       |
+| `npm run check-proxy`      | Validate proxy metadata in `coins.ts` against on-chain data |
 
-| Command                | Description                                      |
-| ---------------------- | ------------------------------------------------ |
-| `npm run dev`          | Development server                               |
-| `npm run build`        | Production build (runs `prebuild` automatically) |
-| `npm run prebuild`     | Fetch live market data from DefiLlama            |
-| `npm run start`        | Run production server                            |
-| `npm run lint`         | ESLint                                           |
-| `npm run format`       | Prettier write                                   |
-| `npm run format:check` | Prettier check                                   |
+### Proxy validation script
 
+`scripts/check-proxy-status.ts` reads EIP-1967 and EIP-1822 storage slots for every EVM deployment in `coins.ts` and compares the detected proxy type against the static `proxyType` field.
+
+```bash
+# Check all coins
+npm run check-proxy
+
+# Filter to one coin
+npx tsx scripts/check-proxy-status.ts --coin USDC
+
+# Filter to one coin + chain
+npx tsx scripts/check-proxy-status.ts --coin GHO --chain arbitrum
+```
+
+It prints a per-deployment result (✓ match / ✗ mismatch) and exits with code 1 if any mismatches are found. Run this after editing proxy metadata in `coins.ts` to confirm the static data matches the live contract.
 
 ## Project layout
 
-- `app/` — Routes: home, `/coins/[symbol]`, `/onchain-wallet-check`, `/standards`, `sitemap.ts`, `robots.ts`
+- `app/` — Routes: home, `/coins/[symbol]`, `/coins/[symbol]/eips`, `/onchain-wallet-check`, `/standards`, `sitemap.ts`, `robots.ts`
 - `components/` — UI: cards, filters, search, tables
-- `data/coins.ts` — Typed coin dataset
+- `data/coins.ts` — Typed coin dataset (networks, proxy metadata, features, risks)
+- `data/coinEips.ts` — EIP/ERC standard definitions and per-coin implementation profiles
+- `scripts/` — One-off maintenance scripts (`fetch-market-data.ts`, `check-proxy-status.ts`)
 - `site/` — Site config, coin search (Fuse), feature merge helpers, MDX loader, and `site/content/coins/*.mdx` for optional coin page sections
-- `lib/` — Market data, crypto RPC helpers, EIP utilities, etc.
+- `lib/` — Market data, crypto RPC helpers, EIP utilities, proxy label constants, etc.
 
 ## Environment
 
