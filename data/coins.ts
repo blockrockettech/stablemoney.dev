@@ -18,6 +18,8 @@ export const coins: Coin[] = [
           "https://etherscan.io/token/0xdAC17F958D2ee523a2206206994597C13D831ec7",
         isPrimary: true,
         notes: "Largest supply chain, 13M+ holders",
+        proxyType: "custom",
+        implVersion: "TetherToken (Solidity 0.4.x)",
       },
       {
         name: "TRON",
@@ -37,6 +39,8 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://bscscan.com/token/0x55d398326f99059fF775485246999027B3197955",
         isPrimary: true,
+        mainnetDiffers: "18-decimal BEP-20 — different contract from Ethereum 6-decimal TetherToken",
+        proxyType: "none",
       },
       {
         name: "Solana",
@@ -56,6 +60,11 @@ export const coins: Coin[] = [
           "https://arbiscan.io/token/0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
         isPrimary: false,
         notes: "USDT0 native L2 via LayerZero OFT",
+        proxyType: "transparent",
+        implVersion: "USDT0 (LayerZero OFT + ERC-7802)",
+        implementation: "0x3263cd783823d04a6b9819517e0e6840d37ca3f4",
+        proxyAdmin: "0x553ec478a66be27ba25a6bc5db20aec2ed6a1b4a",
+        mainnetDiffers: "OFT implementation — LayerZero crosschainMint/crosschainBurn, not TetherToken",
       },
       {
         name: "Polygon",
@@ -65,6 +74,7 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://polygonscan.com/token/0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
         isPrimary: false,
+        mainnetDiffers: "Bridged via Polygon PoS bridge — separate deployment from Ethereum",
       },
       {
         name: "Avalanche",
@@ -74,6 +84,10 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://snowtrace.io/token/0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
         isPrimary: false,
+        mainnetDiffers: "Bridged USDT — separate deployment, may diverge from Ethereum impl",
+        proxyType: "transparent",
+        implementation: "0xba2a995bd4ab9e605454ccef88169352cd5f75a6",
+        proxyAdmin: "0x6262bdac4369af889f6c18f7872de2fd0538eaba",
       },
       {
         name: "Optimism",
@@ -83,6 +97,8 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://optimistic.etherscan.io/token/0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
         isPrimary: false,
+        mainnetDiffers: "Bridged USDT — separate deployment, may diverge from Ethereum impl",
+        proxyType: "none",
       },
       {
         name: "Bitcoin Omni",
@@ -173,7 +189,11 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://etherscan.io/token/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         isPrimary: true,
-        notes: "FiatToken v2.2",
+        notes: "FiatToken v2.2 — AdminUpgradeabilityProxy (pre-EIP-1967 admin slot)",
+        proxyType: "custom",
+        implVersion: "FiatTokenV2.2",
+        implementation: "0x43506849d7c04f9138d1a2050bbf3a0c054402dd",
+        proxyAdmin: "0x807a96288a1a408dbc13de2b1d087d10356395d2",
       },
       {
         name: "Solana",
@@ -193,6 +213,11 @@ export const coins: Coin[] = [
           "https://basescan.org/token/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         isPrimary: true,
         notes: "Native, not bridged",
+        proxyType: "custom",
+        implVersion: "FiatTokenV2.2",
+        implementation: "0x2ce6311ddae708829bc0784c967b7d77d19fd779",
+        proxyAdmin: "0x4fc7850364958d97b4d3f5a08f79db2493f8ca44",
+        mainnetDiffers: "Circle FiatToken proxy — separate implementation/admin from Ethereum mainnet",
       },
       {
         name: "Arbitrum",
@@ -203,6 +228,11 @@ export const coins: Coin[] = [
           "https://arbiscan.io/token/0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
         isPrimary: true,
         notes: "Native USDC, not USDC.e",
+        proxyType: "custom",
+        implVersion: "FiatTokenV2.2",
+        implementation: "0x86e721b43d4ecfa71119dd38c0f938a75fdb57b3",
+        proxyAdmin: "0x2e0a67588cfbcad40f9e4dd76052436190a77a68",
+        mainnetDiffers: "Circle FiatToken proxy — separate implementation/admin from Ethereum mainnet",
       },
       {
         name: "Polygon",
@@ -213,6 +243,11 @@ export const coins: Coin[] = [
           "https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
         isPrimary: true,
         notes: "Native (0x2791 is bridged)",
+        proxyType: "custom",
+        implVersion: "FiatTokenV2.2",
+        implementation: "0x235ae97b28466db30469b89a9fe4cff0659f82cb",
+        proxyAdmin: "0x9238e612387ebba4d4fa0d76dbfba99b453417b3",
+        mainnetDiffers: "Circle FiatToken proxy — separate implementation/admin from Ethereum mainnet",
       },
       {
         name: "Avalanche",
@@ -222,6 +257,11 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://snowtrace.io/token/0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
         isPrimary: true,
+        proxyType: "custom",
+        implVersion: "FiatTokenV2.2",
+        implementation: "0x30dfe0469803bce76f8f62ac24b18d33d3d6ffe6",
+        proxyAdmin: "0xf0f918c7c977c41b390f8bc69f294eff414a5cb7",
+        mainnetDiffers: "Circle FiatToken proxy — separate implementation/admin from Ethereum mainnet",
       },
       {
         name: "Optimism",
@@ -231,6 +271,11 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://optimistic.etherscan.io/token/0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
         isPrimary: true,
+        proxyType: "custom",
+        implVersion: "FiatTokenV2.2",
+        implementation: "0xded3b9a8dbedc2f9cb725b55d0e686a81e6d06dc",
+        proxyAdmin: "0xbb8a939e2b1923d248ac4c2f6aed0a4d71cb18a3",
+        mainnetDiffers: "Circle FiatToken proxy — separate implementation/admin from Ethereum mainnet",
       },
       {
         name: "Sui",
@@ -289,6 +334,11 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://explorer.zksync.io/address/0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4",
         isPrimary: false,
+        proxyType: "custom",
+        implVersion: "FiatTokenV2.2",
+        implementation: "0xf4d6912ed152600356ea991f027046f6d1740b8d",
+        proxyAdmin: "0x13695d7d74e0d7bc65fc77ae290d9602975fe20f",
+        mainnetDiffers: "Circle FiatToken proxy — separate implementation/admin from Ethereum mainnet",
       },
       {
         name: "Starknet",
@@ -491,6 +541,7 @@ export const coins: Coin[] = [
           "https://etherscan.io/token/0x6B175474E89094C44Da98b954EedeAC495271d0F",
         isPrimary: true,
         notes: "DAI — immutable contract",
+        proxyType: "none",
       },
       {
         name: "Arbitrum",
@@ -500,6 +551,8 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://arbiscan.io/token/0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
         isPrimary: false,
+        proxyType: "none",
+        mainnetDiffers: "Canonical Arbitrum bridge token — no issuer admin controls",
       },
       {
         name: "Optimism",
@@ -509,6 +562,8 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://optimistic.etherscan.io/token/0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
         isPrimary: false,
+        proxyType: "none",
+        mainnetDiffers: "Canonical Optimism bridge token — no issuer admin controls",
       },
       {
         name: "Polygon",
@@ -518,6 +573,8 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://polygonscan.com/token/0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
         isPrimary: false,
+        proxyType: "none",
+        mainnetDiffers: "Canonical Polygon bridge token — no issuer admin controls",
       },
       {
         name: "Base",
@@ -527,6 +584,8 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://basescan.org/token/0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
         isPrimary: false,
+        proxyType: "none",
+        mainnetDiffers: "Canonical Base bridge token — no issuer admin controls",
       },
     ],
     features: [
@@ -609,6 +668,9 @@ export const coins: Coin[] = [
           "https://etherscan.io/token/0xdC035D45d973E3EC169d2276DDab16f1e407384F",
         isPrimary: true,
         notes: "ERC1967Proxy upgradeable",
+        proxyType: "uups",
+        implVersion: "USDS (Sky Protocol)",
+        implementation: "0x1923dfee706a8e78157416c29cbccfde7cdf4102",
       },
     ],
     features: [
@@ -676,6 +738,10 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://etherscan.io/token/0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
         isPrimary: true,
+        proxyType: "transparent",
+        implVersion: "FDUSDMainImplementation",
+        implementation: "0xa6b2c3d2910246fb0adb02e5f6b39e29026e6d50",
+        proxyAdmin: "0xbb812b978e41929e86ad9ea8c1025710fee85957",
       },
       {
         name: "BNB Chain",
@@ -686,6 +752,11 @@ export const coins: Coin[] = [
           "https://bscscan.com/token/0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
         isPrimary: true,
         notes: "Same address, different chain",
+        proxyType: "transparent",
+        implVersion: "FDUSDMainImplementation",
+        implementation: "0xa6b2c3d2910246fb0adb02e5f6b39e29026e6d50",
+        proxyAdmin: "0xbb812b978e41929e86ad9ea8c1025710fee85957",
+        mainnetDiffers: "Independent BNB deployment — parallel upgrades possible (EIP-3009 added BNB first, Dec 2025)",
       },
     ],
     features: [
@@ -755,6 +826,10 @@ export const coins: Coin[] = [
           "https://etherscan.io/token/0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
         isPrimary: true,
         notes: "Paxos FiatToken v1",
+        proxyType: "custom",
+        implVersion: "PaxosFiatTokenV1 (ZeppelinOS AdminUpgradeabilityProxy)",
+        implementation: "0x8c35caa5fd5bdc64b6b11344ad57594a3676256a",
+        proxyAdmin: "0xc94bcf6e1d8b3558e3b62e743630d50497e3851c",
       },
       {
         name: "Solana",
@@ -775,6 +850,10 @@ export const coins: Coin[] = [
           "https://arbiscan.io/token/0x46850aD61C2B7d64d08c9C754F45254596696984",
         isPrimary: false,
         notes: "Mainnet address published in Paxos developer docs",
+        proxyType: "custom",
+        implVersion: "PaxosFiatToken (ZeppelinOS AdminUpgradeabilityProxy)",
+        implementation: "0x9ce23fc2c05034a878411ebbf926664670f1c831",
+        proxyAdmin: "0xc94bcf6e1d8b3558e3b62e743630d50497e3851c",
       },
       {
         name: "Stellar",
@@ -864,6 +943,10 @@ export const coins: Coin[] = [
         isPrimary: true,
         notes:
           "Canonical Ethereum deployment (FrxUSD2). frxUSD is live on 20+ chains per Frax — see docs.frax.com/frxusd/frxusd-contracts.",
+        proxyType: "transparent",
+        implVersion: "FrxUSD2 (TransparentUpgradeableProxy)",
+        implementation: "0x0000000048d2c8baf31742f6765383278bada4d5",
+        proxyAdmin: "0x0b2c3df006b2bd43cbcc60075e7a0bf314474ed6",
       },
     ],
     features: [
@@ -937,6 +1020,9 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376",
         isPrimary: true,
+        proxyType: "custom",
+        implementation: "0xDBC97a631c2fee80417d5d69f32b198c8c39c27e",
+        implVersion: "TrueCurrencyWithLegacyAutosweep",
       },
       {
         name: "BNB Chain",
@@ -947,6 +1033,9 @@ export const coins: Coin[] = [
           "https://bscscan.com/token/0x14016E85a25aeb13065688cAFB43044C2ef86784",
         isPrimary: false,
         notes: "Highest volume",
+        proxyType: "transparent",
+        implementation: "0xba5fe23f8a3a24bed3236f05f2fcf35fd0bf0b5c",
+        proxyAdmin: "0xd2f93484f2d319194cba95c5171b18c1d8cfd6c4",
       },
       {
         name: "TRON",
@@ -965,6 +1054,7 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://snowtrace.io/token/0x1C20E891Bab6b1727d14Da358FAe2984Ed9B59EB",
         isPrimary: false,
+        proxyType: "none",
       },
     ],
     features: [
@@ -1035,6 +1125,10 @@ export const coins: Coin[] = [
           "https://etherscan.io/token/0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
         isPrimary: true,
         notes: "TransparentUpgradeableProxy (EIP-1967)",
+        proxyType: "transparent",
+        implVersion: "USD1 Implementation (BitGo)",
+        implementation: "0x694aa534bdef8ed63244eb902e7914e527891f08",
+        proxyAdmin: "0xa032fe6c496732bdfc0d235066f55f171fa4aece",
       },
       {
         name: "BNB Chain",
@@ -1045,6 +1139,11 @@ export const coins: Coin[] = [
           "https://bscscan.com/token/0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d",
         isPrimary: true,
         notes: "Same address as Ethereum",
+        proxyType: "transparent",
+        implVersion: "USD1 Implementation (BitGo)",
+        implementation: "0x694aa534bdef8ed63244eb902e7914e527891f08",
+        proxyAdmin: "0xa032fe6c496732bdfc0d235066f55f171fa4aece",
+        mainnetDiffers: "Independent BNB Chain deployment at same address — separate upgrade path",
       },
     ],
     features: [
@@ -1118,6 +1217,7 @@ export const coins: Coin[] = [
           "https://etherscan.io/token/0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
         isPrimary: true,
         notes: "Non-proxied immutable contract, 18 decimals",
+        proxyType: "none",
       },
       {
         name: "Arbitrum",
@@ -1128,6 +1228,11 @@ export const coins: Coin[] = [
           "https://arbiscan.io/token/0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+        proxyType: "transparent",
+        implVersion: "UpgradeableGhoToken",
+        implementation: "0xb415dfb897423cc83c3de8db0518d4fa7496c813",
+        proxyAdmin: "0x9f0e4f4c5664888442e459f40f635765bb6265ec",
+        mainnetDiffers: "Transparent proxy — Ethereum GHO is an immutable contract",
       },
       {
         name: "Base",
@@ -1138,6 +1243,11 @@ export const coins: Coin[] = [
           "https://basescan.org/token/0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+        proxyType: "transparent",
+        implVersion: "UpgradeableGhoToken",
+        implementation: "0xb0e1c7830aa781362f79225559aa068e6bdaf1d1",
+        proxyAdmin: "0x882c95f502384515e82607074668d19dacb42a09",
+        mainnetDiffers: "Transparent proxy — Ethereum GHO is an immutable contract",
       },
       {
         name: "Avalanche",
@@ -1148,6 +1258,11 @@ export const coins: Coin[] = [
           "https://snowtrace.io/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+        proxyType: "transparent",
+        implVersion: "UpgradeableGhoToken",
+        implementation: "0xb0e1c7830aa781362f79225559aa068e6bdaf1d1",
+        proxyAdmin: "0x06ba20fb633cbf38b7acfdc243829fb5f897e19c",
+        mainnetDiffers: "Transparent proxy — Ethereum GHO is an immutable contract",
       },
       {
         name: "Gnosis",
@@ -1158,6 +1273,11 @@ export const coins: Coin[] = [
           "https://gnosisscan.io/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+        proxyType: "transparent",
+        implVersion: "UpgradeableGhoToken",
+        implementation: "0xb0e1c7830aa781362f79225559aa068e6bdaf1d1",
+        proxyAdmin: "0x06ba20fb633cbf38b7acfdc243829fb5f897e19c",
+        mainnetDiffers: "Transparent proxy — Ethereum GHO is an immutable contract",
       },
       {
         name: "Mantle",
@@ -1168,6 +1288,11 @@ export const coins: Coin[] = [
           "https://mantlescan.xyz/token/0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
         isPrimary: false,
         notes: "UpgradeableGhoToken via CCIP burn-and-mint",
+        proxyType: "transparent",
+        implVersion: "UpgradeableGhoToken",
+        implementation: "0xb0e1c7830aa781362f79225559aa068e6bdaf1d1",
+        proxyAdmin: "0x06ba20fb633cbf38b7acfdc243829fb5f897e19c",
+        mainnetDiffers: "Transparent proxy — Ethereum GHO is an immutable contract",
       },
     ],
     features: [
@@ -1237,7 +1362,7 @@ export const coins: Coin[] = [
       { label: "Cross-chain bridge risk (CCIP)", level: "low" },
     ],
     technicalNotes:
-      "18 decimals. Ethereum mainnet GHO is a non-proxied immutable contract (Solmate-derived ERC20 + OZ AccessControl). L2 deployments use UpgradeableGhoToken (proxy-based, Initializable). Custom ERC20 base from Solmate — gas-optimised with built-in EIP-2612 permit() and EIP-712 DOMAIN_SEPARATOR. No EIP-3009 transferWithAuthorization. No freeze, seize, or pause on the GHO token itself — fully permissionless transfers. Flash mints via separate GhoFlashMinter facilitator (ERC-3156). GSM4626 variant supports ERC-4626 vault shares as exogenous token. CCIP cross-chain uses GhoCCIPTokenPoolEthereum (lock/release on L1) and GhoCCIPTokenPool (burn/mint on L2s). AccessControl roles: DEFAULT_ADMIN_ROLE (Aave Governance), FACILITATOR_MANAGER_ROLE, BUCKET_MANAGER_ROLE.",
+      "18 decimals. Ethereum mainnet GHO is a non-proxied immutable contract (Solmate-derived ERC20 + OZ AccessControl). L2 deployments use UpgradeableGhoToken with TransparentUpgradeableProxy (EIP-1967) — on-chain verified via EIP-1967 admin slot. Custom ERC20 base from Solmate — gas-optimised with built-in EIP-2612 permit() and EIP-712 DOMAIN_SEPARATOR. No EIP-3009 transferWithAuthorization. No freeze, seize, or pause on the GHO token itself — fully permissionless transfers. Flash mints via separate GhoFlashMinter facilitator (ERC-3156). GSM4626 variant supports ERC-4626 vault shares as exogenous token. CCIP cross-chain uses GhoCCIPTokenPoolEthereum (lock/release on L1) and GhoCCIPTokenPool (burn/mint on L2s). AccessControl roles: DEFAULT_ADMIN_ROLE (Aave Governance), FACILITATOR_MANAGER_ROLE, BUCKET_MANAGER_ROLE.",
     docsUrl: "https://aave.com/docs/developers/gho",
     githubUrl: "https://github.com/aave/gho-core",
   },
@@ -1258,6 +1383,10 @@ export const coins: Coin[] = [
           "https://etherscan.io/token/0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
         isPrimary: true,
         notes: "UUPS proxy (StablecoinUpgradeableV2), 18 decimals",
+        proxyType: "uups",
+        implVersion: "StablecoinUpgradeableV2",
+        implLastChanged: "2025-09",
+        implementation: "0x9747a0d261c2d56eb93f542068e5d1e23170fa9e",
       },
       {
         name: "XRP Ledger",

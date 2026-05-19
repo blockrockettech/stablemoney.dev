@@ -10,6 +10,18 @@ export interface NetworkDeployment {
   explorerUrl: string | null
   isPrimary: boolean
   notes?: string
+  /** EVM proxy upgrade pattern; omitted for non-EVM chains or unverified deployments */
+  proxyType?: "transparent" | "uups" | "beacon" | "custom" | "none"
+  /** Proxy admin address or short label (e.g. "Circle proxy admin", "Aave Governance") */
+  proxyAdmin?: string
+  /** Current implementation contract address (EVM upgradeable proxies) */
+  implementation?: string
+  /** Human-readable implementation version label (e.g. "FiatTokenV2.2") */
+  implVersion?: string
+  /** Approximate date of last implementation upgrade, e.g. "2025-09" */
+  implLastChanged?: string
+  /** Short note when this chain's contract behavior meaningfully differs from Ethereum mainnet */
+  mainnetDiffers?: string
 }
 
 /** Who this capability primarily serves in product terms */

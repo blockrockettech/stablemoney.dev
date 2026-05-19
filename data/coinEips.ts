@@ -1218,7 +1218,7 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
     decimals: 6,
     isUpgradeable: true,
     upgradePattern:
-      "Proxy + AccessControl default-admin delay (Paxos) — EIP-1967-style implementation slot typical",
+      "ZeppelinOS AdminUpgradeabilityProxy — pre-EIP-1967 implementation/admin slots",
     implementations: [
       {
         eipId: "ERC-20",
