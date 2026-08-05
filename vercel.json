@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm run lint && npm run build",
+  "env": {
+    "NEXT_PUBLIC_SITE_URL": "https://stablemoney.dev"
+  },
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
