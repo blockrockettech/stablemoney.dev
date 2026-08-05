@@ -74,7 +74,8 @@ export const coins: Coin[] = [
         explorerUrl:
           "https://polygonscan.com/token/0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
         isPrimary: false,
-        mainnetDiffers: "Bridged via Polygon PoS bridge — separate deployment from Ethereum",
+        notes: "Same address, now USDT0 (LayerZero OFT) — Tether upgraded this contract in place; on-chain symbol()/name() return \"USDT0\", not \"USDT\"",
+        mainnetDiffers: "On-chain symbol()/name() now read USDT0, not USDT — Tether migrated this address to native USDT0/LayerZero OFT branding (same status as the Arbitrum entry), superseding the prior bridged-PoS description",
       },
       {
         name: "Avalanche",
@@ -158,10 +159,10 @@ export const coins: Coin[] = [
       },
     ],
     reserves:
-      "Total reserves ~$191.8B (Q1 2026): US Treasuries ~$141B, gold ~$20B, Bitcoin ~$7B, plus cash & equivalents, repo, and money market funds. Excess reserves buffer ~$8.2B (figures shift each quarter)",
+      "Total reserves ~$187.75B (Q2 2026, BDO attestation dated 30 Jun 2026) vs. ~$183.6-184.6B USDT liabilities: US Treasuries ~$115B, gold ~$18.83B (146.2 tons), Bitcoin ~98,932 BTC (~$5.8B), plus cash & equivalents, repo, and money market funds. Excess reserves buffer roughly halved quarter-over-quarter to ~$4.11B (figures shift each quarter)",
     collateralType: "Fiat and equivalents (off-chain)",
     pegMechanism: "Hard 1:1 via centralized issuer redemption",
-    auditor: "BDO Italia (quarterly attestation); KPMG engaged March 2026 for first full financial audit",
+    auditor: "BDO Italia (quarterly attestation); KPMG engaged March 2026 for first full financial audit — audit ongoing, not yet completed as of Q2 2026",
     defiIntegration: "Deep Uniswap, Curve, Aave, Compound liquidity across all chains",
     yield: "None native",
     risks: [
@@ -170,7 +171,7 @@ export const coins: Coin[] = [
       { label: "Historical reserve opacity", level: "low" },
     ],
     technicalNotes:
-      "Ethereum USDT uses 6 decimals; BNB Chain USDT uses 18 decimals. Ethereum TetherToken (Solidity 0.4.x) is one of the most non-standard ERC-20s: transfer/transferFrom/approve return void (not bool) — requires SafeERC20. approve() reverts if allowance != 0 (use forceApprove). Dormant fee-on-transfer via basisPointsRate/maximumFee (currently 0/0, activatable by owner). destroyBlackFunds() burns blacklisted balances — more aggressive than USDC's freeze-in-place. USDT0 (Jan 2025) adopts LayerZero OFT + draft ERC-7802 crosschainMint/crosschainBurn across 15+ networks (OpenZeppelin audited, no critical findings, $50B+ moved). Custom deprecate() upgrade mechanism — NOT EIP-1967 standard proxy slots.",
+      "Ethereum USDT uses 6 decimals; BNB Chain USDT uses 18 decimals. Ethereum TetherToken (Solidity 0.4.x) is one of the most non-standard ERC-20s: transfer/transferFrom/approve return void (not bool) — requires SafeERC20. approve() reverts if allowance != 0 (use forceApprove). Dormant fee-on-transfer via basisPointsRate/maximumFee (currently 0/0, activatable by owner). destroyBlackFunds() burns blacklisted balances — more aggressive than USDC's freeze-in-place. USDT0 (Jan 2025) adopts LayerZero OFT + draft ERC-7802 crosschainMint/crosschainBurn across 15+ networks (OpenZeppelin audited, no critical findings, $50B+ moved). Custom deprecate() upgrade mechanism — NOT EIP-1967 standard proxy slots. Note: Tether launched USAT (27 Jan 2026) as a separate, Anchorage Digital Bank-issued, OCC-supervised, GENIUS Act-compliant stablecoin — USDT itself is not GENIUS Act-registered.",
     docsUrl: "https://tether.to",
   },
   {
@@ -179,7 +180,7 @@ export const coins: Coin[] = [
     issuer: "Circle",
     type: "fiat",
     description:
-      "Most developer-friendly and compliance-forward stablecoin. Circle's current docs list USDC mainnet contracts on 34 blockchains, with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across 20+ supported domains. Circle began trading on the NYSE under ticker CRCL on 5 June 2025; the IPO closed on 6 June 2025.",
+      "Most developer-friendly and compliance-forward stablecoin. Circle's docs list USDC mainnet contracts on 35+ blockchains as of mid-2026 (chain count keeps climbing — verify against circle.com/usdc for the latest), with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across a growing set of supported domains. Circle began trading on the NYSE under ticker CRCL on 5 June 2025; the IPO closed on 6 June 2025.",
     networks: [
       {
         name: "Ethereum",
@@ -435,7 +436,7 @@ export const coins: Coin[] = [
     issuer: "Ethena Labs",
     type: "synthetic",
     description:
-      "Third-largest stablecoin and most technically novel. Achieves dollar peg via delta-neutral hedge — users deposit ETH/BTC collateral while the protocol opens an equal short perpetual futures position. Yield flows from funding rates and ETH staking to sUSDe holders.",
+      "One of the largest and most technically novel stablecoins — its market-cap rank has swung between 3rd and 4th through 2026 (reported anywhere from ~$3.9B to ~$9B+ depending on the month), so check a live source like DefiLlama for the current figure rather than treating it as fixed. Achieves dollar peg via delta-neutral hedge — users deposit ETH/BTC collateral while the protocol opens an equal short perpetual futures position. Yield flows from funding rates and ETH staking to sUSDe holders.",
     networks: [
       {
         name: "Ethereum",
@@ -502,14 +503,15 @@ export const coins: Coin[] = [
       },
     ],
     reserves:
-      "stETH, ETH, BTC, USDC, USDtb plus offsetting short perpetual positions on Binance, Bybit, OKX, Deribit",
+      "stETH, ETH, BTC, USDC, USDtb plus offsetting short perpetual positions on Binance, Bybit, OKX, Deribit. Ethena has also begun diversifying into tokenized RWA/credit products (e.g. reported allocations into JAAA, STAC) alongside the core hedge",
     collateralType: "Crypto + derivatives hedge",
     pegMechanism:
       "Soft — delta-neutral math maintains backing, no guaranteed 1:1 redemption",
     auditor: "Quantstamp, Cyfrin (smart contract audits)",
     defiIntegration:
       "Major Curve pools (USDe/USDC, USDe/DAI), Aave collateral, Pendle yield-stripping",
-    yield: "sUSDe ~5–20% APY variable (funding-rate dependent)",
+    yield:
+      "sUSDe ~4–20%+ APY variable (funding-rate dependent) — yield compressed toward the low end of that range through much of 2026 versus the 2024-25 highs",
     risks: [
       { label: "Funding rate can go negative", level: "high" },
       { label: "CEX counterparty risk", level: "medium" },
@@ -623,7 +625,7 @@ export const coins: Coin[] = [
         name: "Real-world asset integration",
         category: "stability",
         description:
-          "US Treasuries and private credit held in off-chain SPVs contribute to collateral pool (RWA exposure was ~$2.68B+ mid‑2025; varies over time).",
+          "US Treasuries and private credit held in off-chain SPVs contribute to collateral pool (RWA exposure >$2B, ~23.5% of protocol collateral in early 2026, contributing >60% of Sky's total protocol revenue; varies over time).",
       },
       {
         name: "Decentralised oracle — Medianizer",
@@ -657,7 +659,7 @@ export const coins: Coin[] = [
     issuer: "Sky Protocol",
     type: "crypto",
     description:
-      "Upgraded successor to DAI, launched with the MakerDAO→Sky Protocol rebrand in 2024. Interchangeable with DAI at 1:1 via DaiUsds.sol migration contract. Key additions: upgradeable proxy architecture, Sky Savings Rate, and official Ethereum–Solana bridge availability (Skylink / Wormhole NTT, later migrated to LayerZero infrastructure — not a separate native Solana issuance).",
+      "Upgraded successor to DAI, launched with the MakerDAO→Sky Protocol rebrand in 2024. Interchangeable with DAI at 1:1 via DaiUsds.sol migration contract. Key additions: upgradeable proxy architecture, Sky Savings Rate, and multichain expansion via Wormhole NTT (native burn-and-mint, unified supply — not classic lock-and-mint bridging): Solana, plus Avalanche live since 13 Apr 2026 via Skylink. Canonical, explorer-verified contract below is Ethereum only — other-chain addresses need on-chain verification before being added here.",
     networks: [
       {
         name: "Ethereum",
@@ -684,7 +686,7 @@ export const coins: Coin[] = [
         name: "Sky Savings Rate — sUSDS",
         category: "yield",
         description:
-          "ERC-4626 sUSDS vault earns SSR (~4.75%) continuously. Directly funded by vault stability fees.",
+          "ERC-4626 sUSDS vault earns SSR continuously. Directly funded by vault stability fees. Rate is governance-set and has trended down through 2026 (~3.75-4.5% reported) — check sky.money for the current rate.",
       },
       {
         name: "ERC1967Proxy upgradeable",
@@ -700,10 +702,10 @@ export const coins: Coin[] = [
           "USDS holders accrue SKY governance token rewards — incentivises migration from DAI.",
       },
       {
-        name: "Ethereum–Solana bridge",
+        name: "Multichain via Wormhole NTT",
         category: "cross-chain",
         description:
-          "Sky documents official USDS bridging to Solana via Skylink (Wormhole NTT) — burn-and-mint with rate limits. Canonical token contract below is Ethereum; Solana presence is bridged, not a second native issuance.",
+          "Sky documents native USDS/sUSDS deployment on Solana and Avalanche (Skylink) via Wormhole's Native Token Transfer (NTT) standard — burn-and-mint with rate limits, unified cross-chain supply, no wrapped token. Canonical, explorer-verified contract below is Ethereum only.",
       },
     ],
     reserves: "Identical to DAI — shared MCD protocol collateral pool",
@@ -711,14 +713,14 @@ export const coins: Coin[] = [
     pegMechanism: "Same as DAI — PSM, SSR, liquidation mechanisms",
     auditor: "Shared with Sky Protocol audits",
     defiIntegration: "Aave, Spark (Sky native lending), Yearn",
-    yield: "sUSDS ~4.75% SSR",
+    yield: "sUSDS SSR — governance-set, trending down through 2026 (~3.75-4.5% reported); check sky.money for the current rate",
     risks: [
       { label: "Upgradeability introduces governance risk", level: "medium" },
       { label: "Upgradeability changes trust assumptions vs DAI", level: "low" },
       { label: "Slower adoption than DAI", level: "low" },
     ],
     technicalNotes:
-      "18 decimals. sUSDS uses chi rate accumulator — convertToAssets() calculates theoretical current chi on-the-fly even if drip() hasn't been called. No fees assessed and fees CANNOT be enabled (encoded in contract). UUPS (EIP-1822) upgrade pattern on sUSDS — if implementation without upgradeTo() is deployed, contract becomes permanently non-upgradeable (safety property). Solana exposure is via Skylink / Wormhole NTT (bridged), not a duplicate native mint on Solana. DaiUsds.sol: permissionless bidirectional DAI↔USDS 1:1 converter.",
+      "18 decimals. sUSDS uses chi rate accumulator — convertToAssets() calculates theoretical current chi on-the-fly even if drip() hasn't been called. No fees assessed and fees CANNOT be enabled (encoded in contract). UUPS (EIP-1822) upgrade pattern on sUSDS — if implementation without upgradeTo() is deployed, contract becomes permanently non-upgradeable (safety property). Solana and Avalanche exposure is via Skylink / Wormhole NTT — native burn-and-mint under a unified, rate-limited multichain supply per Sky/Wormhole's own description, not classic lock-and-mint bridging. DaiUsds.sol: permissionless bidirectional DAI↔USDS 1:1 converter.",
     docsUrl: "https://sky.money",
     githubUrl: "https://github.com/makerdao",
   },
@@ -728,7 +730,7 @@ export const coins: Coin[] = [
     issuer: "First Digital Trust Limited",
     type: "fiat",
     description:
-      "Launched June 2023 to replace Binance's BUSD after wind-down. Primarily used for trading pairs on Binance, though usage has declined sharply. In April 2025, Justin Sun publicly accused First Digital Trust of insolvency, causing a brief depeg to $0.87 before recovering. Binance subsequently delisted multiple FDUSD trading pairs in early 2026, accelerating market cap decline from a ~$2B+ peak.",
+      "Launched June 2023 to replace Binance's BUSD after wind-down. Primarily used for trading pairs on Binance, though usage has declined sharply and continuously through 2026 — not a one-time event. In April 2025, Justin Sun publicly accused First Digital Trust of insolvency, causing a brief depeg to $0.87 before recovering. Binance has since run rolling delistings (6 Jan, 3 Feb, 10 Jul 2026) while promoting its own '$U' stablecoin, driving FDUSD's market cap down from a ~$2B+ peak to roughly $349M by August 2026 (~76% decline since Feb 2026's ~$1.45B). Also natively issued (not bridged) on Solana, Sui, Arbitrum, and TON per First Digital Labs — only the explorer-verified Ethereum/BNB Chain deployments are listed",
     networks: [
       {
         name: "Ethereum",
@@ -801,7 +803,7 @@ export const coins: Coin[] = [
     risks: [
       { label: "April 2025 Justin Sun insolvency accusation and depeg", level: "high" },
       {
-        label: "Binance pair delistings — declining usage and market cap",
+        label: "Binance pair delistings — declining usage and market cap (ongoing through 2026, ~76% decline since Feb 2026, Binance promoting its own '$U' stablecoin)",
         level: "high",
       },
       { label: "Binance concentration", level: "medium" },
@@ -815,7 +817,7 @@ export const coins: Coin[] = [
     issuer: "Paxos Trust Company (for PayPal)",
     type: "fiat",
     description:
-      "Consumer-focused stablecoin with deep PayPal and Venmo distribution. Issued by Paxos (NYDFS-regulated). PayPal's current terms list PYUSD support on Ethereum, Solana, Arbitrum, and Stellar. The Solana deployment uses Token Extensions (Token-2022) for programmable token controls.",
+      "Consumer-focused stablecoin with deep PayPal and Venmo distribution. Issued by Paxos (NYDFS-regulated). PayPal's current terms list PYUSD support on Ethereum, Solana, Arbitrum, and Stellar. The Solana deployment uses Token Extensions (Token-2022) for programmable token controls. Paxos also launched PYUSD natively on Polygon (9 Jul 2026) via Polygon's Open Money Stack",
     networks: [
       {
         name: "Ethereum",
@@ -915,9 +917,13 @@ export const coins: Coin[] = [
     pegMechanism: "Hard 1:1 via Paxos redemption",
     auditor: "KPMG LLP (monthly attestation)",
     defiIntegration: "Kamino, Marginfi (Solana); Aave (Ethereum); emerging",
-    yield: "~4% APY via PayPal (custodial; rate variable)",
+    yield:
+      "~4% APY via PayPal (custodial; rate variable). Paxos/Spark separately offer a PYUSD Savings Vault at ~4.25% APY — a distinct, DeFi-adjacent product.",
     risks: [
-      { label: "Low liquidity vs USDT/USDC", level: "low" },
+      {
+        label: "Low liquidity vs USDT/USDC — circulating supply fell from ~$4B (Mar 2026) to ~$2.7B (Aug 2026)",
+        level: "low",
+      },
       { label: "Paxos regulatory dependency", level: "low" },
       { label: "Limited DeFi depth", level: "low" },
     ],
@@ -988,7 +994,7 @@ export const coins: Coin[] = [
     pegMechanism: "Hard 1:1 via issuer-approved reserve redemption",
     auditor: "Depends on underlying tokenised fund issuers and Frax attestations — verify current disclosures",
     defiIntegration:
-      "Fraxswap, Fraxlend (native); early-stage external DeFi integrations",
+      "Fraxswap, Fraxlend (native); frxUSD/sfrxUSD went live as a default borrowable asset on Aave V4 (6 Apr 2026), with governance approving liquidity allocation caps (raised from $20M toward $50M) — a concrete external integration beyond earlier early-stage status",
     yield: "sfrxUSD variable — strategy-dependent (BYS / reserve yields)",
     risks: [
       { label: "Very small market cap — low liquidity", level: "high" },
@@ -1103,6 +1109,10 @@ export const coins: Coin[] = [
         level: "high",
       },
       { label: "Declining exchange support and MiCA delisting", level: "medium" },
+      {
+        label: "S&P Global rated TUSD's peg stability 5/5 (weakest tier) — Nov 2025, citing scarce reserve information and weak governance",
+        level: "medium",
+      },
     ],
     technicalNotes:
       "18 decimals. Proxy address 0x0000000000085d4780B73119b644AE5ecd22b376 uses deliberate leading zeros (vanity deployment) — can confuse address parsers. Implementation 0xDBC97a631c2fee80417d5d69f32b198c8c39c27e. TrueCurrencyWithLegacyAutosweep inheritance chain. Deprecated TrueReward feature (per-account interest toggle) — legacy code remains. Controller proxy pattern is NOT standard EIP-1967 — proxy detection tooling may mislabel. SEC filings and later reserve-dispute reporting describe major historical reserve-handling issues, so current issuer transparency statements should be treated cautiously and re-verified before integration.",
@@ -1114,7 +1124,7 @@ export const coins: Coin[] = [
     issuer: "BitGo Trust Company, Inc. / BitGo Technologies LLC",
     type: "fiat",
     description:
-      "USD-backed stablecoin branded by World Liberty Financial and issued by BitGo. Official WLFI documentation says USD1 is redeemable 1:1 for USD and backed by short-term U.S. government treasuries, U.S. government money market funds, U.S. dollar deposits, and other cash equivalents. WLFI markets USD1 as a multichain stablecoin with BitGo handling issuance, reserve custody, and redemptions.",
+      "USD-backed stablecoin branded by World Liberty Financial and issued by BitGo. Official WLFI documentation says USD1 is redeemable 1:1 for USD and backed by short-term U.S. government treasuries, U.S. government money market funds, U.S. dollar deposits, and other cash equivalents. WLFI markets USD1 as a multichain stablecoin with BitGo handling issuance, reserve custody, and redemptions. WLFI filed for a de novo national trust bank charter ('World Liberty Trust Company') with the OCC on 5 Jan 2026, which would let WLFI issue/hold USD1 directly and reduce reliance on BitGo — status pending as of mid-2026.",
     networks: [
       {
         name: "Ethereum",
@@ -1169,7 +1179,7 @@ export const coins: Coin[] = [
         name: "Multi-chain deployment",
         category: "cross-chain",
         description:
-          "Verified native deployments listed on this site (Ethereum, BNB Chain); other chains omitted until canonical contract/mint IDs are confirmed.",
+          "Verified native deployments listed on this site (Ethereum, BNB Chain); other chains omitted until canonical contract/mint IDs are confirmed. Note: DefiLlama shows USD1 circulating supply on additional chains (Plume, Monad, Solana, Aptos, TRON) as of mid-2026 — worth re-checking for explorer-verified addresses to add.",
       },
       {
         name: "Institutional partner focus",
@@ -1188,7 +1198,7 @@ export const coins: Coin[] = [
     collateralType: "Fiat and Treasuries (off-chain)",
     pegMechanism: "Hard 1:1 via issuer redemption",
     auditor:
-      "Independent third-party reserve examinations, plus monthly attestation reports and Chainlink-powered proof of reserves",
+      "Crowe LLP performs independent reserve examinations under 2025 AICPA Criteria for Asset-Backed Fiat-Pegged Tokens, plus monthly attestation reports and Chainlink-powered proof of reserves",
     defiIntegration: "CEX only — Binance, select exchanges",
     yield: "None",
     risks: [
@@ -1327,16 +1337,23 @@ export const coins: Coin[] = [
           "Chainlink CCIP enables lock-and-mint (Ethereum) and burn-and-mint (L2↔L2) transfers across Arbitrum, Base, Avalanche, Gnosis, and Mantle.",
       },
       {
-        name: "stkGHO staking",
+        name: "sGHO savings vault",
+        category: "yield",
+        eip: "ERC-4626",
+        description:
+          "Launched 18 May 2026, sGHO is Aave's ERC-4626-compliant GHO savings vault paying a fixed ~4.25% APR (verify current rate), with a GhoRouter for single-transaction conversion. Now the primary GHO yield product.",
+      },
+      {
+        name: "stkGHO staking (legacy)",
         category: "yield",
         description:
-          "Staked GHO (stkGHO) earns AAVE rewards via StakeToken contract. Includes cooldown/unstake window, slashing mechanism for Aave safety module. Not ERC-4626.",
+          "Staked GHO (stkGHO) earns AAVE rewards via StakeToken contract. Includes cooldown/unstake window, slashing mechanism for Aave safety module. Not ERC-4626. Being sunset in favor of sGHO — rewards tapered toward zero over the seven weeks following sGHO's May 2026 launch.",
       },
       {
         name: "stkAAVE discount rate",
         category: "yield",
         description:
-          "stkAAVE holders receive a discounted GHO borrow rate on Aave V3 — incentivises AAVE staking and GHO adoption simultaneously.",
+          "stkAAVE holders receive a discounted GHO borrow rate on Aave V3 — incentivises AAVE staking and GHO adoption simultaneously. A 2026 Aavenomics governance proposal floated discontinuing this discount",
       },
       {
         name: "Governance-controlled parameters",
@@ -1353,7 +1370,8 @@ export const coins: Coin[] = [
     auditor: "SigmaPrime, OpenZeppelin (CCIP integration)",
     defiIntegration:
       "Deep Aave V3 integration (borrow, repay, liquidation), Curve, Balancer, Uniswap GHO pools",
-    yield: "stkGHO staking rewards (AAVE), stkAAVE discount on borrow rate",
+    yield:
+      "sGHO ~4.25% fixed APR (primary, since May 2026); legacy stkGHO AAVE rewards being sunset; stkAAVE discount on borrow rate (status being reviewed by governance)",
     risks: [
       { label: "Smart contract risk (multi-contract architecture)", level: "medium" },
       { label: "Collateral volatility", level: "medium" },
@@ -1372,7 +1390,7 @@ export const coins: Coin[] = [
     issuer: "Standard Custody & Trust Company, LLC (Ripple subsidiary)",
     type: "fiat",
     description:
-      "Ripple's USD-backed stablecoin, approved by NYDFS and DFSA (Dubai). Launched December 2024, natively issued on Ethereum and XRP Ledger. Purpose-built for cross-border payments with six-role access control (admin, minter, burner, pauser, clawbacker, upgrader), account-level freeze, clawback (seize), and UUPS upgradeability. V2 upgrade (September 2025) added EIP-2612 gasless permit.",
+      "Ripple's USD-backed stablecoin, approved by NYDFS and DFSA (Dubai). Launched December 2024, natively issued on Ethereum and XRP Ledger. Purpose-built for cross-border payments with six-role access control (admin, minter, burner, pauser, clawbacker, upgrader), account-level freeze, clawback (seize), and UUPS upgradeability. V2 upgrade (September 2025) added EIP-2612 gasless permit. In 2026 Ripple partnered with Wormhole (Native Token Transfer standard) to expand RLUSD to 40+ networks including Ethereum L2s (Optimism, Base, Ink, Unichain) via native mint/burn — distinct from the two canonical, explorer-verified deployments below.",
     networks: [
       {
         name: "Ethereum",
@@ -1444,7 +1462,7 @@ export const coins: Coin[] = [
     collateralType: "Fiat and equivalents (off-chain)",
     pegMechanism: "Hard 1:1 via centralized issuer redemption",
     auditor:
-      "Third-party monthly attestations (ripple.com/solutions/stablecoin/transparency/)",
+      "Deloitte performs third-party monthly attestations (ripple.com/solutions/stablecoin/transparency/)",
     defiIntegration:
       "Early-stage — exchange listings (Binance, Bitso, LMAX), BlackRock BUIDL redemption mechanism, SBI Japan integration",
     yield: "None native",
@@ -1455,7 +1473,7 @@ export const coins: Coin[] = [
       { label: "18-decimal integration risk vs 6-decimal norm", level: "medium" },
     ],
     technicalNotes:
-      "18 decimals (unlike USDC/USDT/PYUSD which use 6 — critical integration difference). UUPS proxy (EIP-1822) with ERC-1967 storage slots. StablecoinProxy (Solidity 0.8.26, OZ v5) wraps StablecoinUpgradeableV2 (Solidity 0.8.29, OZ v5.3.0). V2 adds ERC20PermitUpgradeable. Custom AccountPausableUpgradeable uses ERC-7201 namespaced storage. V2's _update() override allows clawback from frozen accounts while blocking normal transfers. No EIP-3009, no EIP-1271, no flash loans. Role hashes: MINTER=keccak256('MINTER'), BURNER=keccak256('BURNER'), PAUSER=keccak256('PAUSER'), CLAWBACKER=keccak256('CLAWBACKER'), UPGRADER=keccak256('UPGRADER'). Security contact: security@ripple.com.",
+      "18 decimals (unlike USDC/USDT/PYUSD which use 6 — critical integration difference). UUPS proxy (EIP-1822) with ERC-1967 storage slots. StablecoinProxy (Solidity 0.8.26, OZ v5) wraps StablecoinUpgradeableV2 (Solidity 0.8.29, OZ v5.3.0). V2 adds ERC20PermitUpgradeable. Custom AccountPausableUpgradeable uses ERC-7201 namespaced storage. V2's _update() override allows clawback from frozen accounts while blocking normal transfers. No EIP-3009, no EIP-1271, no flash loans. Role hashes: MINTER=keccak256('MINTER'), BURNER=keccak256('BURNER'), PAUSER=keccak256('PAUSER'), CLAWBACKER=keccak256('CLAWBACKER'), UPGRADER=keccak256('UPGRADER'). Security contact: security@ripple.com. Note: NYDFS proposed rules (9 Jun 2026) to align its stablecoin regime with the federal GENIUS Act (compliance deadline ~18 Jan 2027) — RLUSD's existing NYDFS charter positions it well here, but this is a proposal, not yet finalized.",
     docsUrl: "https://ripple.com/solutions/stablecoin/",
     githubUrl: "https://github.com/ripple/RLUSD-Implementation",
   },

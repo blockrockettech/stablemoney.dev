@@ -2002,16 +2002,16 @@ export const COIN_EIP_PROFILES: CoinEipProfile[] = [
       },
       {
         eipId: "ERC-4626",
-        status: "not-implemented",
+        status: "alternative",
         contractPattern:
-          "GHO is not a vault token. stkGHO uses custom StakeToken (not ERC-4626).",
+          "GHO itself is not a vault token, but Aave launched sGHO (18 May 2026), an ERC-4626-compliant savings vault, as the primary GHO yield product. Legacy stkGHO uses custom StakeToken (not ERC-4626) and is being sunset.",
         keyFunctions: [],
         implementationNotes:
-          "Neither GHO nor stkGHO implements ERC-4626. stkGHO (0x1a88Df1c…) uses bgd-labs/StakeToken — a custom staking contract with stake/redeem/previewStake/previewRedeem, exchange rate mechanics, cooldown period, and slashing — but does NOT conform to ERC-4626 (no deposit/withdraw/convertToShares/convertToAssets/maxDeposit/maxWithdraw). The GSM4626 variant accepts ERC-4626 vault shares as exogenous tokens (e.g., yield-bearing USDC vaults), but GHO itself is not a vault. Yield on GHO comes from stkGHO staking rewards (AAVE tokens) and stkAAVE discount rate, not from vault mechanics.",
+          "GHO is not a vault token, but as of 18 May 2026 Aave shipped sGHO — a proper ERC-4626 vault paying a fixed ~4.25% APR (veriable), with a GhoRouter for single-transaction conversion into sGHO. This supersedes the legacy stkGHO model as GHO's primary yield product; stkGHO (0x1a88Df1c…) used bgd-labs/StakeToken — a custom staking contract with stake/redeem/previewStake/previewRedeem, exchange rate mechanics, cooldown period, and slashing, which does NOT conform to ERC-4626 — and its AAVE-denominated rewards were tapered toward zero over the seven weeks following sGHO's launch. The GSM4626 variant separately accepts ERC-4626 vault shares as exogenous tokens (e.g., yield-bearing USDC vaults) — unrelated to sGHO.",
         devImpact:
-          "Do not expect ERC-4626 interfaces on GHO or stkGHO. For vault-compatible GHO yield, external protocols must wrap GHO. The stkGHO exchange rate mechanism (previewStake/previewRedeem) is custom — do not assume ERC-4626 naming or semantics.",
+          "Prefer sGHO for ERC-4626-compatible GHO yield integrations — it exposes the standard deposit/withdraw/convertToShares/convertToAssets/maxDeposit/maxWithdraw interface, unlike legacy stkGHO. The stkGHO exchange rate mechanism (previewStake/previewRedeem) remains custom for any integrators still on the legacy path.",
         footguns:
-          "stkGHO has a cooldown period before unstaking — funds are not instantly redeemable. The exchange rate can change due to slashing events. Not compatible with ERC-4626 aggregators.",
+          "Legacy stkGHO has a cooldown period before unstaking — funds are not instantly redeemable, and the exchange rate can change due to slashing events; it is not compatible with ERC-4626 aggregators and is being deprecated. Confirm sGHO's exact contract address and current APR on-chain before integrating, since this is a recent (May 2026) addition not yet independently re-verified here.",
       },
       {
         eipId: "EIP-1271",
