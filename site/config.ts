@@ -7,4 +7,4 @@ export const SITE_DESCRIPTION =
   "Technical reference for engineers building with stablecoins. ERC-20 contract addresses, EIP-2612 permit support, EIP-712 typed data, blacklist and freeze compliance — for USDT, USDC, DAI, PYUSD, and more, across every major EVM chain."
 
 /** Bump when static editorial content or UI changes */
-export const LAST_UPDATED = "2026-05-19"
+export const LAST_UPDATED = "2026-08-05"
