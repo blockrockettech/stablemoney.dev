@@ -84,26 +84,19 @@ Coolify builds with `npm run build`, which runs `prebuild` first and fetches Def
 | Variable | Value |
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | `https://stablemoney.dev` |
-| `CRON_SECRET` | random string (`openssl rand -hex 32`) |
-| `DEPLOY_HOOK_URL` | **Webhooks > Deploy Webhook** URL, e.g. `https://<coolify-host>/api/v1/deploy?uuid=<app-uuid>&force=false` |
-| `DEPLOY_HOOK_TOKEN` | Coolify API token with deploy permission (**Keys & Tokens > API tokens**) |
 
 **Health check:** in **Configuration > Health Checks**, set the path to `/api/health` on port `3000`.
 
 #### Daily data refresh (cron rebuild)
 
-Market cap and chain counts are fetched at build time. To keep them fresh, add a **Scheduled Task** in **Application > Scheduled Tasks**:
+Market cap and chain counts are fetched at build time. A daily [cron-job.org](https://cron-job.org/) job calls Coolify's deploy webhook directly, and each redeploy re-runs `prebuild`:
 
-- **Name:** `refresh-market-data`
-- **Frequency:** `0 0 * * *` (server timezone)
-- **Container:** the app container (leave blank for single-container apps)
-- **Command:**
+- **URL:** **Webhooks > Deploy Webhook** URL, e.g. `https://<coolify-host>/api/v1/deploy?uuid=<app-uuid>&force=false`
+- **Method:** `POST`
+- **Header:** `Authorization: Bearer <token>`. Use a Coolify API token with **deploy** permission only (**Keys & Tokens > API tokens**).
+- **Schedule:** daily
 
-```bash
-node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/cron',{headers:{authorization:'Bearer '+process.env.CRON_SECRET}}).then(async r=>{console.log(r.status,await r.text());process.exit(r.ok?0:1)}).catch(e=>{console.error(e);process.exit(1)})"
-```
-
-The task calls `/api/cron` inside the running container. That route POSTs to the Coolify deploy webhook, and the redeploy re-runs `prebuild`. Use **Execute Now** to test it; the log should print `200 {"triggered":true}`, and a new deployment should appear. If the API is unreachable at build time, the build still succeeds using the last cached `data/generated/market-data.json` or the static fallbacks in `data/coins.ts`.
+Coolify's API allowlist (**Settings > Advanced**) must include cron-job.org's executor IPs, published at [api.cron-job.org/executor-nodes.json](https://api.cron-job.org/executor-nodes.json). If the API is unreachable at build time, the build still succeeds using the last cached `data/generated/market-data.json` or the static fallbacks in `data/coins.ts`.
 
 ## License
 
