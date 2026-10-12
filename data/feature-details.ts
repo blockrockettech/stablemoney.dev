@@ -801,9 +801,9 @@ export const FEATURE_DETAILS: Record<string, Record<string, Extra>> = {
     "stkAAVE discount rate": {
       audience: "user",
       rationale:
-        "stkAAVE holders get a discounted GHO borrow rate on Aave V3 — dual incentive for AAVE staking and GHO minting.",
+        "Historical: stkAAVE holders used to get a discounted GHO borrow rate on Aave V3. Aave v3.4 (July 2025) deprecated this discount.",
       riskNotes:
-        "Discount rate is governance-adjustable. Must be actively staking AAVE (stkAAVE) at time of borrow to receive discount.",
+        "Do not model a stkAAVE discount in borrow-cost calculations — it no longer applies. Older docs and third-party guides still describe it as live.",
     },
     "Governance-controlled parameters": {
       audience: "corporate",

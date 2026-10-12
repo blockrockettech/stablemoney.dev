@@ -26,16 +26,17 @@ import { chainEndpoints, xrplComplianceEndpoints } from "./coins"
 //
 // https://ethereumnodes.com/
 //
-// ethereum_a uses LlamaRPC (eth.llamarpc.com); public docs cite ~30 req/s on the free tier.
+// ethereum_a uses dRPC's public tier (eth.drpc.org).
 // Wallet checks stagger calls (see WalletChecker) to reduce 429s — swap for Alchemy/Infura if needed.
 //
 // Avoid for browser fetch:
 //   bsc-dataseed.binance.org — no CORS headers
 //   cloudflare-eth.com       — rate-limits under parallel load
+//   eth.llamarpc.com, 1rpc.io/eth — returning Cloudflare 52x errors (Oct 2026)
 export const EVM_RPC_URLS: Record<string, string> = {
-  ethereum_a: "https://eth.llamarpc.com", // LlamaRPC
+  ethereum_a: "https://eth.drpc.org", // dRPC public — CORS enabled
   ethereum_b: "https://ethereum-rpc.publicnode.com", // PublicNode - CORS enabled
-  ethereum_c: "https://1rpc.io/eth", // 1RPC by Automata — privacy-focused, CORS enabled
+  ethereum_c: "https://eth-mainnet.public.blastapi.io", // Blast public — CORS enabled
   bnb: "https://bsc.publicnode.com", // PublicNode — CORS enabled
   polygon: "https://polygon-bor.publicnode.com", // PublicNode — CORS enabled
   arbitrum: "https://arb1.arbitrum.io/rpc", // Arbitrum Foundation
@@ -255,7 +256,7 @@ export const COMPLIANCE_CONFIG: CoinComplianceConfig[] = [
             description: "UChildUSDT WithBlockedList module. Blocked addresses cannot transfer. destroyBlockedFunds() can permanently burn the balance.",
           },
         ],
-        notes: "PoS-bridged USDT (UChildUSDT0). Uses WithBlockedList module — different from primary TetherToken isBlackListed pattern.",
+        notes: "Originally PoS-bridged USDT; same address now upgraded in place to USDT0 (on-chain symbol() returns \"USDT0\"). Uses WithBlockedList module — different from primary TetherToken isBlackListed pattern.",
       },
       {
         support: "evm",
