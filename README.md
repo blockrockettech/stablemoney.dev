@@ -77,23 +77,33 @@ V1 does not require API keys.
 
 Build with `npm run build` and run with `npm run start` on any Node host, or use your platform’s Next.js integration. `NEXT_PUBLIC_SITE_URL` defaults to `https://stablemoney.dev`; override for staging or local builds if needed.
 
-### Netlify
+### Coolify (Hetzner)
 
-- `netlify.toml` is included with:
-  - build command: `npm run build` (runs `prebuild` first via npm lifecycle, fetching DefiLlama data)
-  - default production URL: `NEXT_PUBLIC_SITE_URL=https://stablemoney.dev`
-- In Netlify site settings, set the same env var for Production:
-  - `NEXT_PUBLIC_SITE_URL=https://stablemoney.dev`
-- Connect your repository, deploy, then attach `stablemoney.dev` in Domain management.
+Coolify builds with `npm run build`, which runs `prebuild` first and fetches DefiLlama data. Set these in **Application > Environment Variables**:
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | `https://stablemoney.dev` |
+| `CRON_SECRET` | random string (`openssl rand -hex 32`) |
+| `DEPLOY_HOOK_URL` | **Webhooks > Deploy Webhook** URL, e.g. `https://<coolify-host>/api/v1/deploy?uuid=<app-uuid>&force=false` |
+| `DEPLOY_HOOK_TOKEN` | Coolify API token with deploy permission (**Keys & Tokens > API tokens**) |
+
+**Health check:** in **Configuration > Health Checks**, set the path to `/api/health` on port `3000`.
 
 #### Daily data refresh (cron rebuild)
 
-Market cap and chain counts are fetched at build time. To keep them fresh:
+Market cap and chain counts are fetched at build time. To keep them fresh, add a **Scheduled Task** in **Application > Scheduled Tasks**:
 
-1. In Netlify go to **Site settings > Build & deploy > Build hooks** and create a hook.
-2. Use an external cron service (e.g. [cron-job.org](https://cron-job.org/)) to POST to the hook URL once daily.
+- **Name:** `refresh-market-data`
+- **Frequency:** `0 0 * * *` (server timezone)
+- **Container:** the app container (leave blank for single-container apps)
+- **Command:**
 
-Each triggered rebuild runs `prebuild`, pulling the latest data from DefiLlama before the Next.js build starts. If the API is unreachable, the build still succeeds using the last cached `data/generated/market-data.json` or static fallbacks from `data/coins.ts`.
+```bash
+node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/cron',{headers:{authorization:'Bearer '+process.env.CRON_SECRET}}).then(async r=>{console.log(r.status,await r.text());process.exit(r.ok?0:1)}).catch(e=>{console.error(e);process.exit(1)})"
+```
+
+The task calls `/api/cron` inside the running container. That route POSTs to the Coolify deploy webhook, and the redeploy re-runs `prebuild`. Use **Execute Now** to test it; the log should print `200 {"triggered":true}`, and a new deployment should appear. If the API is unreachable at build time, the build still succeeds using the last cached `data/generated/market-data.json` or the static fallbacks in `data/coins.ts`.
 
 ## License
 
