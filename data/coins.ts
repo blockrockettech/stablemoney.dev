@@ -162,7 +162,7 @@ export const coins: Coin[] = [
       "Total reserves ~$187.75B (Q2 2026, BDO attestation dated 30 Jun 2026) vs. ~$183.6-184.6B USDT liabilities: US Treasuries ~$115B, gold ~$18.83B (146.2 tons), Bitcoin ~98,932 BTC (~$5.8B), plus cash & equivalents, repo, and money market funds. Excess reserves buffer roughly halved quarter-over-quarter to ~$4.11B (figures shift each quarter)",
     collateralType: "Fiat and equivalents (off-chain)",
     pegMechanism: "Hard 1:1 via centralized issuer redemption",
-    auditor: "BDO Italia (quarterly attestation); KPMG engaged March 2026 for first full financial audit — audit ongoing, not yet completed as of Q2 2026",
+    auditor: "BDO Italia (quarterly reserve attestations); KPMG US completed Tether's first full financial-statement audit (announced 13 Aug 2026, covering year-end 2025) with a clean opinion — reported excess reserves ~$6.81B at 31 Dec 2025",
     defiIntegration: "Deep Uniswap, Curve, Aave, Compound liquidity across all chains",
     yield: "None native",
     risks: [
@@ -180,7 +180,7 @@ export const coins: Coin[] = [
     issuer: "Circle",
     type: "fiat",
     description:
-      "Most developer-friendly and compliance-forward stablecoin. Circle's docs list USDC mainnet contracts on 35+ blockchains as of mid-2026 (chain count keeps climbing — verify against circle.com/usdc for the latest), with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across a growing set of supported domains. Circle began trading on the NYSE under ticker CRCL on 5 June 2025; the IPO closed on 6 June 2025.",
+      "Most developer-friendly and compliance-forward stablecoin. Circle's docs list USDC mainnet contracts on 35+ blockchains as of mid-2026 (chain count keeps climbing — verify against circle.com/usdc for the latest), with Cross-Chain Transfer Protocol (CCTP) for native burns-and-mints across a growing set of supported domains. Circle began trading on the NYSE under ticker CRCL on 5 June 2025; the IPO closed on 6 June 2025. On 10 July 2026 the OCC granted Circle final approval for a national trust bank (First National Digital Currency Bank, N.A.), initially focused on digital-asset custody.",
     networks: [
       {
         name: "Ethereum",
@@ -388,7 +388,7 @@ export const coins: Coin[] = [
         name: "CCTP v2 cross-chain",
         category: "cross-chain",
         description:
-          "Cross-Chain Transfer Protocol — burn on source chain, native mint on destination. No bridge liquidity pools, no wrapped token risk. 20+ supported domains.",
+          "Cross-Chain Transfer Protocol — burn on source chain, native mint on destination. No bridge liquidity pools, no wrapped token risk. 20+ supported domains (Sui added Oct 2026). CCTP V1 (Legacy) is being wound down — Circle began its manual phase-out on 31 Jul 2026, so new integrations must target V2. Circle is also discontinuing USDC on Noble (no new Circle Mint issuance from 13 Oct 2026; contract and routes paused 12 Jan 2027).",
       },
       {
         name: "Blacklist and Pause",
@@ -436,7 +436,7 @@ export const coins: Coin[] = [
     issuer: "Ethena Labs",
     type: "synthetic",
     description:
-      "One of the largest and most technically novel stablecoins — its market-cap rank has swung between 3rd and 4th through 2026 (reported anywhere from ~$3.9B to ~$9B+ depending on the month), so check a live source like DefiLlama for the current figure rather than treating it as fixed. Achieves dollar peg via delta-neutral hedge — users deposit ETH/BTC collateral while the protocol opens an equal short perpetual futures position. Yield flows from funding rates and ETH staking to sUSDe holders.",
+      "One of the largest and most technically novel stablecoins — its market-cap rank has swung between 3rd and 5th through 2026 (reported anywhere from ~$3.9B to ~$9B+ depending on the month; ~$4.75B in Oct 2026), so check a live source like DefiLlama for the current figure rather than treating it as fixed. Achieves dollar peg via delta-neutral hedge — users deposit ETH/BTC collateral while the protocol opens an equal short perpetual futures position. Yield flows from funding rates and ETH staking to sUSDe holders.",
     networks: [
       {
         name: "Ethereum",
@@ -532,7 +532,7 @@ export const coins: Coin[] = [
     issuer: "Sky Protocol (formerly MakerDAO)",
     type: "crypto",
     description:
-      "Original decentralized stablecoin, live since December 2017. Users open Vaults and over-collateralize crypto to mint DAI. MakerDAO rebranded to Sky Protocol in 2024 and launched USDS as a successor — DAI and USDS are freely interchangeable 1:1. Fully on-chain governance by SKY token holders.",
+      "Original decentralized stablecoin, live since December 2017. Users open Vaults and over-collateralize crypto to mint DAI. MakerDAO rebranded to Sky Protocol in 2024 and launched USDS as a successor — DAI and USDS are freely interchangeable 1:1. Through 2026 major exchanges (e.g. Binance in April, Coinbase in May) converted customer DAI balances to USDS; the DAI contract itself remains live and immutable. Fully on-chain governance by SKY token holders.",
     networks: [
       {
         name: "Ethereum",
@@ -686,7 +686,7 @@ export const coins: Coin[] = [
         name: "Sky Savings Rate — sUSDS",
         category: "yield",
         description:
-          "ERC-4626 sUSDS vault earns SSR continuously. Directly funded by vault stability fees. Rate is governance-set and has trended down through 2026 (~3.75-4.5% reported) — check sky.money for the current rate.",
+          "ERC-4626 sUSDS vault earns SSR continuously. Directly funded by vault stability fees. Rate is governance-set and has trended down through 2026 (3.60% in Sep 2026, with reports of a rise to ~3.8% in Oct 2026) — check sky.money for the current rate.",
       },
       {
         name: "ERC1967Proxy upgradeable",
@@ -713,7 +713,7 @@ export const coins: Coin[] = [
     pegMechanism: "Same as DAI — PSM, SSR, liquidation mechanisms",
     auditor: "Shared with Sky Protocol audits",
     defiIntegration: "Aave, Spark (Sky native lending), Yearn",
-    yield: "sUSDS SSR — governance-set, trending down through 2026 (~3.75-4.5% reported); check sky.money for the current rate",
+    yield: "sUSDS SSR — governance-set, trending down through 2026 (3.60% in Sep 2026, ~3.8% reported in Oct 2026); check sky.money for the current rate",
     risks: [
       { label: "Upgradeability introduces governance risk", level: "medium" },
       { label: "Upgradeability changes trust assumptions vs DAI", level: "low" },
@@ -730,7 +730,7 @@ export const coins: Coin[] = [
     issuer: "First Digital Trust Limited",
     type: "fiat",
     description:
-      "Launched June 2023 to replace Binance's BUSD after wind-down. Primarily used for trading pairs on Binance, though usage has declined sharply and continuously through 2026 — not a one-time event. In April 2025, Justin Sun publicly accused First Digital Trust of insolvency, causing a brief depeg to $0.87 before recovering. Binance has since run rolling delistings (6 Jan, 3 Feb, 10 Jul 2026) while promoting its own '$U' stablecoin, driving FDUSD's market cap down from a ~$2B+ peak to roughly $349M by August 2026 (~76% decline since Feb 2026's ~$1.45B). Also natively issued (not bridged) on Solana, Sui, Arbitrum, and TON per First Digital Labs — only the explorer-verified Ethereum/BNB Chain deployments are listed",
+      "Launched June 2023 to replace Binance's BUSD after wind-down. Primarily used for trading pairs on Binance, though usage has declined sharply and continuously through 2026 — not a one-time event. In April 2025, Justin Sun publicly accused First Digital Trust of insolvency, causing a brief depeg to $0.87 before recovering. Binance has since run rolling delistings (6 Jan, 3 Feb, 10 Jul 2026) while promoting its own '$U' stablecoin, driving FDUSD's market cap down from a ~$2B+ peak to roughly $349M by August 2026 (~76% decline since Feb 2026's ~$1.45B). Supply was ~$325M by October 2026. On 6 Oct 2026 First Digital signed a definitive agreement to go public on Nasdaq via a SPAC (CSLM Digital Asset Acquisition Corp III, $250M pre-money valuation, closing expected H1 2027), pitching an AI-agent 'Finance District' strategy. Also natively issued (not bridged) on Solana, Sui, Arbitrum, and TON per First Digital Labs — only the explorer-verified Ethereum/BNB Chain deployments are listed",
     networks: [
       {
         name: "Ethereum",
@@ -1124,7 +1124,7 @@ export const coins: Coin[] = [
     issuer: "BitGo Trust Company, Inc. / BitGo Technologies LLC",
     type: "fiat",
     description:
-      "USD-backed stablecoin branded by World Liberty Financial and issued by BitGo. Official WLFI documentation says USD1 is redeemable 1:1 for USD and backed by short-term U.S. government treasuries, U.S. government money market funds, U.S. dollar deposits, and other cash equivalents. WLFI markets USD1 as a multichain stablecoin with BitGo handling issuance, reserve custody, and redemptions. WLFI filed for a de novo national trust bank charter ('World Liberty Trust Company') with the OCC on 5 Jan 2026, which would let WLFI issue/hold USD1 directly and reduce reliance on BitGo — status pending as of mid-2026.",
+      "USD-backed stablecoin branded by World Liberty Financial and issued by BitGo. Official WLFI documentation says USD1 is redeemable 1:1 for USD and backed by short-term U.S. government treasuries, U.S. government money market funds, U.S. dollar deposits, and other cash equivalents. WLFI markets USD1 as a multichain stablecoin with BitGo handling issuance, reserve custody, and redemptions. WLFI filed for a de novo national trust bank charter ('World Liberty Trust Company') with the OCC on 5 Jan 2026, which would let WLFI issue/redeem USD1 and hold its reserves directly, reducing reliance on BitGo. The OCC granted preliminary conditional approval on 14 Aug 2026 — not yet final; the bank must meet pre-opening conditions (incl. minimum capital) before it can operate.",
     networks: [
       {
         name: "Ethereum",
@@ -1341,7 +1341,7 @@ export const coins: Coin[] = [
         category: "yield",
         eip: "ERC-4626",
         description:
-          "Launched 18 May 2026, sGHO is Aave's ERC-4626-compliant GHO savings vault paying a fixed ~4.25% APR (verify current rate), with a GhoRouter for single-transaction conversion. Now the primary GHO yield product.",
+          "Launched 18 May 2026, sGHO is Aave's ERC-4626-compliant GHO savings vault paying the Aave Savings Rate (ASR) — a governance-set APR, launched at 4.25% and raised to 4.50% in Aug/Sep 2026 (verify current rate). No cooldown or slashing, with a GhoRouter for single-transaction conversion. Now the primary GHO yield product.",
       },
       {
         name: "stkGHO staking (legacy)",
@@ -1353,7 +1353,7 @@ export const coins: Coin[] = [
         name: "stkAAVE discount rate",
         category: "yield",
         description:
-          "stkAAVE holders receive a discounted GHO borrow rate on Aave V3 — incentivises AAVE staking and GHO adoption simultaneously. A 2026 Aavenomics governance proposal floated discontinuing this discount",
+          "Deprecated — the discounted GHO borrow rate for stkAAVE holders was removed in Aave v3.4 (July 2025). Historical only; current GHO borrowers pay the standard governance-set rate.",
       },
       {
         name: "Governance-controlled parameters",
@@ -1371,7 +1371,7 @@ export const coins: Coin[] = [
     defiIntegration:
       "Deep Aave V3 integration (borrow, repay, liquidation), Curve, Balancer, Uniswap GHO pools",
     yield:
-      "sGHO ~4.25% fixed APR (primary, since May 2026); legacy stkGHO AAVE rewards being sunset; stkAAVE discount on borrow rate (status being reviewed by governance)",
+      "sGHO Aave Savings Rate — governance-set, 4.50% APR since Aug/Sep 2026 (launched at 4.25% in May 2026); legacy stkGHO AAVE rewards being sunset; the stkAAVE borrow-rate discount was deprecated in Aave v3.4 (July 2025)",
     risks: [
       { label: "Smart contract risk (multi-contract architecture)", level: "medium" },
       { label: "Collateral volatility", level: "medium" },
