@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
+  "engines": {
+    "node": ">=22.23.4 <23"
+  },
   "scripts": {
     "dev": "next dev",
     "prebuild": "tsx scripts/fetch-market-data.ts",
