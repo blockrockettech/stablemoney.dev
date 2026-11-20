@@ -19,11 +19,10 @@ export function generateStaticParams() {
   return coins.map((c) => ({ symbol: c.symbol.toLowerCase() }))
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { symbol: string }
+export async function generateMetadata(props: {
+  params: Promise<{ symbol: string }>
 }): Promise<Metadata> {
+  const params = await props.params
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   if (!coin) return {}
   const title = `${coin.symbol} ERC / EIP Standards — ${coin.name} on-chain implementation`
@@ -78,7 +77,8 @@ function PlaceholderCard({
   )
 }
 
-export default function CoinEipsPage({ params }: { params: { symbol: string } }) {
+export default async function CoinEipsPage(props: { params: Promise<{ symbol: string }> }) {
+  const params = await props.params
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   if (!coin) notFound()
 

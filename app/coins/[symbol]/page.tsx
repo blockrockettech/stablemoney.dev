@@ -57,11 +57,10 @@ export function generateStaticParams() {
   return coins.map((c) => ({ symbol: c.symbol.toLowerCase() }))
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { symbol: string }
+export async function generateMetadata(props: {
+  params: Promise<{ symbol: string }>
 }): Promise<Metadata> {
+  const params = await props.params
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   if (!coin) return {}
   const title = `${coin.symbol} — ${coin.name} technical reference`
@@ -87,7 +86,8 @@ export async function generateMetadata({
   }
 }
 
-export default async function CoinPage({ params }: { params: { symbol: string } }) {
+export default async function CoinPage(props: { params: Promise<{ symbol: string }> }) {
+  const params = await props.params
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   if (!coin) notFound()
 
