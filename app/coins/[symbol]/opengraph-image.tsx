@@ -4,7 +4,10 @@ import { coinBySymbol } from "@/data/coins"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
-export default function CoinOpenGraphImage({ params }: { params: { symbol: string } }) {
+export default async function CoinOpenGraphImage(props: {
+  params: Promise<{ symbol: string }>
+}) {
+  const params = await props.params
   const coin = coinBySymbol[params.symbol.toUpperCase()]
   const symbol = coin?.symbol ?? params.symbol.toUpperCase()
   const name = coin?.name ?? ""
